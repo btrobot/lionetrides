@@ -1,43 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { db } from '@/db';
-import { inquiries } from '@/db/schema';
+import { inquiryService } from '@/services/inquiry-service';
+import { withMiddleware, withAuth, AuthenticatedRequest } from '@/middleware/api';
+import { cacheResponse, errorResponse } from '@/lib/errors';
 
 const inquirySchema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email'),
   phone: z.string().optional(),
   company: z.string().optional(),
   quantity: z.coerce.number().min(1).default(1),
-  message: z.string().min(10),
-  productId: z.number().optional(),
+  message: z.string().min(10, 'Message must be at least 10 characters'),
+  product_id: z.number().optional(),
 });
 
-export async function POST(request: NextRequest) {
+// POST /api/v1/inquiries — Submit a new inquiry (public)
+async function createHandler(request: NextRequest) {
   try {
     const body = await request.json();
     const parsed = inquirySchema.parse(body);
 
-    const inquiryNo = `INQ-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+    // Check if user is authenticated
+    const user = (request as AuthenticatedRequest).user || null;
 
-    const [inquiry] = await db
-      .insert(inquiries)
-      .values({
-        inquiry_no: inquiryNo,
-        contact_name: parsed.name,
-        contact_email: parsed.email,
-        contact_phone: parsed.phone || null,
-        company_name: parsed.company || null,
-        quantity: parsed.quantity,
-        message: parsed.message,
-        product_id: parsed.productId || 0,
-      })
-      .returning();
-
-    return NextResponse.json({
-      success: true,
-      data: inquiry,
+    const inquiry = await inquiryService.create({
+      ...parsed,
+      user_id: user?.userId || undefined,
     });
+
+    return NextResponse.json(
+      { success: true, data: inquiry },
+      {
+        status: 201,
+        headers: cacheResponse(5),
+      }
+    );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -45,41 +42,42 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    console.error('Inquiry submission error:', error);
+    const err = errorResponse(error);
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
+      { success: err.success, error: err.error, code: err.code },
+      { status: err.statusCode }
     );
   }
 }
 
-export async function GET(request: NextRequest) {
+// GET /api/v1/inquiries — List inquiries (authenticated)
+async function listHandler(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const offset = (page - 1) * limit;
+    const pageSize = parseInt(searchParams.get('pageSize') || '10');
+    const status = searchParams.get('status') || undefined;
 
-    const items = await db
-      .select()
-      .from(inquiries)
-      .limit(limit)
-      .offset(offset)
-      .orderBy(inquiries.created_at);
-
-    const total = await db.$count(inquiries);
-
-    return NextResponse.json({
-      items,
-      total,
+    const user = (request as AuthenticatedRequest).user;
+    const result = await inquiryService.list({
       page,
-      limit,
+      pageSize,
+      userId: user?.userId,
+      status,
     });
-  } catch (error) {
-    console.error('Error fetching inquiries:', error);
+
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
+      { success: true, ...result },
+      { headers: cacheResponse(30) }
+    );
+  } catch (error) {
+    const err = errorResponse(error);
+    return NextResponse.json(
+      { success: err.success, error: err.error, code: err.code },
+      { status: err.statusCode }
     );
   }
 }
+
+export const POST = withMiddleware(createHandler);
+export const GET = withMiddleware(withAuth(listHandler));

@@ -4,27 +4,31 @@ import bcrypt from 'bcryptjs';
 import { db } from '@/db';
 import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
+import { signToken } from '@/lib/auth';
+import { withMiddleware } from '@/middleware/api';
+import { ConflictError, errorResponse } from '@/lib/errors';
 
 const registerSchema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
-  password: z.string().min(6),
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
   company: z.string().optional(),
   phone: z.string().optional(),
 });
 
 const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(1, 'Password is required'),
 });
 
-export async function POST(request: NextRequest) {
+async function handler(request: NextRequest) {
   try {
     const body = await request.json();
     const { action } = body;
 
     if (action === 'register') {
       const parsed = registerSchema.parse(body);
+
       const existing = await db
         .select()
         .from(users)
@@ -32,10 +36,7 @@ export async function POST(request: NextRequest) {
         .limit(1);
 
       if (existing.length > 0) {
-        return NextResponse.json(
-          { success: false, error: 'Email already registered' },
-          { status: 409 }
-        );
+        throw new ConflictError('Email already registered');
       }
 
       const passwordHash = await bcrypt.hash(parsed.password, 12);
@@ -51,30 +52,43 @@ export async function POST(request: NextRequest) {
         })
         .returning();
 
+      const token = signToken({ userId: user.id, email: user.email, role: user.role || 'customer' });
+
       return NextResponse.json({
         success: true,
-        data: { id: user.id, email: user.email, name: user.name },
+        data: { token, user: { id: user.id, email: user.email, name: user.name, role: user.role } },
       });
     }
 
     if (action === 'login') {
       const parsed = loginSchema.parse(body);
+
       const [user] = await db
         .select()
         .from(users)
         .where(eq(users.email, parsed.email))
         .limit(1);
 
-      if (!user || !(await bcrypt.compare(parsed.password, user.password_hash))) {
+      if (!user) {
         return NextResponse.json(
           { success: false, error: 'Invalid email or password' },
           { status: 401 }
         );
       }
 
+      const valid = await bcrypt.compare(parsed.password, user.password_hash);
+      if (!valid) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid email or password' },
+          { status: 401 }
+        );
+      }
+
+      const token = signToken({ userId: user.id, email: user.email, role: user.role || 'customer' });
+
       return NextResponse.json({
         success: true,
-        data: { id: user.id, email: user.email, name: user.name, role: user.role },
+        data: { token, user: { id: user.id, email: user.email, name: user.name, role: user.role } },
       });
     }
 
@@ -89,10 +103,12 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    console.error('Auth error:', error);
+    const err = errorResponse(error);
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
+      { success: err.success, error: err.error, code: err.code },
+      { status: err.statusCode }
     );
   }
 }
+
+export const POST = withMiddleware(handler);
