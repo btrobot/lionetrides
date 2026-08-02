@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,15 +14,46 @@ import type { Locale } from '@/i18n/routing';
 export default function LoginPage() {
   const t = useTranslations('auth');
   const pathname = usePathname();
+  const router = useRouter();
   const currentLocale = pathname.split('/')[1] as Locale;
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement actual authentication
-    console.log('Login:', { email, password });
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await fetch('/api/v1/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'login', email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        setError(data.error || 'Login failed');
+        return;
+      }
+
+      localStorage.setItem('token', data.data.token);
+      localStorage.setItem('user', JSON.stringify(data.data.user));
+
+      if (data.data.user.role === 'admin' || data.data.user.role === 'super_admin') {
+        router.push(`/${currentLocale}/admin`);
+      } else {
+        router.push(`/${currentLocale}/account/inquiries`);
+      }
+    } catch {
+      setError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -80,7 +111,14 @@ export default function LoginPage() {
             <a href="#" className="text-blue-600 hover:text-blue-700">{t('forgot_password')}</a>
           </div>
 
-          <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+          {error && (
+            <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={loading}>
+            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
             {t('sign_in')} <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </form>
