@@ -56,7 +56,72 @@ src/
 - `pnpm build` — 构建生产版本
 - `pnpm ts-check` — TypeScript 类型检查
 - `pnpm lint` — ESLint 检查
-- `pnpm validate` — 完整验证
+- `pnpm validate` — 完整验证（lint + ts-check + test）
+- `pnpm test` — 运行所有测试
+- `pnpm test:watch` — 监听模式运行测试
+- `pnpm test:coverage` — 运行测试 + 覆盖率报告
+- `pnpm gate:commit` — 提交前门禁（lint + ts-check + test）
+
+## 测试治理规范（必须遵守）
+
+详见 `TEST_PLAN.md`。以下为必须遵守的简要规范：
+
+### 测试金字塔
+```
+70% 单元测试 (Unit)     — 服务层（services/）、工具函数（lib/）
+15% 组件测试 (Component) — 共享组件（components/shared/）
+10% 集成测试 (Integration) — API 路由（app/api/）
+ 5% 端到端测试 (E2E)     — 关键用户流程
+```
+
+### 测试文件规范
+- **单元测试**: `src/__tests__/unit/**/*.test.ts` — 测试服务层函数、工具函数
+- **组件测试**: `src/__tests__/component/**/*.test.tsx` — 测试 React 组件渲染与交互
+- **集成测试**: `src/__tests__/integration/**/*.test.ts` — 测试 API 路由端到端
+- **E2E 测试**: `e2e/**/*.spec.ts` — Playwright 端到端测试
+- **工厂函数**: `src/__tests__/factories/*.factory.ts` — 测试数据生成
+- **测试工具**: `src/__tests__/unit/helpers/*.ts` — Mock 辅助函数
+
+### 覆盖率目标（硬性门禁）
+| 维度 | 目标 | 红线 |
+|------|------|------|
+| 语句 (statements) | ≥ 75% | < 50% 阻挡合并 |
+| 分支 (branches) | ≥ 65% | < 40% 阻挡合并 |
+| 函数 (functions) | ≥ 70% | < 50% 阻挡合并 |
+| 行 (lines) | ≥ 75% | < 50% 阻挡合并 |
+
+### 质量门禁
+```
+Pre-commit (pnpm gate:commit)
+  ├── pnpm lint          — ESLint 零错误
+  ├── pnpm ts-check      — TypeScript 零错误
+  └── pnpm test          — 全部测试通过 + 覆盖率达标
+
+PR (GitHub Actions)
+  ├── 同 Pre-commit
+  ├── pnpm test:coverage — 覆盖率报告上传
+  └── 审查覆盖率下降趋势
+
+Deploy
+  ├── 同 PR
+  └── E2E 测试通过
+```
+
+### 测试红线（严格禁止）
+- ❌ 禁止使用 `any` 绕过类型检查
+- ❌ 禁止 Mock 真实 HTTP 请求（使用 MSW 或 nock）
+- ❌ 禁止测试间共享可变状态（每个测试独立 factory）
+- ❌ 禁止在测试中访问真实数据库
+- ❌ 禁止跳过覆盖率阈值的提交
+- ❌ 禁止 `test.skip` / `it.skip` 提交（临时调试除外）
+- ❌ 禁止直接 `new Date()` 或 `Date.now()`（使用 `vi.setSystemTime()`）
+
+### 测试基础设施
+- **框架**: Vitest 4.x
+- **组件测试**: @testing-library/react + jsdom
+- **Mock 数据库**: `src/__tests__/unit/helpers/mock-db.ts`（Drizzle 链式调用 Mock）
+- **工厂模式**: `factories/*.factory.ts` 生成测试数据（faker.js 辅助）
+- **环境变量**: 测试自动加载 `.env.test`
 
 ## 路由结构
 - 前台：/, /products, /products/[id], /categories, /brands, /news, /news/[id], /about
