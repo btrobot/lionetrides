@@ -1,0 +1,175 @@
+{
+  "site": {
+    "name": "RideCraft Industries",
+    "tagline": "Engineering Thrills, Building Trust",
+    "description": "Leading manufacturer of amusement rides since 1995"
+  },
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "categories": "Categories",
+    "brands": "Brands",
+    "news": "News",
+    "about": "About Us",
+    "contact": "Contact",
+    "inquiries": "My Inquiries",
+    "login": "Login",
+    "register": "Register",
+    "dashboard": "Dashboard",
+    "logout": "Logout",
+    "search": "Search products..."
+  },
+  "hero": {
+    "title": "World-Class Amusement Rides Manufacturer",
+    "subtitle": "From roller coasters to water park attractions — we design, engineer and deliver thrill experiences that captivate millions of visitors worldwide.",
+    "cta_products": "Explore Products",
+    "cta_inquiry": "Send Inquiry"
+  },
+  "stats": {
+    "years": "Years Experience",
+    "products": "Products",
+    "countries": "Countries Served",
+    "patents": "Patents"
+  },
+  "categories": {
+    "title": "Product Categories",
+    "subtitle": "Comprehensive range of amusement rides for every type of venue",
+    "roller_coasters": "Roller Coasters",
+    "ferris_wheels": "Ferris Wheels",
+    "carousels": "Carousels",
+    "bumper_cars": "Bumper Cars",
+    "water_rides": "Water Park Rides",
+    "kids_rides": "Kids' Rides"
+  },
+  "products": {
+    "title": "Our Products",
+    "subtitle": "High-quality amusement rides engineered for safety and excitement",
+    "featured": "Featured Products",
+    "details": "Product Details",
+    "specifications": "Technical Specifications",
+    "description": "Description",
+    "reviews": "Reviews",
+    "related": "Related Products",
+    "sku": "SKU",
+    "brand": "Brand",
+    "category": "Category",
+    "weight": "Weight",
+    "dimensions": "Dimensions",
+    "material": "Material",
+    "capacity": "Capacity",
+    "power": "Power",
+    "warranty": "Warranty",
+    "certification": "Certification",
+    "min_order": "Min. Order",
+    "inquiry_btn": "Send Inquiry",
+    "view_details": "View Details",
+    "grid_view": "Grid View",
+    "list_view": "List View",
+    "sort_by": "Sort by",
+    "filter": "Filter",
+    "no_products": "No products found"
+  },
+  "inquiry": {
+    "title": "Send Inquiry",
+    "form_title": "Get a Quote",
+    "name": "Your Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "company": "Company Name",
+    "quantity": "Quantity",
+    "message": "Message",
+    "submit": "Submit Inquiry",
+    "success": "Your inquiry has been submitted successfully! We will get back to you within 24 hours.",
+    "history": "Inquiry History",
+    "status_pending": "Pending",
+    "status_replied": "Replied",
+    "status_closed": "Closed",
+    "no_inquiries": "No inquiries yet",
+    "inquiry_no": "Inquiry No.",
+    "product": "Product",
+    "date": "Date",
+    "status": "Status"
+  },
+  "auth": {
+    "login": "Sign In",
+    "register": "Create Account",
+    "email": "Email",
+    "password": "Password",
+    "name": "Full Name",
+    "company": "Company",
+    "phone": "Phone",
+    "forgot_password": "Forgot Password?",
+    "no_account": "Don't have an account?",
+    "has_account": "Already have an account?",
+    "login_failed": "Invalid email or password",
+    "register_success": "Account created successfully"
+  },
+  "about": {
+    "title": "About Us",
+    "subtitle": "Your trusted partner in amusement ride manufacturing",
+    "factory": "Factory & Facilities",
+    "factory_desc": "50,000㎡ smart factory with 200+ engineers",
+    "history": "Our History",
+    "team": "Our Team",
+    "values": "Our Values",
+    "quality": "Quality Assurance",
+    "innovation": "Innovation & R&D"
+  },
+  "certifications": {
+    "title": "Certifications & Standards",
+    "subtitle": "International quality and safety certifications"
+  },
+  "partners": {
+    "title": "Our Partners",
+    "subtitle": "Trusted by leading theme parks and entertainment venues worldwide"
+  },
+  "news": {
+    "title": "News & Insights",
+    "subtitle": "Latest industry news, company updates and technical insights",
+    "read_more": "Read More",
+    "latest": "Latest News",
+    "categories": {
+      "company": "Company News",
+      "industry": "Industry News",
+      "technology": "Technology"
+    }
+  },
+  "footer": {
+    "quick_links": "Quick Links",
+    "products": "Products",
+    "support": "Support",
+    "contact_us": "Contact Us",
+    "address": "No. 88, Industrial Avenue, Guangzhou, China",
+    "phone": "+86 20-8888-8888",
+    "email": "info@ridecraft.com",
+    "copyright": "All rights reserved.",
+    "follow_us": "Follow Us"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "not_found": "Page not found",
+    "back_home": "Back to Home",
+    "learn_more": "Learn More",
+    "send_message": "Send Message",
+    "subscribe": "Subscribe",
+    "placeholder": "Enter your email",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "search": "Search",
+    "no_results": "No results found",
+    "page": "Page",
+    "of": "of"
+  },
+  "process": {
+    "title": "How It Works",
+    "subtitle": "Simple 3-step process to get your custom amusement rides",
+    "step1_title": "Submit Inquiry",
+    "step1_desc": "Tell us your requirements — ride type, specifications, quantity and any custom needs.",
+    "step2_title": "Get Quote",
+    "step2_desc": "Our engineers review your requirements and provide a detailed quotation within 24 hours.",
+    "step3_title": "Manufacturing & Delivery",
+    "step3_desc": "Once confirmed, we manufacture with full quality control and deliver worldwide."
+  }
+}

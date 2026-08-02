@@ -23,7 +23,13 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   {
+    settings: {
+      'next': {
+        rootDir: process.cwd(),
+      },
+    },
     rules: {
+      '@next/next/no-html-link-for-pages': 'off',
       'import/no-cycle': ['error', { ignoreExternal: true }],
       'react-hooks/set-state-in-effect': 'off',
       'no-restricted-syntax': ['error', ...syntaxRules],

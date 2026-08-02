@@ -1,0 +1,175 @@
+{
+  "site": {
+    "name": "瑞德凯特工业",
+    "tagline": "工程惊险，铸就信赖",
+    "description": "自1995年以来的领先游乐设施制造商"
+  },
+  "nav": {
+    "home": "首页",
+    "products": "产品中心",
+    "categories": "产品分类",
+    "brands": "品牌列表",
+    "news": "新闻动态",
+    "about": "关于我们",
+    "contact": "联系我们",
+    "inquiries": "我的询盘",
+    "login": "登录",
+    "register": "注册",
+    "dashboard": "管理后台",
+    "logout": "退出登录",
+    "search": "搜索产品..."
+  },
+  "hero": {
+    "title": "世界级游乐设施制造商",
+    "subtitle": "从过山车到水上乐园设备——我们设计、研发并交付令全球数百万游客心驰神往的惊险体验。",
+    "cta_products": "浏览产品",
+    "cta_inquiry": "发送询盘"
+  },
+  "stats": {
+    "years": "年行业经验",
+    "products": "款产品",
+    "countries": "覆盖国家",
+    "patents": "项专利"
+  },
+  "categories": {
+    "title": "产品分类",
+    "subtitle": "适用于各类场所的全系列游乐设施",
+    "roller_coasters": "过山车",
+    "ferris_wheels": "摩天轮",
+    "carousels": "旋转木马",
+    "bumper_cars": "碰碰车",
+    "water_rides": "水上乐园设备",
+    "kids_rides": "儿童游乐设施"
+  },
+  "products": {
+    "title": "产品中心",
+    "subtitle": "为安全与刺激而精心设计的高品质游乐设施",
+    "featured": "精选产品",
+    "details": "产品详情",
+    "specifications": "技术规格",
+    "description": "产品描述",
+    "reviews": "客户评价",
+    "related": "相关产品",
+    "sku": "产品编号",
+    "brand": "品牌",
+    "category": "分类",
+    "weight": "重量",
+    "dimensions": "尺寸",
+    "material": "材质",
+    "capacity": "容量",
+    "power": "功率",
+    "warranty": "质保",
+    "certification": "认证",
+    "min_order": "最小起订量",
+    "inquiry_btn": "发送询盘",
+    "view_details": "查看详情",
+    "grid_view": "网格视图",
+    "list_view": "列表视图",
+    "sort_by": "排序",
+    "filter": "筛选",
+    "no_products": "暂无产品"
+  },
+  "inquiry": {
+    "title": "发送询盘",
+    "form_title": "获取报价",
+    "name": "您的姓名",
+    "email": "邮箱地址",
+    "phone": "联系电话",
+    "company": "公司名称",
+    "quantity": "数量",
+    "message": "留言内容",
+    "submit": "提交询盘",
+    "success": "您的询盘已成功提交！我们将在24小时内与您联系。",
+    "history": "询盘记录",
+    "status_pending": "待处理",
+    "status_replied": "已回复",
+    "status_closed": "已关闭",
+    "no_inquiries": "暂无询盘记录",
+    "inquiry_no": "询盘编号",
+    "product": "产品",
+    "date": "日期",
+    "status": "状态"
+  },
+  "auth": {
+    "login": "登录",
+    "register": "创建账号",
+    "email": "邮箱",
+    "password": "密码",
+    "name": "姓名",
+    "company": "公司",
+    "phone": "电话",
+    "forgot_password": "忘记密码？",
+    "no_account": "还没有账号？",
+    "has_account": "已有账号？",
+    "login_failed": "邮箱或密码错误",
+    "register_success": "账号创建成功"
+  },
+  "about": {
+    "title": "关于我们",
+    "subtitle": "您值得信赖的游乐设施制造合作伙伴",
+    "factory": "工厂与设施",
+    "factory_desc": "50,000㎡ 智能工厂，200+ 工程师",
+    "history": "发展历程",
+    "team": "我们的团队",
+    "values": "核心价值观",
+    "quality": "质量保证",
+    "innovation": "创新与研发"
+  },
+  "certifications": {
+    "title": "资质认证",
+    "subtitle": "国际质量与安全认证"
+  },
+  "partners": {
+    "title": "合作伙伴",
+    "subtitle": "备受全球领先主题乐园和娱乐场所的信赖"
+  },
+  "news": {
+    "title": "新闻动态",
+    "subtitle": "最新行业资讯、公司动态和技术洞察",
+    "read_more": "阅读更多",
+    "latest": "最新动态",
+    "categories": {
+      "company": "公司新闻",
+      "industry": "行业资讯",
+      "technology": "技术前沿"
+    }
+  },
+  "footer": {
+    "quick_links": "快速链接",
+    "products": "产品中心",
+    "support": "支持服务",
+    "contact_us": "联系我们",
+    "address": "中国广州市工业大道88号",
+    "phone": "+86 20-8888-8888",
+    "email": "info@ridecraft.com",
+    "copyright": "保留所有权利。",
+    "follow_us": "关注我们"
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "出现错误",
+    "not_found": "页面未找到",
+    "back_home": "返回首页",
+    "learn_more": "了解更多",
+    "send_message": "发送消息",
+    "subscribe": "订阅",
+    "placeholder": "输入您的邮箱",
+    "submit": "提交",
+    "cancel": "取消",
+    "confirm": "确认",
+    "search": "搜索",
+    "no_results": "未找到结果",
+    "page": "第",
+    "of": "页，共"
+  },
+  "process": {
+    "title": "合作流程",
+    "subtitle": "三步轻松获取定制游乐设施",
+    "step1_title": "提交询盘",
+    "step1_desc": "告诉我们您的需求——游乐设施类型、规格参数、数量和任何定制要求。",
+    "step2_title": "获取报价",
+    "step2_desc": "我们的工程师评估您的需求，并在24小时内提供详细报价。",
+    "step3_title": "生产与交付",
+    "step3_desc": "确认后，我们进行全流程质量管控生产，并交付至全球各地。"
+  }
+}
