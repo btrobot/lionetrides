@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Loader2, LogOut } from 'lucide-react';
 import {
-  LayoutDashboard, Package, FolderTree, Building2, MessageSquare, Users, Star, Settings
+  LayoutDashboard, Package, FolderTree, Building2, MessageSquare, Users, Star, Settings, FileText
 } from 'lucide-react';
 import { useAdminAuth } from '@/hooks/use-admin-auth';
 import type { Locale } from '@/i18n/routing';
@@ -15,6 +15,7 @@ const sidebarLinks = [
   { href: '/admin/categories', label: '分类管理', icon: FolderTree },
   { href: '/admin/brands', label: '品牌管理', icon: Building2 },
   { href: '/admin/inquiries', label: '询盘管理', icon: MessageSquare },
+  { href: '/admin/news', label: '新闻管理', icon: FileText },
   { href: '/admin/customers', label: '客户管理', icon: Users },
   { href: '/admin/reviews', label: '评价管理', icon: Star },
   { href: '/admin/settings', label: '系统设置', icon: Settings },
