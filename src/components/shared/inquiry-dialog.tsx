@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, createContext, useContext, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Loader2, Send, CheckCircle } from 'lucide-react';
 import {
@@ -9,7 +9,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,26 +24,37 @@ interface InquiryFormData {
   message: string;
 }
 
-interface InquiryDialogProps {
-  productId?: number;
-  productName?: string;
-  trigger?: React.ReactNode;
+interface InquiryContextType {
+  openInquiry: (productId?: number, productName?: string) => void;
 }
 
-export default function InquiryDialog({ productId, productName, trigger }: InquiryDialogProps) {
-  const t = useTranslations('inquiry');
+const InquiryContext = createContext<InquiryContextType>({
+  openInquiry: () => {},
+});
+
+export function useInquiry() {
+  return useContext(InquiryContext);
+}
+
+export function InquiryProvider({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
+  const [productId, setProductId] = useState<number | undefined>();
+  const [productName, setProductName] = useState<string | undefined>();
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState<InquiryFormData>({
-    name: '',
-    email: '',
-    phone: '',
-    company: '',
-    quantity: 1,
-    message: '',
+    name: '', email: '', phone: '', company: '', quantity: 1, message: '',
   });
   const [errors, setErrors] = useState<Partial<Record<keyof InquiryFormData, string>>>({});
+
+  const openInquiry = useCallback((pid?: number, pname?: string) => {
+    setProductId(pid);
+    setProductName(pname);
+    setSubmitted(false);
+    setFormData({ name: '', email: '', phone: '', company: '', quantity: 1, message: '' });
+    setErrors({});
+    setOpen(true);
+  }, []);
 
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof InquiryFormData, string>> = {};
@@ -58,15 +68,12 @@ export default function InquiryDialog({ productId, productName, trigger }: Inqui
 
   const handleChange = (field: keyof InquiryFormData, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-
     setSubmitting(true);
     try {
       await fetch('/api/v1/inquiries', {
@@ -82,124 +89,70 @@ export default function InquiryDialog({ productId, productName, trigger }: Inqui
     }
   };
 
-  const handleClose = () => {
-    setOpen(false);
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({ name: '', email: '', phone: '', company: '', quantity: 1, message: '' });
-      setErrors({});
-    }, 300);
-  };
+  const t = useTranslations('inquiry');
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button className="bg-orange-500 hover:bg-orange-600 text-white">
-            <Send className="h-4 w-4 mr-2" />
-            {t('submit')}
-          </Button>
-        )}
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
-        {submitted ? (
-          <div className="flex flex-col items-center py-10 text-center">
-            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
-              <CheckCircle className="h-8 w-8 text-green-600" />
+    <InquiryContext.Provider value={{ openInquiry }}>
+      {children}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-lg">
+          {submitted ? (
+            <div className="flex flex-col items-center py-10 text-center">
+              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
+                <CheckCircle className="h-8 w-8 text-green-600" />
+              </div>
+              <DialogTitle className="text-xl mb-2">{t('success')}</DialogTitle>
+              <Button onClick={() => setOpen(false)} variant="outline" className="mt-4">Close</Button>
             </div>
-            <DialogTitle className="text-xl mb-2">{t('success')}</DialogTitle>
-            <Button onClick={handleClose} variant="outline" className="mt-4">
-              Close
-            </Button>
-          </div>
-        ) : (
-          <>
-            <DialogHeader>
-              <DialogTitle className="text-xl">
-                {t('form_title')}{productName ? ` - ${productName}` : ''}
-              </DialogTitle>
-              <DialogDescription>{t('title')}</DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">{t('name')}</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => handleChange('name', e.target.value)}
-                    placeholder="John Doe"
-                  />
-                  {errors.name && <p className="text-xs text-red-500">{errors.name}</p>}
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-xl">{t('form_title')}{productName ? ` - ${productName}` : ''}</DialogTitle>
+                <DialogDescription>{t('title')}</DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">{t('name')}</Label>
+                    <Input id="name" value={formData.name} onChange={(e) => handleChange('name', e.target.value)} placeholder="John Doe" />
+                    {errors.name && <p className="text-xs text-red-500">{errors.name}</p>}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">{t('email')}</Label>
+                    <Input id="email" type="email" value={formData.email} onChange={(e) => handleChange('email', e.target.value)} placeholder="john@company.com" />
+                    {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">{t('phone')}</Label>
+                    <Input id="phone" value={formData.phone || ''} onChange={(e) => handleChange('phone', e.target.value)} placeholder="+86-20-8888-8888" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="company">{t('company')}</Label>
+                    <Input id="company" value={formData.company || ''} onChange={(e) => handleChange('company', e.target.value)} placeholder="Theme Park Inc." />
+                  </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">{t('email')}</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleChange('email', e.target.value)}
-                    placeholder="john@company.com"
-                  />
-                  {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="phone">{t('phone')}</Label>
-                  <Input
-                    id="phone"
-                    value={formData.phone || ''}
-                    onChange={(e) => handleChange('phone', e.target.value)}
-                    placeholder="+86-20-8888-8888"
-                  />
+                  <Label htmlFor="quantity">{t('quantity')}</Label>
+                  <Input id="quantity" type="number" min={1} value={formData.quantity} onChange={(e) => handleChange('quantity', parseInt(e.target.value) || 1)} />
+                  {errors.quantity && <p className="text-xs text-red-500">{errors.quantity}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="company">{t('company')}</Label>
-                  <Input
-                    id="company"
-                    value={formData.company || ''}
-                    onChange={(e) => handleChange('company', e.target.value)}
-                    placeholder="Theme Park Inc."
-                  />
+                  <Label htmlFor="message">{t('message')}</Label>
+                  <Textarea id="message" rows={4} value={formData.message} onChange={(e) => handleChange('message', e.target.value)} placeholder="Tell us about your requirements..." />
+                  {errors.message && <p className="text-xs text-red-500">{errors.message}</p>}
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="quantity">{t('quantity')}</Label>
-                <Input
-                  id="quantity"
-                  type="number"
-                  min={1}
-                  value={formData.quantity}
-                  onChange={(e) => handleChange('quantity', parseInt(e.target.value) || 1)}
-                />
-                {errors.quantity && <p className="text-xs text-red-500">{errors.quantity}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="message">{t('message')}</Label>
-                <Textarea
-                  id="message"
-                  rows={4}
-                  value={formData.message}
-                  onChange={(e) => handleChange('message', e.target.value)}
-                  placeholder="Tell us about your requirements..."
-                />
-                {errors.message && <p className="text-xs text-red-500">{errors.message}</p>}
-              </div>
-              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={submitting}>
-                {submitting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Submitting...
-                  </>
-                ) : (
-                  t('submit')
-                )}
-              </Button>
-            </form>
-          </>
-        )}
-      </DialogContent>
-    </Dialog>
+                <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={submitting}>
+                  {submitting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Submitting...</> : t('submit')}
+                </Button>
+              </form>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+    </InquiryContext.Provider>
   );
 }
+
+export default InquiryProvider;
