@@ -71,6 +71,10 @@ export function useAdminAuth() {
 
   const authFetch = useCallback(
     async (url: string, options?: RequestInit) => {
+      if (!checked || !token) {
+        return null;
+      }
+
       try {
         const res = await fetch(url, {
           ...options,
@@ -88,7 +92,7 @@ export function useAdminAuth() {
         return null;
       }
     },
-    [authHeaders, redirectToLogin],
+    [authHeaders, checked, redirectToLogin, token],
   );
 
   return { token, user, checked, authHeaders, authFetch };

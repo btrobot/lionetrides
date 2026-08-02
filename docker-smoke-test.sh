@@ -21,7 +21,13 @@ fail()  { echo -e "  ${RED}[FAIL]${NC} $1"; ((FAIL++)); }
 warn()  { echo -e "  ${YELLOW}[WARN]${NC} $1"; ((WARN++)); }
 
 # ─── 参数解析 ───
-HOST="${1:-http://localhost:5000}"
+HOST="http://localhost:5000"
+case "${1:-}" in
+  --url=*|--host=*) HOST="${1#*=}" ;;
+  --url|--host) HOST="${2:-$HOST}" ;;
+  "") ;;
+  *) HOST="$1" ;;
+esac
 CONTAINER_NAME="lionetrides-container"
 TIMEOUT=10
 
@@ -174,7 +180,7 @@ log "检查应用日志（错误）..."
 
 # 检查最近的容器日志中是否有错误
 if sudo docker ps --format '{{.Names}}' 2>/dev/null | grep -q "^${CONTAINER_NAME}$"; then
-  ERROR_COUNT=$(sudo docker logs "$CONTAINER_NAME" --tail 100 2>/dev/null | grep -ciE "error|exception|traceback" || echo "0")
+  ERROR_COUNT=$(sudo docker logs "$CONTAINER_NAME" --tail 100 2>/dev/null | grep -ciE "error|exception|traceback" || true)
   if [ "$ERROR_COUNT" -le 2 ]; then
     pass "Docker 日志中错误数: $ERROR_COUNT"
   else

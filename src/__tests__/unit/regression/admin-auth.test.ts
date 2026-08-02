@@ -120,6 +120,34 @@ describe('Reg: Admin Auth - useAdminAuth Hook', () => {
     }));
   });
 
+  it('authFetch does not request or redirect while token validation is pending', async () => {
+    mockLocalStorage({ token: 'pending-token' });
+    let resolveValidation: ((value: { ok: boolean; json: () => Promise<unknown> }) => void) | undefined;
+    const validation = new Promise<{ ok: boolean; json: () => Promise<unknown> }>((resolve) => {
+      resolveValidation = resolve;
+    });
+    const fetchMock = vi.fn().mockReturnValue(validation);
+    global.fetch = fetchMock;
+
+    const { result } = renderHook(() => useAdminAuth());
+
+    await waitFor(() => {
+      expect(result.current.token).toBe('pending-token');
+    });
+    const validationRequestCount = fetchMock.mock.calls.length;
+
+    const response = await act(async () => result.current.authFetch('/api/v1/protected'));
+
+    expect(response).toBeNull();
+    expect(fetchMock).toHaveBeenCalledTimes(validationRequestCount);
+    expect(mockReplace).not.toHaveBeenCalled();
+
+    resolveValidation?.({
+      ok: true,
+      json: () => Promise.resolve({ success: true, data: { id: 1, role: 'admin' } }),
+    });
+  });
+
   it('authFetch redirects to login on 401', async () => {
     mockLocalStorage({ token: 'expired' });
     global.fetch = vi.fn().mockResolvedValue({
