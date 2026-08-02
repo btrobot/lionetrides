@@ -2,20 +2,22 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useAdminAuth } from '@/hooks/use-admin-auth';
 
 export default function AdminProducts() {
   const t = useTranslations('admin');
+  const { authFetch } = useAdminAuth();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/v1/products?limit=50')
-      .then((r) => r.json())
-      .then((d) => setProducts(d.items ?? []))
+    authFetch('/api/v1/products?limit=50')
+      .then((r) => r?.json())
+      .then((d) => setProducts(d?.items ?? []))
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [authFetch]);
 
   if (loading) return <p className="text-gray-500">{t('products.loading')}</p>;
 

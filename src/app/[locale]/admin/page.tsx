@@ -5,12 +5,14 @@ import { useTranslations } from 'next-intl';
 import { Package, MessageSquare, Users as UsersIcon, TrendingUp, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAdminAuth } from '@/hooks/use-admin-auth';
 import type { Locale } from '@/i18n/routing';
 
 export default function AdminDashboard() {
   const t = useTranslations('admin');
   const pathname = usePathname();
   const locale = pathname.split('/')[1] as Locale;
+  const { authFetch } = useAdminAuth();
 
   const [stats, setStats] = useState([
     { label: 'dashboard.total_products', value: '—', icon: Package, color: 'text-blue-600', bg: 'bg-blue-50' },
@@ -21,10 +23,11 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/v1/products?limit=1'),
-      fetch('/api/v1/inquiries?limit=1'),
-      fetch('/api/v1/customers?limit=1'),
+      authFetch('/api/v1/products?limit=1'),
+      authFetch('/api/v1/inquiries?limit=1'),
+      authFetch('/api/v1/customers?limit=1'),
     ]).then(async ([prod, inq, cust]) => {
+      if (!prod || !inq || !cust) return;
       const p = await prod.json();
       const i = await inq.json();
       const c = await cust.json();
@@ -35,7 +38,7 @@ export default function AdminDashboard() {
         { label: 'dashboard.monthly_revenue', value: '—', icon: TrendingUp, color: 'text-purple-600', bg: 'bg-purple-50' },
       ]);
     }).catch(() => {});
-  }, []);
+  }, [authFetch]);
 
   const quickActions = [
     { href: '/admin/products', label: 'dashboard.add_product', icon: Package, color: 'text-blue-600' },
