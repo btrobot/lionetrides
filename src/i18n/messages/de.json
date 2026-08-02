@@ -265,8 +265,24 @@
     "title": "Anfrage senden"
   },
   "meta": {
+    "about_description": "[TODO: translate] With 30+ years of experience, RideCraft Industries is a leading manufacturer of amusement rides. Learn about our history, mission, and global presence.",
+    "about_title": "[TODO: translate] About Us - %s",
+    "brands_description": "[TODO: translate] Discover our portfolio of amusement ride brands and manufacturers. Quality rides for every entertainment venue.",
+    "brands_title": "[TODO: translate] Brands - %s",
+    "categories_description": "[TODO: translate] Browse amusement rides by category: roller coasters, family rides, water rides, thrill rides, kiddie rides and more.",
+    "categories_title": "[TODO: translate] Categories - %s",
+    "contact_description": "[TODO: translate] Get in touch with RideCraft Industries. Contact our sales team for quotes, inquiries, and partnership opportunities.",
+    "contact_title": "[TODO: translate] Contact Us - %s",
     "description": "Führender Hersteller von Fahrgeschäften seit 1995",
     "keywords": "Fahrgeschäfte, Achterbahnhersteller, Riesenrad, Karussell, Wasserparkausrüstung, Freizeitparkfahrgeschäfte, B2B, Fahrgeschäfthersteller",
+    "news_description": "[TODO: translate] Latest news, updates, and insights from the amusement ride industry. Company announcements, trade shows, and project showcases.",
+    "news_detail_description": "[TODO: translate] %s - Read the latest news and updates from RideCraft Industries.",
+    "news_detail_title": "[TODO: translate] %s - News",
+    "news_title": "[TODO: translate] News - %s",
+    "product_detail_description": "[TODO: translate] Detailed specifications and information about %s amusement ride. Ideal for theme parks, water parks, and entertainment venues.",
+    "product_detail_title": "[TODO: translate] %s - Product Details",
+    "products_description": "[TODO: translate] Explore our complete range of amusement rides: roller coasters, Ferris wheels, carousels, bumper cars, water park equipment and more. B2B manufacturing for theme parks worldwide.",
+    "products_title": "[TODO: translate] Products - %s",
     "title": "RideCraft Industries"
   },
   "nav": {

@@ -267,7 +267,23 @@
   "meta": {
     "description": "自1995年以来的领先游乐设施制造商",
     "keywords": "游乐设施, 过山车制造商, 摩天轮, 旋转木马, 水上乐园设备, 主题乐园, B2B, 游乐设备",
-    "title": "瑞德凯特工业"
+    "title": "瑞德凯特工业",
+    "products_title": "产品 - %s",
+    "products_description": "探索我们完整的游乐设施产品线：过山车、摩天轮、旋转木马、碰碰车、水上乐园设备等。为全球主题乐园提供B2B制造服务。",
+    "product_detail_title": "%s - 产品详情",
+    "product_detail_description": "%s 游乐设施的详细规格和信息。适用于主题乐园、水上乐园和娱乐场所。",
+    "categories_title": "分类 - %s",
+    "categories_description": "按分类浏览游乐设施：过山车、家庭娱乐、水上项目、刺激项目、儿童项目等。",
+    "brands_title": "品牌 - %s",
+    "brands_description": "发现我们的游乐设施品牌组合。为每个娱乐场所提供优质设备。",
+    "news_title": "新闻 - %s",
+    "news_description": "来自游乐设施行业的最新新闻、动态和洞察。公司公告、展会和项目展示。",
+    "news_detail_title": "%s - 新闻动态",
+    "news_detail_description": "%s - 阅读来自瑞德凯特工业的最新新闻和动态。",
+    "about_title": "关于我们 - %s",
+    "about_description": "拥有30+年经验，瑞德凯特工业是领先的游乐设施制造商。了解我们的历史、使命和全球布局。",
+    "contact_title": "联系我们 - %s",
+    "contact_description": "联系瑞德凯特工业。向我们的销售团队咨询报价、询盘和合作机会。"
   },
   "nav": {
     "about": "关于我们",

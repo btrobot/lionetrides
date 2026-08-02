@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import BrandsPage from '@/app/[locale]/brands/page';
+import BrandsPage from '@/app/[locale]/brands/page-client';
 
 describe('Public - Brands Page', () => {
   beforeEach(() => {

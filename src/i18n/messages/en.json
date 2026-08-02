@@ -7,7 +7,23 @@
   "meta": {
     "title": "RideCraft Industries",
     "description": "Leading manufacturer of amusement rides since 1995",
-    "keywords": "amusement rides, roller coaster manufacturer, ferris wheel, carousel, water park equipment, theme park rides, B2B, ride manufacturer"
+    "keywords": "amusement rides, roller coaster manufacturer, ferris wheel, carousel, water park equipment, theme park rides, B2B, ride manufacturer",
+    "products_title": "Products - %s",
+    "products_description": "Explore our complete range of amusement rides: roller coasters, Ferris wheels, carousels, bumper cars, water park equipment and more. B2B manufacturing for theme parks worldwide.",
+    "product_detail_title": "%s - Product Details",
+    "product_detail_description": "Detailed specifications and information about %s amusement ride. Ideal for theme parks, water parks, and entertainment venues.",
+    "categories_title": "Categories - %s",
+    "categories_description": "Browse amusement rides by category: roller coasters, family rides, water rides, thrill rides, kiddie rides and more.",
+    "brands_title": "Brands - %s",
+    "brands_description": "Discover our portfolio of amusement ride brands and manufacturers. Quality rides for every entertainment venue.",
+    "news_title": "News - %s",
+    "news_description": "Latest news, updates, and insights from the amusement ride industry. Company announcements, trade shows, and project showcases.",
+    "news_detail_title": "%s - News",
+    "news_detail_description": "%s - Read the latest news and updates from RideCraft Industries.",
+    "about_title": "About Us - %s",
+    "about_description": "With 30+ years of experience, RideCraft Industries is a leading manufacturer of amusement rides. Learn about our history, mission, and global presence.",
+    "contact_title": "Contact Us - %s",
+    "contact_description": "Get in touch with RideCraft Industries. Contact our sales team for quotes, inquiries, and partnership opportunities."
   },
   "nav": {
     "home": "Home",

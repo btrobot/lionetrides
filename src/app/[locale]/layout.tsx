@@ -26,6 +26,12 @@ export async function generateMetadata({ params }: Omit<Props, 'children'>) {
     },
     description: siteConfig['site_description'] || t('description'),
     keywords: siteConfig['site_keywords'] || t('keywords'),
+    openGraph: {
+      title: siteName,
+      description: siteConfig['site_description'] || t('description'),
+      type: 'website',
+      siteName,
+    },
   };
 }
 
