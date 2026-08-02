@@ -41,7 +41,7 @@ export const reviewService = {
     return item;
   },
   async hide(id: number) {
-    const [item] = await db.update(reviews).set({ status: 'hidden' as any }).where(eq(reviews.id, id)).returning();
+    const [item] = await db.update(reviews).set({ status: 'hidden' }).where(eq(reviews.id, id)).returning();
     if (!item) throw new NotFoundError('Review not found');
     return item;
   },
