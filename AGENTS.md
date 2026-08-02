@@ -180,7 +180,8 @@ Deploy
 - 详见 `CODING_STANDARD.md` 完整规范
 ## Docker 部署命令
 - `./docker-build.sh` — 构建 Docker 镜像
-- `./docker-run.sh` — 运行容器
+- `./docker-run.sh` — 运行容器（启动后自动执行 smoke 测试）
 - `./docker-stop.sh` — 停止容器
 - `./docker-build.sh --no-cache` — 完全重新构建
 - `./docker-build.sh --clean` — 构建前清理缓存
+- `./docker-smoke-test.sh` — 独立运行 smoke 测试（容器健康 + 页面可达 + API 响应 + 日志检查）

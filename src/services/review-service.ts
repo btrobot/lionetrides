@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import { reviews } from '@/db/schema';
-import { eq, desc, isNull, and } from 'drizzle-orm';
+import { eq, desc, isNull, and, count } from 'drizzle-orm';
 import { NotFoundError, paginatedResponse } from '@/lib/errors';
 
 type ReviewStatus = 'pending' | 'approved' | 'rejected' | 'hidden';
@@ -15,9 +15,9 @@ export const reviewService = {
     const items = await db.select().from(reviews)
       .where(and(...conditions))
       .orderBy(desc(reviews.created_at)).limit(pageSize).offset((page - 1) * pageSize);
-    const [{ count }] = await db.select({ count: reviews.id }).from(reviews)
+    const [{ count: total }] = await db.select({ count: count() }).from(reviews)
       .where(and(...conditions));
-    return paginatedResponse(items, count, { page, pageSize });
+    return paginatedResponse(items, total, { page, pageSize });
   },
   async getById(id: number) {
     const [item] = await db.select().from(reviews).where(eq(reviews.id, id)).limit(1);

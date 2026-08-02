@@ -28,6 +28,7 @@ fail() { echo -e "${RED}[FAIL]${NC} $1"; exit 1; }
 ENV_FILE=""
 PORT="$DEFAULT_PORT"
 DETACH=true
+SKIP_SMOKE=false
 for arg in "$@"; do
   case $arg in
     --env-file=*) ENV_FILE="${arg#*=}" ;;
@@ -35,6 +36,7 @@ for arg in "$@"; do
     --port=*)     PORT="${arg#*=}" ;;
     --port)       PORT="$2"; shift ;;
     --foreground) DETACH=false ;;
+    --skip-smoke) SKIP_SMOKE=true ;;
     -h|--help)
       echo "用法: ./docker-run.sh [选项]"
       echo ""
@@ -42,6 +44,7 @@ for arg in "$@"; do
       echo "  --env-file=FILE  指定环境变量文件（默认: .env）"
       echo "  --port=PORT      指定端口（默认: 5000）"
       echo "  --foreground     前台运行（不使用 -d）"
+      echo "  --skip-smoke     跳过部署后 Smoke 测试"
       echo "  -h, --help       显示帮助"
       exit 0
       ;;
@@ -139,6 +142,24 @@ if [ "$DETACH" = true ]; then
   echo "  访问应用: http://localhost:$PORT"
   echo "  停止容器: ./docker-stop.sh"
   echo ""
+
+  # ─── Smoke 测试 ───
+  if [ "$SKIP_SMOKE" = false ]; then
+    echo ""
+    echo "=========================================="
+    echo "  Smoke 测试"
+    echo "=========================================="
+    echo ""
+    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+    bash "$SCRIPT_DIR/docker-smoke-test.sh" --url="http://localhost:$PORT"
+    SMOKE_EXIT=$?
+    echo ""
+    if [ $SMOKE_EXIT -eq 0 ]; then
+      ok "Smoke 测试全部通过！"
+    else
+      fail "Smoke 测试未通过，请检查容器日志。"
+    fi
+  fi
 else
   echo ""
   ok "容器在前台运行中..."
