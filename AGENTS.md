@@ -3,6 +3,9 @@
 ## 项目概述
 游乐设施制造与销售公司 B2B 企业官网。技术栈：Next.js 16 (App Router) + TypeScript 5 + Tailwind CSS 4 + shadcn/ui + PostgreSQL + Drizzle ORM + next-intl。
 
+## 编码规范
+详见 `CODING_STANDARD.md`。治理哲学：**原型期不阻塞，提交前守门禁，周期集中治理**。
+
 ## 规格建模（Specs）
 项目采用形式化规格（Formal Specification）驱动开发，详见 `specs/` 目录。
 
@@ -174,6 +177,7 @@ Deploy
 - 组件使用 'use client' 或服务端组件
 - 文件名使用 kebab-case
 - 数据库列名使用 snake_case
+- 详见 `CODING_STANDARD.md` 完整规范
 ## Docker 部署命令
 - `./docker-build.sh` — 构建 Docker 镜像
 - `./docker-run.sh` — 运行容器
