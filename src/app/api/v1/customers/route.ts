@@ -5,7 +5,7 @@ import { users } from '@/db/schema';
 import { isNull, desc, ilike, and } from 'drizzle-orm';
 import { errorResponse, paginatedResponse } from '@/lib/errors';
 
-async function listHandler(request: NextRequest, _context: { params: Promise<{}> }) {
+async function listHandler(request: NextRequest, _context: { params: Promise<Record<string, string>> }) {
   try {
     const { searchParams } = new URL(request.url);
     const page = Math.max(1, Number(searchParams.get('page')) || 1);

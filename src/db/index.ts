@@ -11,7 +11,6 @@ function createDb() {
       {},
       {
         get(_target, prop) {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           return (..._: unknown[]) => {
             throw new Error(
               `Database not configured. Set DATABASE_URL environment variable to use the database. Called: ${String(prop)}`

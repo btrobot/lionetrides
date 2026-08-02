@@ -21,7 +21,7 @@ const loginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
-async function handler(request: NextRequest, _context: { params: Promise<{}> }) {
+async function handler(request: NextRequest, _context: { params: Promise<Record<string, string>> }) {
   try {
     const body = await request.json();
     const { action } = body;

@@ -13,7 +13,7 @@ async function listHandler() {
   } catch (e) { const err = errorResponse(e); return NextResponse.json(err, { status: err.statusCode }); }
 }
 
-async function createHandler(request: NextRequest, _context: { params: Promise<{}> }) {
+async function createHandler(request: NextRequest, _context: { params: Promise<Record<string, string>> }) {
   try {
     const body = await request.json();
     const parsed = createSchema.parse(body);

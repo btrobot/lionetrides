@@ -1,10 +1,8 @@
 import { db } from '@/db';
 import {
   categories, brands, products, news,
-  certifications, partners, reviews, inquiries,
+  certifications, partners,
 } from '@/db/schema';
-import { hashPassword } from '@/lib/auth';
-import { eq } from 'drizzle-orm';
 
 async function main() {
   console.log('🌱 Seeding database...\n');
@@ -18,7 +16,7 @@ async function main() {
     { name: 'Water Park Rides', slug: 'water-rides', description: 'Water slides and wave pools', image_url: '/api/placeholder/400/300', sort_order: 5 },
     { name: "Kids' Rides", slug: 'kids-rides', description: 'Safe and fun rides for children', image_url: '/api/placeholder/400/300', sort_order: 6 },
   ];
-  const insertedCats = await db.insert(categories).values(catData).onConflictDoNothing({ target: categories.slug }).returning();
+  await db.insert(categories).values(catData).onConflictDoNothing({ target: categories.slug }).returning();
   console.log(`  ✅ ${catData.length} categories`);
 
   // Brands
@@ -29,7 +27,7 @@ async function main() {
     { name: 'SkyHigh', slug: 'skyhigh', description: 'Ferris wheel & observation tower builder', logo_url: '/api/placeholder/200/80', website: 'https://skyhigh.com', country: 'UK' },
     { name: 'EcoRide', slug: 'ecoride', description: 'Eco-friendly amusement ride solutions', logo_url: '/api/placeholder/200/80', website: 'https://ecoride.com', country: 'Sweden' },
   ];
-  const insertedBrands = await db.insert(brands).values(brandData).onConflictDoNothing({ target: brands.slug }).returning();
+  await db.insert(brands).values(brandData).onConflictDoNothing({ target: brands.slug }).returning();
   console.log(`  ✅ ${brandData.length} brands`);
 
   // Products
@@ -41,7 +39,7 @@ async function main() {
     { sku: 'BC-001', name: 'Bumper Bonanza', slug: 'bumper-bonanza', description: 'Electric bumper car arena with 16 cars and LED effects.', category_id: 4, brand_id: 2, price: '350000', main_image: '/api/placeholder/600/400', is_featured: false, sort_order: 5, status: 'published' as const },
     { sku: 'WR-001', name: 'Aqua Drop', slug: 'aqua-drop', description: 'High-speed water slide with a near-vertical drop.', category_id: 5, brand_id: 5, price: '1200000', main_image: '/api/placeholder/600/400', is_featured: true, sort_order: 6, status: 'published' as const },
   ];
-  const insertedProducts = await db.insert(products).values(prodData).onConflictDoNothing({ target: products.sku }).returning();
+  await db.insert(products).values(prodData).onConflictDoNothing({ target: products.sku }).returning();
   console.log(`  ✅ ${prodData.length} products`);
 
   // News

@@ -15,7 +15,7 @@ const inquirySchema = z.object({
 });
 
 // POST /api/v1/inquiries — Submit a new inquiry (public)
-async function createHandler(request: NextRequest, _context: { params: Promise<{}> }) {
+async function createHandler(request: NextRequest, _context: { params: Promise<Record<string, string>> }) {
   try {
     const body = await request.json();
     const parsed = inquirySchema.parse(body);
@@ -51,7 +51,7 @@ async function createHandler(request: NextRequest, _context: { params: Promise<{
 }
 
 // GET /api/v1/inquiries — List inquiries (authenticated)
-async function listHandler(request: NextRequest, _context: { params: Promise<{}> }) {
+async function listHandler(request: NextRequest, _context: { params: Promise<Record<string, string>> }) {
   try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');

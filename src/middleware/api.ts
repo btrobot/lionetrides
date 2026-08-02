@@ -31,8 +31,8 @@ export function rateLimit(
 }
 
 // ─── Middleware helpers ─────────────────────────────────
-type RouteContext = any;
-type ApiHandler = (request: any, context: any) => Promise<NextResponse>;
+type RouteContext = { params: Promise<Record<string, string>> };
+type ApiHandler = (request: NextRequest, context: RouteContext) => Promise<NextResponse>;
 
 export function withMiddleware(handler: ApiHandler): ApiHandler {
   return async (request: NextRequest, context: RouteContext) => {
