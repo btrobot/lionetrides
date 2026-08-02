@@ -1,0 +1,60 @@
+# ============================================================
+# Docker 构建忽略文件
+# 注意：node_modules 不能排除，需要 COPY 到镜像中
+# ============================================================
+
+# 构建产物（容器内重新构建）
+.next
+out
+dist
+
+# 版本控制
+.git
+.gitignore
+
+# 环境文件
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 日志
+*.log
+npm-debug.log*
+
+# 测试
+coverage
+.nyc_output
+
+# 文档
+README.md
+DESIGN.md
+AGENTS.md
+DOCKER.md
+DEPLOY.md
+docs
+
+# Docker 相关
+Dockerfile
+docker-compose*.yml
+.dockerignore
+docker-build.sh
+docker-run.sh
+docker-stop.sh
+
+# OMX 相关
+.omx
+.codex
+
+# 其他不需要的
+scripts
+*.md

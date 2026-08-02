@@ -72,3 +72,9 @@ src/
 - 组件使用 'use client' 或服务端组件
 - 文件名使用 kebab-case
 - 数据库列名使用 snake_case
+## Docker 部署命令
+- `./docker-build.sh` — 构建 Docker 镜像
+- `./docker-run.sh` — 运行容器
+- `./docker-stop.sh` — 停止容器
+- `./docker-build.sh --no-cache` — 完全重新构建
+- `./docker-build.sh --clean` — 构建前清理缓存
