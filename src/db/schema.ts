@@ -408,6 +408,24 @@ export const review_images = pgTable('review_images', {
   reviewIdx: index('idx_review_images_review_id').on(table.reviewId),
 }));
 
+// ─── Site Settings ────────────────────────────────────
+export const site_settings = pgTable('site_settings', {
+  id: serial('id').primaryKey(),
+  key: varchar('key', { length: 255 }).notNull(),
+  value: text('value'),
+  locale: varchar('locale', { length: 10 }).default('en').notNull(),
+  type: varchar('type', { length: 50 }).default('text').notNull(),
+  section: varchar('section', { length: 100 }).default('general').notNull(),
+  label: varchar('label', { length: 255 }),
+  sortOrder: integer('sort_order').default(0),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  deletedAt: timestamp('deleted_at'),
+}, (table) => ({
+  keyLocaleIdx: uniqueIndex('idx_site_settings_key_locale').on(table.key, table.locale),
+  sectionIdx: index('idx_site_settings_section').on(table.section),
+}));
+
 // ─── Team Members ─────────────────────────────────────
 export const team_members = pgTable('team_members', {
   id: serial('id').primaryKey(),

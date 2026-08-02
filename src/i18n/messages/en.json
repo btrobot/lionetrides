@@ -6,7 +6,8 @@
   },
   "meta": {
     "title": "RideCraft Industries",
-    "description": "Leading manufacturer of amusement rides since 1995"
+    "description": "Leading manufacturer of amusement rides since 1995",
+    "keywords": "amusement rides, roller coaster manufacturer, ferris wheel, carousel, water park equipment, theme park rides, B2B, ride manufacturer"
   },
   "nav": {
     "home": "Home",
@@ -341,7 +342,15 @@
     },
     "settings": {
       "title": "Settings",
-      "coming_soon": "Settings page coming soon."
+      "coming_soon": "Settings page coming soon.",
+      "save": "Save",
+      "sections": {
+        "brand": "Brand",
+        "contact": "Contact",
+        "social": "Social Media",
+        "seo": "SEO"
+      },
+      "no_settings": "No settings in this section."
     }
   }
 }

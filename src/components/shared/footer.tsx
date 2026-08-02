@@ -5,11 +5,19 @@ import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { MapPin, Phone, Mail, Linkedin, Youtube, Twitter } from 'lucide-react';
 import { type Locale } from '@/i18n/routing';
+import { useSiteConfig } from '@/providers/site-config-provider';
 
 export default function Footer() {
   const t = useTranslations('footer');
   const pathname = usePathname();
   const currentLocale = pathname.split('/')[1] as Locale;
+  const { config } = useSiteConfig();
+
+  const siteName = config.site_name || 'RideCraft';
+  const logoSrc = config.site_logo_url || '';
+  const socialLinkedin = config.social_linkedin || '#';
+  const socialYoutube = config.social_youtube || '#';
+  const socialTwitter = config.social_twitter || '#';
 
   return (
     <footer className="bg-gray-900 text-gray-300">
@@ -18,8 +26,13 @@ export default function Footer() {
           {/* Company Info */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <span className="text-2xl">🎢</span>
-              <span className="text-xl font-bold text-white">RideCraft</span>
+              {logoSrc ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={logoSrc} alt={siteName} className="h-8 w-auto" />
+              ) : (
+                <span className="text-2xl">🎢</span>
+              )}
+              <span className="text-xl font-bold text-white">{siteName}</span>
             </div>
             <p className="text-sm text-gray-400 leading-relaxed mb-6">
               {t('contact_us')}
@@ -39,13 +52,13 @@ export default function Footer() {
               </div>
             </div>
             <div className="flex gap-3 mt-6">
-              <a href="#" className="p-2 rounded-lg bg-gray-800 hover:bg-blue-600 transition-colors">
+              <a href={socialLinkedin} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-gray-800 hover:bg-blue-600 transition-colors">
                 <Linkedin className="h-4 w-4" />
               </a>
-              <a href="#" className="p-2 rounded-lg bg-gray-800 hover:bg-blue-600 transition-colors">
+              <a href={socialYoutube} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-gray-800 hover:bg-blue-600 transition-colors">
                 <Youtube className="h-4 w-4" />
               </a>
-              <a href="#" className="p-2 rounded-lg bg-gray-800 hover:bg-blue-600 transition-colors">
+              <a href={socialTwitter} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-gray-800 hover:bg-blue-600 transition-colors">
                 <Twitter className="h-4 w-4" />
               </a>
             </div>
@@ -138,7 +151,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-500">
-          <p>&copy; {new Date().getFullYear()} RideCraft Industries. {t('copyright')}</p>
+          <p>&copy; {new Date().getFullYear()} {siteName}. {t('copyright')}</p>
         </div>
       </div>
     </footer>

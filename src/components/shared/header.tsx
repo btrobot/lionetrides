@@ -8,6 +8,7 @@ import { Menu, X, Search, Globe, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { locales, type Locale } from '@/i18n/routing';
+import { useSiteConfig } from '@/providers/site-config-provider';
 
 const localeNames: Record<Locale, string> = {
   en: 'English',
@@ -29,6 +30,10 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
+  const { config } = useSiteConfig();
+
+  const siteName = config.site_name || 'RideCraft';
+  const logoSrc = config.site_logo_url || '';
 
   const currentLocale = pathname.split('/')[1] as Locale;
   const isActive = (path: string) => pathname.includes(path);
@@ -51,8 +56,13 @@ export default function Header() {
             href={`/${currentLocale}`}
             className="flex items-center gap-2 text-xl font-bold text-blue-600"
           >
-            <span className="text-2xl">🎢</span>
-            <span>RideCraft</span>
+            {logoSrc ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logoSrc} alt={siteName} className="h-8 w-auto" />
+            ) : (
+              <span className="text-2xl">🎢</span>
+            )}
+            <span>{siteName}</span>
           </Link>
 
           {/* Desktop Nav */}

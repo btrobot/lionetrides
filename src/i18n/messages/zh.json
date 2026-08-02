@@ -6,7 +6,8 @@
   },
   "meta": {
     "title": "瑞德凯特工业",
-    "description": "自1995年以来的领先游乐设施制造商"
+    "description": "自1995年以来的领先游乐设施制造商",
+    "keywords": "游乐设施, 过山车制造商, 摩天轮, 旋转木马, 水上乐园设备, 主题乐园, B2B, 游乐设备"
   },
   "nav": {
     "home": "首页",
@@ -341,7 +342,15 @@
     },
     "settings": {
       "title": "系统设置",
-      "coming_soon": "设置页面即将上线。"
+      "coming_soon": "设置页面即将上线。",
+      "save": "保存",
+      "sections": {
+        "brand": "品牌",
+        "contact": "联系方式",
+        "social": "社交媒体",
+        "seo": "SEO"
+      },
+      "no_settings": "此部分暂无设置项。"
     }
   }
 }
