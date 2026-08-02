@@ -32,6 +32,9 @@ export async function generateMetadata({ params }: Omit<Props, 'children'>) {
       type: 'website',
       siteName,
     },
+    other: {
+      'theme-color': '#2563eb',
+    },
   };
 }
 

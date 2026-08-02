@@ -134,6 +134,8 @@ export default function ProductsPage() {
               src={product.main_image}
               alt={product.name}
               fill
+              loading="lazy"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
@@ -176,7 +178,7 @@ export default function ProductsPage() {
       <div className="flex gap-4 p-4 border rounded-xl hover:shadow-md transition-shadow bg-white">
         <Link href={`/products/${product.slug}`} className="relative w-32 h-24 shrink-0 rounded-lg overflow-hidden bg-gray-100">
           {product.main_image ? (
-            <Image src={product.main_image} alt={product.name} fill className="object-cover" />
+            <Image src={product.main_image} alt={product.name} fill loading="lazy" sizes="128px" className="object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-300 text-2xl font-bold">
               {product.name.charAt(0)}

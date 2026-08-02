@@ -162,6 +162,7 @@ export default function ProductDetailPage() {
                     fill
                     className="object-cover"
                     sizes="(max-width: 1024px) 100vw, 60vw"
+                    priority
                     unoptimized
                   />
                   {allImages.length > 1 && (
@@ -214,6 +215,7 @@ export default function ProductDetailPage() {
                       fill
                       className="object-cover"
                       sizes="150px"
+                      loading="lazy"
                       unoptimized
                     />
                   </button>
@@ -374,6 +376,7 @@ export default function ProductDetailPage() {
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-500"
                           sizes="(max-width: 640px) 100vw, 25vw"
+                          loading="lazy"
                           unoptimized
                         />
                       ) : (

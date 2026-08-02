@@ -192,7 +192,7 @@ export default function HomePage() {
                   <div key={`${partner.id}-${i}`} className="flex-shrink-0 flex items-center justify-center h-16 px-6 bg-gray-50 rounded-xl border border-gray-100 min-w-[160px]">
                     {partner.logo_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={partner.logo_url} alt={partner.name} className="h-8 object-contain opacity-50 grayscale" />
+                      <img src={partner.logo_url} alt={partner.name} loading="lazy" className="h-8 object-contain opacity-50 grayscale" />
                     ) : (
                       <span className="text-sm font-semibold text-gray-400 whitespace-nowrap">{partner.name}</span>
                     )}

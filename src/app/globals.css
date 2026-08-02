@@ -135,3 +135,36 @@
 body {
   @apply font-sans;
 }
+
+/* ===== Performance Optimizations ===== */
+
+/* Layout containment for card components — isolate paint/layout */
+@utility contain-layout {
+  contain: layout style paint;
+}
+
+/* Animation performance — promote to GPU layer */
+@utility will-change-transform {
+  will-change: transform;
+}
+
+/* Aspect ratio utility for images */
+@utility aspect-square {
+  aspect-ratio: 1 / 1;
+}
+
+/* Scrollbar gutter — prevent CLS from scrollbar appearing */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* Prevent layout shift for dynamic content */
+.skeleton-pulse {
+  @apply animate-pulse rounded-xl bg-muted;
+}
+
+/* Image placeholder — prevent CLS before image loads */
+.image-placeholder {
+  @apply overflow-hidden rounded-xl bg-muted;
+  aspect-ratio: 16 / 9;
+}
