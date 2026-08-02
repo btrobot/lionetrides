@@ -181,5 +181,26 @@
     "step2_desc": "Our engineers review your requirements and provide a detailed quotation within 24 hours.",
     "step3_title": "Manufacturing & Delivery",
     "step3_desc": "Once confirmed, we manufacture with full quality control and deliver worldwide."
+  },
+  "home": {
+    "hero_badge": "Since 1995",
+    "hero_title": "World-Class Amusement Rides Manufacturer",
+    "hero_subtitle": "From roller coasters to water park attractions — we design, engineer and deliver thrill experiences that captivate millions of visitors worldwide.",
+    "explore_products": "Explore Products",
+    "send_inquiry": "Send Inquiry",
+    "categories_title": "Product Categories",
+    "categories_subtitle": "Comprehensive range of amusement rides for every type of venue",
+    "featured_title": "Featured Products",
+    "featured_subtitle": "Our best-selling amusement rides trusted by theme parks worldwide",
+    "view_all": "View All",
+    "certifications_title": "Certifications & Standards",
+    "partners_title": "Our Partners",
+    "factory_title": "50,000㎡ Smart Factory",
+    "factory_subtitle": "State-of-the-art manufacturing facility with ISO-certified quality management",
+    "process_title": "How It Works",
+    "process_subtitle": "Simple 3-step process to get your custom amusement rides",
+    "start_inquiry": "Start Your Inquiry",
+    "news_title": "News & Insights",
+    "news_subtitle": "Latest industry news, company updates and technical insights"
   }
 }

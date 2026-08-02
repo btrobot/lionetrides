@@ -181,5 +181,26 @@
     "step2_desc": "我们的工程师评估您的需求，并在24小时内提供详细报价。",
     "step3_title": "生产与交付",
     "step3_desc": "确认后，我们进行全流程质量管控生产，并交付至全球各地。"
+  },
+  "home": {
+    "hero_badge": "始于1995年",
+    "hero_title": "世界级游乐设施制造商",
+    "hero_subtitle": "从过山车到水上乐园设备 — 我们设计、制造和交付让全球数百万游客着迷的惊险体验。",
+    "explore_products": "探索产品",
+    "send_inquiry": "发送询盘",
+    "categories_title": "产品分类",
+    "categories_subtitle": "适合各类场所的全面游乐设施产品线",
+    "featured_title": "精选产品",
+    "featured_subtitle": "全球主题乐园信赖的热销游乐设施",
+    "view_all": "查看全部",
+    "certifications_title": "认证与标准",
+    "partners_title": "合作伙伴",
+    "factory_title": "50,000㎡ 智能工厂",
+    "factory_subtitle": "拥有ISO认证质量管理体系的尖端制造设施",
+    "process_title": "合作流程",
+    "process_subtitle": "三步获取定制游乐设施方案",
+    "start_inquiry": "开始询盘",
+    "news_title": "新闻动态",
+    "news_subtitle": "最新行业资讯、公司动态和技术洞察"
   }
 }
