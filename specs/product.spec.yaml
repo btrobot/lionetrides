@@ -1,0 +1,147 @@
+# Product Module Specification
+# Layer: 2 (产品体系)
+# Dependencies: Brand, Category
+
+module: Product
+version: '1.0'
+
+entities:
+  Product:
+    table: products
+    fields:
+      id:          { type: serial, primary: true }
+      sku:         { type: varchar(100), required: true, unique: true, note: "库存单位编码" }
+      brandId:     { type: integer, ref: brands.id, null: true }
+      categoryId:  { type: integer, ref: categories.id, null: true, note: "主分类" }
+      price:       { type: decimal(10,2), required: true, min: 0, note: "参考价格(B2B议价)" }
+      weight:      { type: integer, default: 0, unit: "kg", note: "设备重量" }
+      status:      { type: boolean, default: true, note: "true=上架 false=下架" }
+      featured:    { type: boolean, default: false, note: "true=首页推荐" }
+      sortOrder:   { type: integer, default: 0 }
+      createdAt:   { type: timestamp, auto: true }
+      updatedAt:   { type: timestamp, auto: true }
+      deletedAt:   { type: timestamp, null: true, note: "软删除" }
+
+  ProductDescription:
+    table: product_descriptions
+    fields:
+      id:            { type: serial, primary: true }
+      productId:     { type: integer, ref: products.id, required: true, onDelete: cascade }
+      locale:        { type: varchar(10), required: true, note: "zh / en / ar / de / es / fr / ja / ko / pt / ru / th" }
+      name:          { type: varchar(255), required: true }
+      description:   { type: text, default: "" }
+      specifications:{ type: jsonb, default: "{}", note: "技术参数键值对, e.g. {\"高度\":\"50m\",\"速度\":\"90km/h\"}" }
+      metaTitle:     { type: varchar(255), default: "" }
+      metaDescription: { type: text, default: "" }
+    unique: [productId, locale]
+
+  ProductImage:
+    table: product_images
+    fields:
+      id:         { type: serial, primary: true }
+      productId:  { type: integer, ref: products.id, required: true, onDelete: cascade }
+      image:      { type: varchar(255), required: true }
+      isPrimary:  { type: boolean, default: false, note: "主图" }
+      sortOrder:  { type: integer, default: 0 }
+
+  ProductCategory:
+    table: product_categories
+    fields:
+      productId:   { type: integer, ref: products.id, required: true, onDelete: cascade }
+      categoryId:  { type: integer, ref: categories.id, required: true, onDelete: cascade }
+    primary: [productId, categoryId]
+
+relations:
+  Product:
+    brand:     { type: belongs_to, entity: Brand, via: brandId }
+    category:  { type: belongs_to, entity: Category, via: categoryId, note: "主分类" }
+    categories:{ type: many_to_many, entity: Category, pivot: ProductCategory }
+    images:    { type: has_many, entity: ProductImage, via: productId }
+    descr:     { type: has_many, entity: ProductDescription, via: productId, note: "多语言" }
+    inquiries: { type: has_many, entity: Inquiry, via: productId, note: "B2B询盘" }
+
+state_machine:
+  Product.status:
+    initial: false
+    transitions:
+      - { from: false, to: [true], note: "下架→上架" }
+      - { from: true,  to: [false], note: "上架→下架", pre: "无未处理询盘" }
+
+operations:
+  list:
+    method: GET
+    path: /api/v1/products
+    auth: public
+    cache: 30
+    input:
+      locale:    { type: string, default: "zh" }
+      page:      { type: integer, default: 1, min: 1 }
+      pageSize:  { type: integer, default: 20, min: 1, max: 100 }
+      sort:      { type: enum, values: [sortOrder, price_asc, price_desc, created_at], default: sortOrder }
+      categoryId:{ type: integer, optional: true }
+      brandId:   { type: integer, optional: true }
+      search:    { type: string, optional: true }
+      featured:  { type: boolean, optional: true, note: "仅推荐产品" }
+    output:
+      items: { type: array, of: Product }
+      total: { type: integer }
+      page:  { type: integer }
+    post: "返回分页产品列表，含多语言名称和首图"
+
+  detail:
+    method: GET
+    path: /api/v1/products/:id
+    auth: public
+    input:
+      id:     { type: integer, required: true }
+      locale: { type: string, default: "zh" }
+    pre: "产品存在且未删除"
+    output: { type: Product, with: [images, descr, categories, brand] }
+    post: "返回产品完整信息（含图片/描述/分类/品牌/技术参数）"
+    errors:
+      - { code: 404, condition: "产品不存在或已删除", message: "产品未找到" }
+
+  create:
+    method: POST
+    path: /api/v1/products
+    auth: admin
+    input:
+      sku:         { type: string, required: true, max: 100 }
+      price:       { type: decimal, required: true, min: 0 }
+      weight:      { type: integer, optional: true, default: 0 }
+      categoryId:  { type: integer, optional: true }
+      brandId:     { type: integer, optional: true }
+      descriptions:{ type: object, required: true, note: "多语言描述, key=locale" }
+      categoryIds: { type: array, of: integer, optional: true }
+    pre:
+      - "SKU 唯一"
+      - "brandId 存在（如提供）"
+      - "categoryIds 均存在（如提供）"
+    post:
+      - "产品创建"
+      - "多语言描述记录创建"
+      - "分类关联创建"
+
+  update:
+    method: PUT
+    path: /api/v1/products/:id
+    auth: admin
+    pre: "产品存在"
+    post: "产品字段更新"
+
+  delete:
+    method: DELETE
+    path: /api/v1/products/:id
+    auth: admin
+    pre:
+      - "产品存在"
+      - "无未处理询盘（inquiry.status ∈ [pending, responded]）"
+    post: "软删除（deletedAt = now）"
+    effects: "软删除，不物理删除数据"
+
+rules:
+  - "上架产品 (status=true) 必须至少有 1 张图片"
+  - "SKU 一经创建不可修改"
+  - "产品名称在至少一个 locale 中不能为空"
+  - "软删除的产品不展示在前台"
+  - "featured=true 的产品必须 status=true"

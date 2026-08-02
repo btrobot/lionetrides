@@ -1,0 +1,81 @@
+# Review Module Specification
+# Layer: 4 (售后体系)
+# Dependencies: Customer, Product, Inquiry
+
+module: Review
+version: '1.0'
+
+entities:
+  Review:
+    table: reviews
+    fields:
+      id:         { type: serial, primary: true }
+      customerId: { type: integer, ref: customers.id, required: true }
+      productId:  { type: integer, ref: products.id, required: true }
+      inquiryId:  { type: integer, ref: inquiries.id, null: true, note: "关联询盘（如通过询盘购买）" }
+      rating:     { type: integer, required: true, min: 1, max: 5, note: "评分 1-5 星" }
+      content:    { type: text, default: "" }
+      status:     { type: boolean, default: true, note: "true=展示 false=隐藏" }
+      createdAt:  { type: timestamp, auto: true }
+
+  ReviewImage:
+    table: review_images
+    fields:
+      id:       { type: serial, primary: true }
+      reviewId: { type: integer, ref: reviews.id, required: true, onDelete: cascade }
+      image:    { type: varchar(255), required: true }
+
+relations:
+  Review:
+    customer: { type: belongs_to, entity: Customer, via: customerId }
+    product:  { type: belongs_to, entity: Product, via: productId }
+    inquiry:  { type: belongs_to, entity: Inquiry, via: inquiryId }
+    images:   { type: has_many, entity: ReviewImage, via: reviewId }
+
+operations:
+  list:
+    method: GET
+    path: /api/v1/reviews
+    auth: public
+    cache: 60
+    input:
+      productId: { type: integer, required: true }
+      page:      { type: integer, default: 1 }
+      pageSize:  { type: integer, default: 10 }
+    output: { items: array, total: integer, rating: { average: decimal, count: integer } }
+    post: "返回产品评价列表，含评分统计"
+
+  create:
+    method: POST
+    path: /api/v1/reviews
+    auth: required
+    input:
+      productId: { type: integer, required: true }
+      rating:    { type: integer, required: true, min: 1, max: 5 }
+      content:   { type: string, optional: true, max: 2000 }
+      images:    { type: array, of: string, optional: true, max: 5 }
+    pre:
+      - "产品存在"
+      - "同一客户对同一产品未评价过"
+    post: "评价创建，含图片"
+
+  approve:
+    method: PUT
+    path: /api/v1/reviews/:id/approve
+    auth: admin
+    pre:  "评价存在"
+    post: "评价 status = true (前台可见)"
+
+  hide:
+    method: PUT
+    path: /api/v1/reviews/:id/hide
+    auth: admin
+    pre:  "评价存在"
+    post: "评价 status = false (前台隐藏)"
+
+rules:
+  - "一个客户对一个产品只能评价一次"
+  - "评分必须在 1-5 之间"
+  - "评价创建后默认为前台可见 (status=true)"
+  - "管理员可隐藏不合适的评价"
+  - "产品详情页展示的评价平均分四舍五入到一位小数"

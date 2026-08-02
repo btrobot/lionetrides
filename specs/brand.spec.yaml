@@ -1,0 +1,59 @@
+# Brand Module Specification
+# Layer: 1 (基础数据)
+# Dependencies: (none)
+
+module: Brand
+version: '1.0'
+
+entities:
+  Brand:
+    table: brands
+    fields:
+      id:          { type: serial, primary: true }
+      name:        { type: varchar(128), required: true, unique: true }
+      logo:        { type: varchar(255), default: "" }
+      description: { type: text, default: "" }
+      website:     { type: varchar(255), default: "" }
+      sortOrder:   { type: integer, default: 0 }
+      status:      { type: boolean, default: true }
+      createdAt:   { type: timestamp, auto: true }
+      updatedAt:   { type: timestamp, auto: true }
+
+relations:
+  Brand:
+    products: { type: has_many, entity: Product, via: brandId }
+
+operations:
+  list:
+    method: GET
+    path: /api/v1/brands
+    auth: public
+    cache: 120
+    output: { items: [Brand] }
+
+  create:
+    method: POST
+    path: /api/v1/brands
+    auth: admin
+    input: { name: required, logo: optional, description: optional, website: optional, sortOrder: optional }
+    pre:  "品牌名唯一"
+    post: "品牌创建"
+
+  update:
+    method: PUT
+    path: /api/v1/brands/:id
+    auth: admin
+    pre:  "品牌存在"
+    post: "品牌更新"
+
+  delete:
+    method: DELETE
+    path: /api/v1/brands/:id
+    auth: admin
+    pre:  "品牌无关联产品"
+    post: "品牌删除"
+
+rules:
+  - "品牌名唯一"
+  - "有产品的品牌不可删除"
+  - "前台只展示 status = true 的品牌"

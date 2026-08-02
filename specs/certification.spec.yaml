@@ -1,0 +1,52 @@
+# Certification Module Specification
+# Layer: 0 (独立基础)
+# Dependencies: (none)
+
+module: Certification
+version: '1.0'
+
+entities:
+  Certification:
+    table: certifications
+    fields:
+      id:          { type: serial, primary: true }
+      name:        { type: varchar(128), required: true, unique: true }
+      logo:        { type: varchar(255), required: true, note: "认证图标" }
+      description: { type: text, default: "" }
+      sortOrder:   { type: integer, default: 0 }
+      status:      { type: boolean, default: true }
+      createdAt:   { type: timestamp, auto: true }
+
+operations:
+  list:
+    method: GET
+    path: /api/v1/certifications
+    auth: public
+    cache: 3600
+    output: { items: [Certification] }
+    post: "返回所有 status=true 的认证资质"
+
+  create:
+    method: POST
+    path: /api/v1/certifications
+    auth: admin
+    input: { name: required, logo: required, description: optional, sortOrder: optional }
+    post: "认证资质创建"
+
+  update:
+    method: PUT
+    path: /api/v1/certifications/:id
+    auth: admin
+    pre:  "认证存在"
+    post: "认证更新"
+
+  delete:
+    method: DELETE
+    path: /api/v1/certifications/:id
+    auth: admin
+    pre:  "认证存在"
+    post: "认证删除"
+
+rules:
+  - "前台只展示 status = true 的认证资质"
+  - "认证按 sortOrder 升序排列"

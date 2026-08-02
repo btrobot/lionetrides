@@ -1,0 +1,99 @@
+# Customer Module Specification
+# Layer: 3 (客户体系)
+# Dependencies: Auth
+
+module: Customer
+version: '1.0'
+
+entities:
+  Customer:
+    table: customers
+    fields:
+      id:         { type: serial, primary: true }
+      email:      { type: varchar(255), required: true, unique: true }
+      password:   { type: varchar(255), required: true, note: "bcrypt 哈希" }
+      name:       { type: varchar(100), required: true }
+      phone:      { type: varchar(50), default: "" }
+      company:    { type: varchar(255), default: "" }
+      role:       { type: enum, values: [customer, admin, super_admin], default: customer }
+      status:     { type: boolean, default: true, note: "true=启用 false=禁用" }
+      avatar:     { type: varchar(255), default: "" }
+      lastLogin:  { type: timestamp, null: true }
+      createdAt:  { type: timestamp, auto: true }
+      updatedAt:  { type: timestamp, auto: true }
+      deletedAt:  { type: timestamp, null: true, note: "软删除" }
+
+  CustomerAddress:
+    table: customer_addresses
+    fields:
+      id:         { type: serial, primary: true }
+      customerId: { type: integer, ref: customers.id, required: true, onDelete: cascade }
+      name:       { type: varchar(100), required: true, note: "收件人" }
+      phone:      { type: varchar(50), required: true }
+      country:    { type: varchar(100), default: "" }
+      province:   { type: varchar(100), default: "" }
+      city:       { type: varchar(100), default: "" }
+      address:    { type: varchar(500), required: true }
+      isDefault:  { type: boolean, default: false }
+
+  CustomerFavorite:
+    table: customer_favorites
+    fields:
+      customerId: { type: integer, ref: customers.id, required: true, onDelete: cascade }
+      productId:  { type: integer, ref: products.id, required: true, onDelete: cascade }
+      createdAt:  { type: timestamp, auto: true }
+    primary: [customerId, productId]
+
+relations:
+  Customer:
+    addresses: { type: has_many, entity: CustomerAddress, via: customerId }
+    favorites: { type: has_many, entity: CustomerFavorite, via: customerId }
+    inquiries: { type: has_many, entity: Inquiry, via: customerId }
+
+operations:
+  list:
+    method: GET
+    path: /api/v1/customers
+    auth: admin
+    input:
+      page:     { type: integer, default: 1 }
+      pageSize: { type: integer, default: 20 }
+      search:   { type: string, optional: true }
+    output: { items: array, total: integer, page: integer }
+
+  getById:
+    method: GET
+    path: /api/v1/customers/:id
+    auth: admin
+    pre:  "客户存在"
+    output: { type: Customer, with: [addresses, inquiries] }
+
+  updateProfile:
+    method: PUT
+    path: /api/v1/customers/:id
+    auth: required
+    pre:  "客户存在且属于当前用户（或管理员）"
+    post: "客户信息更新"
+
+  addFavorite:
+    method: POST
+    path: /api/v1/customers/favorites
+    auth: required
+    input: { productId: integer, required: true }
+    pre:  "产品存在且未收藏"
+    post: "收藏记录创建"
+
+  removeFavorite:
+    method: DELETE
+    path: /api/v1/customers/favorites/:productId
+    auth: required
+    pre:  "收藏记录存在"
+    post: "收藏记录删除"
+
+rules:
+  - "邮箱全局唯一"
+  - "密码使用 bcrypt 哈希存储, 不存储明文"
+  - "一个客户对同一产品只能收藏一次"
+  - "客户只能修改自己的信息（管理员除外）"
+  - "软删除的客户无法登录"
+  - "admin 角色可管理所有客户"

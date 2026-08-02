@@ -1,0 +1,70 @@
+# Settings Module Specification
+# Layer: 0 (独立基础)
+# Dependencies: (none)
+
+module: Settings
+version: '1.0'
+
+entities:
+  Setting:
+    table: settings
+    fields:
+      id:          { type: serial, primary: true }
+      key:         { type: varchar(128), required: true, unique: true }
+      value:       { type: text, default: "" }
+      group:       { type: varchar(64), default: "general", note: "配置分组" }
+      type:        { type: enum, values: [text, image, number, boolean, json], default: "text" }
+      description: { type: text, default: "" }
+      updatedAt:   { type: timestamp, auto: true }
+
+  SiteStat:
+    table: site_stats
+    note: "首页数据统计"
+    fields:
+      id:       { type: serial, primary: true }
+      label:    { type: varchar(64), required: true, note: "统计标签, 如'年经验'" }
+      value:    { type: integer, required: true }
+      suffix:   { type: varchar(16), default: "+" }
+      icon:     { type: varchar(64), default: "Building2" }
+      sortOrder: { type: integer, default: 0 }
+      status:   { type: boolean, default: true }
+
+  TeamMember:
+    table: team_members
+    fields:
+      id:          { type: serial, primary: true }
+      name:        { type: varchar(128), required: true }
+      title:       { type: varchar(128), required: true, note: "职位" }
+      avatar:      { type: varchar(255), default: "" }
+      description: { type: text, default: "" }
+      sortOrder:   { type: integer, default: 0 }
+      status:      { type: boolean, default: true }
+
+operations:
+  getSettings:
+    method: GET
+    path: /api/v1/settings
+    auth: public
+    cache: 3600
+    output: { settings: [Setting], stats: [SiteStat], team: [TeamMember] }
+    post: "返回所有站点配置"
+
+  updateSetting:
+    method: PUT
+    path: /api/v1/settings/:key
+    auth: admin
+    input: { value: required }
+    pre:  "配置项 key 存在"
+    post: "配置值更新"
+
+  updateStats:
+    method: PUT
+    path: /api/v1/settings/stats
+    auth: admin
+    input: { stats: [id: integer, value: integer] }
+    post: "统计数据批量更新"
+
+rules:
+  - "配置 key 全局唯一"
+  - "站点配置缓存 3600s"
+  - "统计数据只由管理员维护"

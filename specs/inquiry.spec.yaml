@@ -1,0 +1,113 @@
+# Inquiry Module Specification
+# Layer: 3 (客户与交易)
+# Dependencies: Customer, Product
+
+module: Inquiry
+version: '1.0'
+
+entities:
+  Inquiry:
+    table: inquiries
+    fields:
+      id:          { type: serial, primary: true }
+      customerId:  { type: integer, ref: customers.id, required: true }
+      productId:   { type: integer, ref: products.id, null: true, note: "null=通用询盘" }
+      status:      { type: enum, values: [pending, responded, closed], default: pending }
+      name:        { type: varchar(100), required: true, note: "联系人姓名" }
+      email:       { type: varchar(255), required: true }
+      phone:       { type: varchar(50), default: "" }
+      company:     { type: varchar(255), default: "" }
+      quantity:    { type: integer, default: 1, min: 1, note: "需求数量" }
+      message:     { type: text, required: true }
+      adminNote:   { type: text, default: "", note: "管理员回复备注" }
+      respondedAt: { type: timestamp, null: true }
+      createdAt:   { type: timestamp, auto: true }
+      updatedAt:   { type: timestamp, auto: true }
+
+  InquiryHistory:
+    table: inquiry_histories
+    fields:
+      id:          { type: serial, primary: true }
+      inquiryId:   { type: integer, ref: inquiries.id, required: true, onDelete: cascade }
+      fromStatus:  { type: varchar(50), null: true }
+      toStatus:    { type: varchar(50), required: true }
+      operator:    { type: varchar(100), default: "system" }
+      note:        { type: text, default: "" }
+      createdAt:   { type: timestamp, auto: true }
+
+relations:
+  Inquiry:
+    customer:  { type: belongs_to, entity: Customer, via: customerId }
+    product:   { type: belongs_to, entity: Product, via: productId }
+    histories: { type: has_many, entity: InquiryHistory, via: inquiryId }
+
+state_machine:
+  Inquiry.status:
+    initial: pending
+    transitions:
+      - { from: pending,   to: [responded, closed], note: "回复/关闭" }
+      - { from: responded, to: [closed],            note: "关闭（已处理完毕）" }
+      - { from: closed,    to: [responded],         note: "重新打开", pre: "管理员权限" }
+    illegal_transitions:
+      - [pending, pending]
+      - [closed, closed]
+
+operations:
+  create:
+    method: POST
+    path: /api/v1/inquiries
+    auth: required
+    input:
+      productId: { type: integer, optional: true }
+      name:      { type: string, required: true, max: 100 }
+      email:     { type: email, required: true }
+      phone:     { type: string, optional: true }
+      company:   { type: string, optional: true }
+      quantity:  { type: integer, optional: true, default: 1, min: 1 }
+      message:   { type: string, required: true, max: 5000 }
+    pre:
+      - "产品存在（如提供 productId）"
+      - "同一客户 24 小时内对同一产品最多提交 3 次询盘"
+    post:
+      - "Inquiry 创建, status=pending"
+      - "InquiryHistory 记录 (created)"
+    effects: "通知管理员"
+
+  list:
+    method: GET
+    path: /api/v1/inquiries
+    auth: required
+    input:
+      page:     { type: integer, default: 1 }
+      pageSize: { type: integer, default: 20 }
+      status:   { type: enum, values: [pending, responded, closed], optional: true }
+      productId:{ type: integer, optional: true }
+    output: { items: array, total: integer, page: integer }
+    post:
+      - "客户只能看到自己的询盘"
+      - "管理员可以看到所有询盘"
+    errors:
+      - { code: 403, condition: "非管理员查看他人询盘", message: "无权限查看" }
+
+  updateStatus:
+    method: PUT
+    path: /api/v1/inquiries/:id
+    auth: admin
+    input:
+      status:   { type: enum, values: [responded, closed], required: true }
+      adminNote:{ type: string, optional: true }
+    pre:
+      - "询盘存在"
+      - "状态转换合法（见状态机）"
+    post:
+      - "inquiry.status 更新"
+      - "inquiry.adminNote 更新（如提供）"
+      - "如→responded: 记录 respondedAt=now"
+      - "InquiryHistory 记录"
+
+rules:
+  - "客户只能查看自己的询盘"
+  - "管理员可查看所有询盘并执行状态变更"
+  - "同一客户 24 小时内对同一产品最多提交 3 次询盘（防刷）"
+  - "询盘关闭后不可再回复，除非管理员重新打开"
+  - "询盘状态变更必须记录 InquiryHistory"

@@ -1,0 +1,92 @@
+# News Module Specification
+# Layer: 1 (基础数据)
+# Dependencies: (none)
+
+module: News
+version: '1.0'
+
+entities:
+  News:
+    table: news
+    fields:
+      id:          { type: serial, primary: true }
+      slug:        { type: varchar(255), unique: true, note: "URL友好标识" }
+      image:       { type: varchar(255), default: "" }
+      category:    { type: enum, values: [company, industry, product], note: "公司新闻/行业资讯/产品动态" }
+      status:      { type: boolean, default: true }
+      sortOrder:   { type: integer, default: 0 }
+      publishedAt: { type: timestamp, null: true, note: "发布时间" }
+      createdAt:   { type: timestamp, auto: true }
+      updatedAt:   { type: timestamp, auto: true }
+
+  NewsDescription:
+    table: news_descriptions
+    fields:
+      id:            { type: serial, primary: true }
+      newsId:        { type: integer, ref: news.id, required: true, onDelete: cascade }
+      locale:        { type: varchar(10), required: true }
+      title:         { type: varchar(255), required: true }
+      summary:       { type: text, default: "", note: "摘要" }
+      content:       { type: text, default: "", note: "正文 (HTML)" }
+      metaTitle:     { type: varchar(255), default: "" }
+      metaDescription: { type: text, default: "" }
+    unique: [newsId, locale]
+
+operations:
+  list:
+    method: GET
+    path: /api/v1/news
+    auth: public
+    cache: 60
+    input:
+      locale:   { type: string, default: "zh" }
+      page:     { type: integer, default: 1 }
+      pageSize: { type: integer, default: 10 }
+      category: { type: enum, values: [company, industry, product], optional: true }
+    output: { items: array, total: integer, page: integer }
+    post: "返回新闻列表，按 publishedAt 降序"
+
+  detail:
+    method: GET
+    path: /api/v1/news/:id
+    auth: public
+    input:
+      id:     { type: integer, required: true }
+      locale: { type: string, default: "zh" }
+    pre:  "新闻存在且 status=true"
+    output: { type: News, with: [descr] }
+    errors:
+      - { code: 404, condition: "新闻不存在", message: "新闻未找到" }
+
+  create:
+    method: POST
+    path: /api/v1/news
+    auth: admin
+    input:
+      slug:      { type: string, required: true }
+      image:     { type: string, optional: true }
+      category:  { type: enum, values: [company, industry, product], required: true }
+      titles:    { type: object, required: true, note: "多语言标题, key=locale" }
+      contents:  { type: object, required: true, note: "多语言正文, key=locale" }
+    pre:  "slug 唯一"
+    post: "新闻创建，含多语言内容"
+
+  update:
+    method: PUT
+    path: /api/v1/news/:id
+    auth: admin
+    pre:  "新闻存在"
+    post: "新闻更新"
+
+  delete:
+    method: DELETE
+    path: /api/v1/news/:id
+    auth: admin
+    pre:  "新闻存在"
+    post: "新闻删除（级联描述）"
+
+rules:
+  - "slug 全局唯一"
+  - "前台只展示 status=true 且 publishedAt ≤ now 的新闻"
+  - "新闻列表按 publishedAt 降序排列"
+  - "新闻正文支持 HTML 格式"

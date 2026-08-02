@@ -3,6 +3,15 @@
 ## 项目概述
 游乐设施制造与销售公司 B2B 企业官网。技术栈：Next.js 16 (App Router) + TypeScript 5 + Tailwind CSS 4 + shadcn/ui + PostgreSQL + Drizzle ORM + next-intl。
 
+## 规格建模（Specs）
+项目采用形式化规格（Formal Specification）驱动开发，详见 `specs/` 目录。
+
+- **SPEC_GUIDE.md** — 规格建模指南与规范
+- **SPEC_INDEX.md** — 规格索引与实体关系
+- **`*.spec.yaml`** — 每个业务模块的完整规格（实体/操作/状态机/规则）
+
+**开发原则**：数据库 Schema、API 路由、业务逻辑、测试用例都必须与 spec 保持一致。修改业务前，先更新对应 spec 文件。
+
 ## 目录结构
 ```
 src/

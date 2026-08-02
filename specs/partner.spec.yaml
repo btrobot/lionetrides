@@ -1,0 +1,52 @@
+# Partner Module Specification
+# Layer: 0 (独立基础)
+# Dependencies: (none)
+
+module: Partner
+version: '1.0'
+
+entities:
+  Partner:
+    table: partners
+    fields:
+      id:          { type: serial, primary: true }
+      name:        { type: varchar(128), required: true }
+      logo:        { type: varchar(255), required: true }
+      website:     { type: varchar(255), default: "" }
+      sortOrder:   { type: integer, default: 0 }
+      status:      { type: boolean, default: true }
+      createdAt:   { type: timestamp, auto: true }
+
+operations:
+  list:
+    method: GET
+    path: /api/v1/partners
+    auth: public
+    cache: 3600
+    output: { items: [Partner] }
+    post: "返回所有 status=true 的合作伙伴"
+
+  create:
+    method: POST
+    path: /api/v1/partners
+    auth: admin
+    input: { name: required, logo: required, website: optional, sortOrder: optional }
+    post: "合作伙伴创建"
+
+  update:
+    method: PUT
+    path: /api/v1/partners/:id
+    auth: admin
+    pre:  "合作伙伴存在"
+    post: "合作伙伴更新"
+
+  delete:
+    method: DELETE
+    path: /api/v1/partners/:id
+    auth: admin
+    pre:  "合作伙伴存在"
+    post: "合作伙伴删除"
+
+rules:
+  - "前台只展示 status = true 的合作伙伴"
+  - "合作伙伴按 sortOrder 升序排列"
