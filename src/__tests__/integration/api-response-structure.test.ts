@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { paginatedResponse, errorResponse, AppError, NotFoundError, ValidationError, AuthError, type PaginationParams } from '@/lib/errors';
+import { paginatedResponse, errorResponse, NotFoundError, ValidationError, AuthError, type PaginationParams } from '@/lib/errors';
 
 /**
  * API 契约测试：验证所有 API 响应结构的统一性

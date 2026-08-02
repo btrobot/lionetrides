@@ -68,14 +68,14 @@ async function main() {
 
   // Partners
   const partnerData = [
-    { name: 'Disney Parks', slug: 'disney', description: 'Global theme park leader', logo_url: '/api/placeholder/200/80', website: 'https://disney.com', sort_order: 1 },
-    { name: 'Universal Studios', slug: 'universal', description: 'Movie-themed entertainment', logo_url: '/api/placeholder/200/80', website: 'https://universal.com', sort_order: 2 },
-    { name: 'Six Flags', slug: 'six-flags', description: 'Regional theme park chain', logo_url: '/api/placeholder/200/80', website: 'https://sixflags.com', sort_order: 3 },
-    { name: 'Merlin Entertainments', slug: 'merlin', description: 'European attraction operator', logo_url: '/api/placeholder/200/80', website: 'https://merlin.com', sort_order: 4 },
-    { name: 'OCT Group', slug: 'oct', description: 'China\'s largest theme park operator', logo_url: '/api/placeholder/200/80', website: 'https://oct.com', sort_order: 5 },
-    { name: 'Chimelong', slug: 'chimelong', description: 'Guangzhou-based theme park group', logo_url: '/api/placeholder/200/80', website: 'https://chimelong.com', sort_order: 6 },
+    { name: 'Disney Parks', description: 'Global theme park leader', logo_url: '/api/placeholder/200/80', website: 'https://disney.com', sort_order: 1 },
+    { name: 'Universal Studios', description: 'Movie-themed entertainment', logo_url: '/api/placeholder/200/80', website: 'https://universal.com', sort_order: 2 },
+    { name: 'Six Flags', description: 'Regional theme park chain', logo_url: '/api/placeholder/200/80', website: 'https://sixflags.com', sort_order: 3 },
+    { name: 'Merlin Entertainments', description: 'European attraction operator', logo_url: '/api/placeholder/200/80', website: 'https://merlin.com', sort_order: 4 },
+    { name: 'OCT Group', description: 'China\'s largest theme park operator', logo_url: '/api/placeholder/200/80', website: 'https://oct.com', sort_order: 5 },
+    { name: 'Chimelong', description: 'Guangzhou-based theme park group', logo_url: '/api/placeholder/200/80', website: 'https://chimelong.com', sort_order: 6 },
   ];
-  await db.insert(partners).values(partnerData).onConflictDoNothing({ target: partners.slug }).returning();
+  await db.insert(partners).values(partnerData).onConflictDoNothing({ target: partners.name }).returning();
   console.log(`  ✅ ${partnerData.length} partners`);
 
   console.log('\n🎉 Seeding complete!');

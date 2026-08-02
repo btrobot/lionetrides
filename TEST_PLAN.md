@@ -199,7 +199,29 @@ it('API 返回错误结构时页面不崩溃', async () => {
 });
 ```
 
-### 2.6 E2E 测试 (End-to-End Tests) — 占比 5%
+### 2.6 回归测试 (Regression Tests) — 新增
+
+**目标**: 防止已修复的 Bug 再次出现，为每个已知 Bug 建立永久防御
+
+**工具**: `Vitest`
+
+**覆盖范围**（当前已实现）:
+
+| 文件 | 测试数 | 覆盖的 Bug | 验证点 |
+|------|--------|-----------|--------|
+| `src/__tests__/unit/regression/api-response-shape.test.ts` | 11 | `a.map is not a function` | API 三种响应模式的访问安全（`d.data?.items ?? []` / `d.data ?? []`） |
+| `src/__tests__/unit/regression/reviews-pagination.test.ts` | 6 | Reviews API 500 (`count` 变量名冲突) | `paginatedResponse` 边界情况（0/1/大数/NaN） |
+| `src/__tests__/unit/regression/i18n-namespace.test.ts` | 6 | `MISSING_MESSAGE: Could not resolve 'home'` | 所有命名空间在 11 种语言中一致性 |
+| `src/__tests__/unit/regression/brands-empty-state.test.ts` | 3 | 品牌页空数组无空状态提示 | 空数组/null/undefined 兜底逻辑 |
+| `src/__tests__/unit/regression/mock-sequencing.test.ts` | 5 | Mock 调用顺序不一致 | `vi.mock` 链式调用顺序 |
+| `src/__tests__/unit/regression/schema-integrity.test.ts` | 17 | DB Schema 46 张表完整性 | 表结构、列名、关系、默认值 |
+| `src/__tests__/unit/regression/zod-format.test.ts` | 7 | Zod Schema 验证规则 | 有效数据通过 + 无效数据拒绝 |
+
+**原则**:
+- 每个线上/测试发现的 Bug 修复后，**必须**添加至少一个回归测试
+- 回归测试名包含 `Reg:` 前缀，便于识别
+- 回归测试只测试**已修复的 Bug 场景**，不替代单元测试的完整覆盖率
+- 回归测试放在 `src/__tests__/unit/regression/` 目录下
 
 **目标**: 覆盖关键 B2B 业务路径
 
@@ -274,9 +296,11 @@ E2E 测试       5%  ###
 
 ### 4.2 各阶段数量目标
 
-| 阶段 | 单元测试 | 组件测试 | 集成测试 | E2E 测试 | 总计 |
-|------|---------|---------|---------|---------|------|
-| **当前** | 0 | 0 | 0 | 0 | 0 |
+| 阶段 | 单元测试 | 组件测试 | 集成测试 | 回归测试 | E2E 测试 | 总计 |
+|------|---------|---------|---------|---------|---------|------|
+| **当前** | 104 | 7 | 8 | 41 | 0 | **160** |
+| **v1.0 目标** | 140 | 30 | 20 | 50 | 5 | **245** |
+| **v2.0 目标** | 250 | 60 | 40 | 100 | 10 | **460** |
 | **v1.0 短期** | 140 | 30 | 20 | 10 | 200 |
 | **v1.5 中期** | 280 | 60 | 40 | 20 | 400 |
 | **v2.0 长期** | 350 | 75 | 50 | 25 | 500 |
