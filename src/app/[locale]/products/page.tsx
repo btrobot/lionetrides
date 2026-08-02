@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { Search, SlidersHorizontal, Grid3X3, List, Star } from 'lucide-react';
+import { Search, SlidersHorizontal, Grid3X3, List, Star, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -14,6 +14,7 @@ import {
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useInquiry } from '@/components/shared/inquiry-dialog';
+import { Pagination } from '@/components/shared/pagination';
 
 interface Product {
   id: number;
@@ -38,6 +39,13 @@ interface Category {
   description: string | null;
 }
 
+interface Brand {
+  id: number;
+  name: string;
+  slug: string;
+  logo_url: string | null;
+}
+
 export default function ProductsPage() {
   const t = useTranslations('products');
   const searchParams = useSearchParams();
@@ -45,51 +53,77 @@ export default function ProductsPage() {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState(searchParams.get('q') || '');
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
-  const [sortBy, setSortBy] = useState('newest');
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const { openInquiry } = useInquiry();
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const [prodRes, catRes] = await Promise.all([
-          fetch('/api/v1/products?limit=100'),
-          fetch('/api/v1/categories'),
-        ]);
-        const prodData = await prodRes.json();
-        const catData = await catRes.json();
-        setProducts(prodData.items || []);
-        setCategories(catData.data?.items || []);
-      } catch (err) {
-        console.error('Failed to load products:', err);
-      } finally {
-        setLoading(false);
-      }
+  const currentPage = parseInt(searchParams.get('page') || '1');
+  const search = searchParams.get('q') || '';
+  const selectedCategory = searchParams.get('category') || '';
+  const selectedBrand = searchParams.get('brand') || '';
+  const sortBy = searchParams.get('sort') || 'newest';
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({ page: String(currentPage), pageSize: '12' });
+      if (search) params.set('search', search);
+      if (selectedCategory) params.set('categoryId', selectedCategory);
+      if (selectedBrand) params.set('brandId', selectedBrand);
+      if (sortBy === 'price-asc') { params.set('sortBy', 'price'); params.set('sortOrder', 'asc'); }
+      else if (sortBy === 'price-desc') { params.set('sortBy', 'price'); params.set('sortOrder', 'desc'); }
+      else if (sortBy === 'name') { params.set('sortBy', 'name'); params.set('sortOrder', 'asc'); }
+      else { params.set('sortBy', 'id'); params.set('sortOrder', 'desc'); }
+
+      const [prodRes, catRes, brandRes] = await Promise.all([
+        fetch(`/api/v1/products?${params.toString()}`),
+        fetch('/api/v1/categories'),
+        fetch('/api/v1/brands'),
+      ]);
+      const prodData = await prodRes.json();
+      const catData = await catRes.json();
+      const brandData = await brandRes.json();
+
+      setProducts(prodData.items?.filter((p: Product) => p.status === 'published') || []);
+      setTotal(prodData.total || 0);
+      setTotalPages(prodData.totalPages || 0);
+      setCategories(catData.data?.items || []);
+      setBrands(brandData.data || []);
+    } catch (err) {
+      console.error('Failed to load products:', err);
+    } finally {
+      setLoading(false);
     }
-    fetchData();
-  }, []);
+  }, [currentPage, search, selectedCategory, selectedBrand, sortBy]);
 
-  const filtered = products
-    .filter((p) => p.status === 'published')
-    .filter((p) => selectedCategory === 'all' || p.category_id === Number(selectedCategory))
-    .filter((p) => !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.description?.toLowerCase().includes(search.toLowerCase()))
-    .sort((a, b) => {
-      if (sortBy === 'price-asc') return Number(a.price || 0) - Number(b.price || 0);
-      if (sortBy === 'price-desc') return Number(b.price || 0) - Number(a.price || 0);
-      if (sortBy === 'name') return a.name.localeCompare(b.name);
-      return b.id - a.id;
-    });
+  useEffect(() => { fetchData(); }, [fetchData]);
 
-  const handleCategoryChange = (val: string) => {
-    setSelectedCategory(val);
-    const params = new URLSearchParams(searchParams.toString());
-    if (val && val !== 'all') params.set('category', val);
-    else params.delete('category');
-    router.replace(`?${params.toString()}`);
+  const updateParams = (updates: Record<string, string | null>) => {
+    const params = new URLSearchParams();
+    // carry over existing params
+    const keys = ['q', 'category', 'brand', 'sort', 'page'];
+    for (const key of keys) {
+      const val = searchParams.get(key);
+      if (val) params.set(key, val);
+    }
+    // apply updates
+    for (const [key, val] of Object.entries(updates)) {
+      if (val) params.set(key, val);
+      else params.delete(key);
+    }
+    // Reset to page 1 when filters change
+    if (!('page' in updates)) params.set('page', '1');
+    router.push(`?${params.toString()}`);
   };
+
+  const clearFilters = () => {
+    router.push('?');
+  };
+
+  const hasActiveFilters = search || selectedCategory || selectedBrand;
 
   function ProductCardItem({ product }: { product: Product }) {
     return (
@@ -190,14 +224,17 @@ export default function ProductsPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
                 placeholder={t('search_placeholder')}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                defaultValue={search}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    updateParams({ q: (e.target as HTMLInputElement).value || null });
+                  }
+                }}
                 className="pl-10"
               />
             </div>
-            <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+            <Select value={selectedCategory || 'all'} onValueChange={(val) => updateParams({ category: val === 'all' ? null : val })}>
               <SelectTrigger className="w-[180px]">
-                <SlidersHorizontal className="w-4 h-4 mr-2" />
                 <SelectValue placeholder={t('all_categories')} />
               </SelectTrigger>
               <SelectContent>
@@ -207,75 +244,132 @@ export default function ProductsPage() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[160px]">
-                <SelectValue />
+            <Select value={selectedBrand || 'all'} onValueChange={(val) => updateParams({ brand: val === 'all' ? null : val })}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="All Brands" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="newest">{t('newest')}</SelectItem>
-                <SelectItem value="price-asc">{t('price_low')}</SelectItem>
-                <SelectItem value="price-desc">{t('price_high')}</SelectItem>
-                <SelectItem value="name">{t('name')}</SelectItem>
+                <SelectItem value="all">All Brands</SelectItem>
+                {brands.map((brand) => (
+                  <SelectItem key={brand.id} value={String(brand.id)}>{brand.name}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
-            <div className="flex border rounded-lg overflow-hidden">
-              <Button
-                variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                size="icon"
+            <Select value={sortBy} onValueChange={(val) => updateParams({ sort: val })}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest</SelectItem>
+                <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                <SelectItem value="name">Name A-Z</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* View toggle */}
+            <div className="flex items-center border rounded-lg overflow-hidden ml-auto">
+              <button
                 onClick={() => setViewMode('grid')}
-                className="rounded-none"
+                className={`p-2 ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-gray-600'}`}
               >
                 <Grid3X3 className="w-4 h-4" />
-              </Button>
-              <Button
-                variant={viewMode === 'list' ? 'default' : 'ghost'}
-                size="icon"
+              </button>
+              <button
                 onClick={() => setViewMode('list')}
-                className="rounded-none"
+                className={`p-2 ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-gray-600'}`}
               >
                 <List className="w-4 h-4" />
-              </Button>
+              </button>
             </div>
           </div>
+
+          {/* Active filters */}
+          {hasActiveFilters && (
+            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
+              <span className="text-sm text-gray-500">Filters:</span>
+              {search && (
+                <Badge variant="secondary" className="gap-1 cursor-pointer" onClick={() => updateParams({ q: null })}>
+                  "{search}" <X className="w-3 h-3" />
+                </Badge>
+              )}
+              {selectedCategory && (
+                <Badge variant="secondary" className="gap-1 cursor-pointer" onClick={() => updateParams({ category: null })}>
+                  {categories.find(c => String(c.id) === selectedCategory)?.name || `Category #${selectedCategory}`}
+                  <X className="w-3 h-3" />
+                </Badge>
+              )}
+              {selectedBrand && (
+                <Badge variant="secondary" className="gap-1 cursor-pointer" onClick={() => updateParams({ brand: null })}>
+                  {brands.find(b => String(b.id) === selectedBrand)?.name || `Brand #${selectedBrand}`}
+                  <X className="w-3 h-3" />
+                </Badge>
+              )}
+              <Button variant="ghost" size="sm" className="text-xs text-gray-500" onClick={clearFilters}>
+                Clear all
+              </Button>
+            </div>
+          )}
         </div>
 
+        {/* Results info */}
+        {!loading && (
+          <p className="text-sm text-gray-500 mb-4">
+            {total > 0 ? `Showing ${products.length} of ${total} products` : 'No products found'}
+          </p>
+        )}
+
         {/* Loading */}
-        {loading && (
-          <div className="text-center py-20">
-            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-gray-500 mt-4">{t('loading')}</p>
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="bg-white rounded-xl overflow-hidden shadow-sm animate-pulse">
+                <div className="aspect-[4/3] bg-gray-200" />
+                <div className="p-5 space-y-3">
+                  <div className="h-5 bg-gray-200 rounded w-3/4" />
+                  <div className="h-4 bg-gray-200 rounded w-full" />
+                  <div className="h-4 bg-gray-200 rounded w-1/4" />
+                </div>
+              </div>
+            ))}
           </div>
-        )}
-
-        {/* Empty */}
-        {!loading && filtered.length === 0 && (
+        ) : products.length === 0 ? (
+          /* Empty state */
           <div className="text-center py-20">
-            <p className="text-gray-400 text-lg">{t('no_results')}</p>
-            <Button variant="outline" className="mt-4" onClick={() => { setSearch(''); setSelectedCategory('all'); }}>
-              {t('clear_filters')}
-            </Button>
+            <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">No products found</h3>
+            <p className="text-gray-400 mb-6">Try adjusting your search or filter criteria</p>
+            {hasActiveFilters && (
+              <Button variant="outline" onClick={clearFilters}>Clear all filters</Button>
+            )}
           </div>
-        )}
-
-        {/* Grid */}
-        {!loading && filtered.length > 0 && viewMode === 'grid' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filtered.map((product) => (
+        ) : viewMode === 'grid' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {products.map((product) => (
               <ProductCardItem key={product.id} product={product} />
             ))}
           </div>
-        )}
-
-        {/* List */}
-        {!loading && filtered.length > 0 && viewMode === 'list' && (
+        ) : (
           <div className="space-y-4">
-            {filtered.map((product) => (
+            {products.map((product) => (
               <ProductListItem key={product.id} product={product} />
             ))}
           </div>
         )}
-      </div>
 
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-8">
+            <Pagination
+              page={currentPage}
+              pageSize={12}
+              total={total}
+              totalPages={totalPages}
+              onPageChange={(page) => updateParams({ page: String(page) })}
+            />
+          </div>
+        )}
       </div>
+    </div>
   );
 }
