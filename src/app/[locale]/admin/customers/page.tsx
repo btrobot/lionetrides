@@ -1,56 +1,59 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Mail, Phone } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-
-interface Customer {
-  id: number; name: string; email: string; phone: string | null; company: string | null;
-  role: string; created_at: string;
-}
+import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 export default function AdminCustomers() {
-  const [items, setItems] = useState<Customer[]>([]);
+  const t = useTranslations('admin');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
 
   useEffect(() => {
-    if (!token) { setLoading(false); return; }
-    fetch('/api/v1/customers', { headers: { Authorization: `Bearer ${token}` } })
-      .then(r => r.json()).then(d => { if (d.success) setItems(d.data ?? []); })
+    const tok = localStorage.getItem('token');
+    fetch('/api/v1/customers?limit=50', {
+      headers: tok ? { Authorization: `Bearer ${tok}` } : {},
+    })
+      .then((r) => r.json())
+      .then((d) => setItems(d.data ?? []))
+      .catch(() => {})
       .finally(() => setLoading(false));
-  }, [token]);
+  }, []);
+
+  if (loading) return <p className="text-gray-500">{t('customers.loading')}</p>;
 
   return (
-    <>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Customers</h1>
+    <div>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">{t('customers.title')}</h1>
+      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50 text-gray-600">
+            <tr>
+              <th className="text-left px-4 py-3 font-medium">{t('customers.name')}</th>
+              <th className="text-left px-4 py-3 font-medium">{t('customers.email')}</th>
+              <th className="text-left px-4 py-3 font-medium">{t('customers.phone')}</th>
+              <th className="text-left px-4 py-3 font-medium">{t('customers.company')}</th>
+              <th className="text-left px-4 py-3 font-medium">{t('customers.role')}</th>
+              <th className="text-left px-4 py-3 font-medium">{t('customers.joined')}</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {items.length === 0 && (
+              <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">{t('customers.no_results')}</td></tr>
+            )}
+            {items.map((u) => (
+              <tr key={u.id} className="hover:bg-gray-50">
+                <td className="px-4 py-3 font-medium text-gray-900">{u.name}</td>
+                <td className="px-4 py-3 text-gray-600">{u.email}</td>
+                <td className="px-4 py-3 text-gray-600">{u.phone || '—'}</td>
+                <td className="px-4 py-3 text-gray-600">{u.company || '—'}</td>
+                <td className="px-4 py-3"><span className="px-2 py-1 rounded-full text-xs bg-blue-50 text-blue-600">{u.role}</span></td>
+                <td className="px-4 py-3 text-gray-600">{u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-      <Card className="border-0 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-left">
-              <tr><th className="px-4 py-3 font-medium text-gray-600">Name</th><th className="px-4 py-3 font-medium text-gray-600">Email</th><th className="px-4 py-3 font-medium text-gray-600">Phone</th><th className="px-4 py-3 font-medium text-gray-600">Company</th><th className="px-4 py-3 font-medium text-gray-600">Role</th><th className="px-4 py-3 font-medium text-gray-600">Joined</th></tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {loading ? (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">Loading...</td></tr>
-              ) : items.length === 0 ? (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">No customers found.</td></tr>
-              ) : items.map((c) => (
-                <tr key={c.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium">{c.name}</td>
-                  <td className="px-4 py-3"><span className="flex items-center gap-1 text-gray-500"><Mail className="h-3 w-3" /> {c.email}</span></td>
-                  <td className="px-4 py-3">{c.phone ? <span className="flex items-center gap-1 text-gray-500"><Phone className="h-3 w-3" /> {c.phone}</span> : '-'}</td>
-                  <td className="px-4 py-3 text-gray-500">{c.company || '-'}</td>
-                  <td className="px-4 py-3"><span className="capitalize text-xs font-medium px-2 py-1 rounded bg-blue-50 text-blue-700">{c.role}</span></td>
-                  <td className="px-4 py-3 text-gray-500">{new Date(c.created_at).toLocaleDateString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-    </>
+    </div>
   );
 }

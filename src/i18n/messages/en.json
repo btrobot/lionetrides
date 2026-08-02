@@ -227,5 +227,98 @@
     "filter": "Filter",
     "no_inquiries": "No inquiries found. Start by browsing our products.",
     "view_details": "View Details"
+  },
+  "admin": {
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "products": "Products",
+      "categories": "Categories",
+      "brands": "Brands",
+      "inquiries": "Inquiries",
+      "customers": "Customers",
+      "reviews": "Reviews",
+      "settings": "Settings",
+      "brand": "RideCraft Admin"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "total_products": "Total Products",
+      "pending_inquiries": "Pending Inquiries",
+      "active_customers": "Active Customers",
+      "monthly_revenue": "Monthly Revenue",
+      "quick_actions": "Quick Actions",
+      "add_product": "Add Product",
+      "view_inquiries": "View Inquiries",
+      "manage_categories": "Manage Categories",
+      "view_customers": "View Customers"
+    },
+    "products": {
+      "title": "Products",
+      "add": "Add Product",
+      "name": "Name",
+      "sku": "SKU",
+      "category": "Category",
+      "price": "Price",
+      "actions": "Actions",
+      "loading": "Loading...",
+      "no_results": "No products found."
+    },
+    "categories": {
+      "title": "Categories",
+      "add": "Add Category",
+      "name": "Name",
+      "slug": "Slug",
+      "description": "Description",
+      "actions": "Actions",
+      "loading": "Loading...",
+      "no_results": "No categories found."
+    },
+    "brands": {
+      "title": "Brands",
+      "add": "Add Brand",
+      "name": "Name",
+      "slug": "Slug",
+      "website": "Website",
+      "actions": "Actions",
+      "loading": "Loading...",
+      "no_results": "No brands found."
+    },
+    "inquiries": {
+      "title": "Inquiries",
+      "name": "Name",
+      "company": "Company",
+      "product": "Product",
+      "status": "Status",
+      "date": "Date",
+      "actions": "Actions",
+      "loading": "Loading...",
+      "no_results": "No inquiries found."
+    },
+    "customers": {
+      "title": "Customers",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "company": "Company",
+      "role": "Role",
+      "joined": "Joined",
+      "loading": "Loading...",
+      "no_results": "No customers found."
+    },
+    "reviews": {
+      "title": "Reviews",
+      "customer": "Customer",
+      "rating": "Rating",
+      "content": "Content",
+      "status": "Status",
+      "date": "Date",
+      "actions": "Actions",
+      "loading": "Loading...",
+      "no_results": "No reviews found."
+    },
+    "settings": {
+      "title": "Settings",
+      "coming_soon": "Settings page coming soon."
+    }
   }
 }

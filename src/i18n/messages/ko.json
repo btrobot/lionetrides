@@ -18,6 +18,99 @@
     "search_inquiries": "[TODO: translate] Search inquiries...",
     "view_details": "[TODO: translate] View Details"
   },
+  "admin": {
+    "brands": {
+      "actions": "[TODO: translate] Actions",
+      "add": "[TODO: translate] Add Brand",
+      "loading": "[TODO: translate] Loading...",
+      "name": "[TODO: translate] Name",
+      "no_results": "[TODO: translate] No brands found.",
+      "slug": "[TODO: translate] Slug",
+      "title": "[TODO: translate] Brands",
+      "website": "[TODO: translate] Website"
+    },
+    "categories": {
+      "actions": "[TODO: translate] Actions",
+      "add": "[TODO: translate] Add Category",
+      "description": "[TODO: translate] Description",
+      "loading": "[TODO: translate] Loading...",
+      "name": "[TODO: translate] Name",
+      "no_results": "[TODO: translate] No categories found.",
+      "slug": "[TODO: translate] Slug",
+      "title": "[TODO: translate] Categories"
+    },
+    "customers": {
+      "company": "[TODO: translate] Company",
+      "email": "[TODO: translate] Email",
+      "joined": "[TODO: translate] Joined",
+      "loading": "[TODO: translate] Loading...",
+      "name": "[TODO: translate] Name",
+      "no_results": "[TODO: translate] No customers found.",
+      "phone": "[TODO: translate] Phone",
+      "role": "[TODO: translate] Role",
+      "title": "[TODO: translate] Customers"
+    },
+    "dashboard": {
+      "active_customers": "[TODO: translate] Active Customers",
+      "add_product": "[TODO: translate] Add Product",
+      "manage_categories": "[TODO: translate] Manage Categories",
+      "monthly_revenue": "[TODO: translate] Monthly Revenue",
+      "pending_inquiries": "[TODO: translate] Pending Inquiries",
+      "quick_actions": "[TODO: translate] Quick Actions",
+      "title": "[TODO: translate] Dashboard",
+      "total_products": "[TODO: translate] Total Products",
+      "view_customers": "[TODO: translate] View Customers",
+      "view_inquiries": "[TODO: translate] View Inquiries"
+    },
+    "inquiries": {
+      "actions": "[TODO: translate] Actions",
+      "company": "[TODO: translate] Company",
+      "date": "[TODO: translate] Date",
+      "loading": "[TODO: translate] Loading...",
+      "name": "[TODO: translate] Name",
+      "no_results": "[TODO: translate] No inquiries found.",
+      "product": "[TODO: translate] Product",
+      "status": "[TODO: translate] Status",
+      "title": "[TODO: translate] Inquiries"
+    },
+    "products": {
+      "actions": "[TODO: translate] Actions",
+      "add": "[TODO: translate] Add Product",
+      "category": "[TODO: translate] Category",
+      "loading": "[TODO: translate] Loading...",
+      "name": "[TODO: translate] Name",
+      "no_results": "[TODO: translate] No products found.",
+      "price": "[TODO: translate] Price",
+      "sku": "[TODO: translate] SKU",
+      "title": "[TODO: translate] Products"
+    },
+    "reviews": {
+      "actions": "[TODO: translate] Actions",
+      "content": "[TODO: translate] Content",
+      "customer": "[TODO: translate] Customer",
+      "date": "[TODO: translate] Date",
+      "loading": "[TODO: translate] Loading...",
+      "no_results": "[TODO: translate] No reviews found.",
+      "rating": "[TODO: translate] Rating",
+      "status": "[TODO: translate] Status",
+      "title": "[TODO: translate] Reviews"
+    },
+    "settings": {
+      "coming_soon": "[TODO: translate] Settings page coming soon.",
+      "title": "[TODO: translate] Settings"
+    },
+    "sidebar": {
+      "brand": "[TODO: translate] RideCraft Admin",
+      "brands": "[TODO: translate] Brands",
+      "categories": "[TODO: translate] Categories",
+      "customers": "[TODO: translate] Customers",
+      "dashboard": "[TODO: translate] Dashboard",
+      "inquiries": "[TODO: translate] Inquiries",
+      "products": "[TODO: translate] Products",
+      "reviews": "[TODO: translate] Reviews",
+      "settings": "[TODO: translate] Settings"
+    }
+  },
   "auth": {
     "company": "[TODO: translate] Company",
     "email": "[TODO: translate] Email",

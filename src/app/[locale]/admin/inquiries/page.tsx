@@ -1,71 +1,56 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Eye, CheckCircle, XCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-
-interface Inquiry {
-  id: number; name: string; email: string; company: string | null; status: string;
-  product_name: string | null; message: string | null; created_at: string;
-}
-
-const statusColors: Record<string, string> = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  quoted: 'bg-blue-100 text-blue-800',
-  confirmed: 'bg-green-100 text-green-800',
-  rejected: 'bg-red-100 text-red-800',
-};
+import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 export default function AdminInquiries() {
-  const [items, setItems] = useState<Inquiry[]>([]);
+  const t = useTranslations('admin');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
-
   useEffect(() => {
-    if (!token) { setLoading(false); return; }
-    fetch('/api/v1/inquiries?limit=100', { headers: { Authorization: `Bearer ${token}` } })
-      .then(r => r.json()).then(d => { if (d.success) setItems(d.data ?? d.items ?? []); })
+    const tok = localStorage.getItem('token');
+    fetch('/api/v1/inquiries?limit=50', {
+      headers: tok ? { Authorization: `Bearer ${tok}` } : {},
+    })
+      .then((r) => r.json())
+      .then((d) => setItems(d.data ?? []))
+      .catch(() => {})
       .finally(() => setLoading(false));
-  }, [token]);
+  }, []);
+
+  if (loading) return <p className="text-gray-500">{t('inquiries.loading')}</p>;
 
   return (
-    <>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Inquiries</h1>
+    <div>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">{t('inquiries.title')}</h1>
+      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50 text-gray-600">
+            <tr>
+              <th className="text-left px-4 py-3 font-medium">{t('inquiries.name')}</th>
+              <th className="text-left px-4 py-3 font-medium">{t('inquiries.company')}</th>
+              <th className="text-left px-4 py-3 font-medium">{t('inquiries.product')}</th>
+              <th className="text-left px-4 py-3 font-medium">{t('inquiries.status')}</th>
+              <th className="text-left px-4 py-3 font-medium">{t('inquiries.date')}</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {items.length === 0 && (
+              <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">{t('inquiries.no_results')}</td></tr>
+            )}
+            {items.map((i) => (
+              <tr key={i.id} className="hover:bg-gray-50">
+                <td className="px-4 py-3 font-medium text-gray-900">{i.name}</td>
+                <td className="px-4 py-3 text-gray-600">{i.company || '—'}</td>
+                <td className="px-4 py-3 text-gray-600">{i.product_id || '—'}</td>
+                <td className="px-4 py-3"><span className="px-2 py-1 rounded-full text-xs bg-orange-50 text-orange-600">{i.status}</span></td>
+                <td className="px-4 py-3 text-gray-600">{i.created_at ? new Date(i.created_at).toLocaleDateString() : '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-      <Card className="border-0 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-left">
-              <tr><th className="px-4 py-3 font-medium text-gray-600">Name</th><th className="px-4 py-3 font-medium text-gray-600">Company</th><th className="px-4 py-3 font-medium text-gray-600">Product</th><th className="px-4 py-3 font-medium text-gray-600">Status</th><th className="px-4 py-3 font-medium text-gray-600">Date</th><th className="px-4 py-3 font-medium text-gray-600">Actions</th></tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {loading ? (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">Loading...</td></tr>
-              ) : items.length === 0 ? (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">No inquiries found.</td></tr>
-              ) : items.map((inq) => (
-                <tr key={inq.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium">{inq.name}</td>
-                  <td className="px-4 py-3 text-gray-500">{inq.company || '-'}</td>
-                  <td className="px-4 py-3 text-gray-500">{inq.product_name || '-'}</td>
-                  <td className="px-4 py-3"><Badge className={statusColors[inq.status] || 'bg-gray-100'}>{inq.status}</Badge></td>
-                  <td className="px-4 py-3 text-gray-500">{new Date(inq.created_at).toLocaleDateString()}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="icon" className="text-green-500"><CheckCircle className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="icon" className="text-red-500"><XCircle className="h-4 w-4" /></Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-    </>
+    </div>
   );
 }
