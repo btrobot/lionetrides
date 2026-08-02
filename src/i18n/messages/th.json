@@ -97,6 +97,14 @@
     },
     "settings": {
       "coming_soon": "[TODO: translate] Settings page coming soon.",
+      "no_settings": "[TODO: translate] No settings in this section.",
+      "save": "[TODO: translate] Save",
+      "sections": {
+        "brand": "[TODO: translate] Brand",
+        "contact": "[TODO: translate] Contact",
+        "seo": "[TODO: translate] SEO",
+        "social": "[TODO: translate] Social Media"
+      },
       "title": "[TODO: translate] Settings"
     },
     "sidebar": {
@@ -226,6 +234,7 @@
   },
   "meta": {
     "description": "[TODO: translate] Leading manufacturer of amusement rides since 1995",
+    "keywords": "[TODO: translate] amusement rides, roller coaster manufacturer, ferris wheel, carousel, water park equipment, theme park rides, B2B, ride manufacturer",
     "title": "[TODO: translate] RideCraft Industries"
   },
   "nav": {

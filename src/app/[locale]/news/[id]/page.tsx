@@ -45,6 +45,7 @@ export default function NewsDetailPage() {
         const current = items.find((n) => n.slug === slug || String(n.id) === slug);
         if (current) {
           setNews(current);
+          document.title = `${current.title} | RideCraft Industries`;
           setRelated(items.filter((n) => n.id !== current.id).slice(0, 3));
         }
       } catch (err) {

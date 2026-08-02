@@ -50,7 +50,10 @@ export default function ProductDetailPage() {
           fetch('/api/v1/reviews?limit=10'),
         ]);
         const prod = await prodRes.json();
-        if (prod.success) setProduct(prod.data);
+        if (prod.success) {
+          setProduct(prod.data);
+          document.title = `${prod.data.name} | RideCraft Industries`;
+        }
         const rev = await revRes.json();
         if (rev.success) setReviews(rev.items || []);
       } catch (err) {
