@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAdminAuth } from '@/hooks/use-admin-auth';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +14,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Pagination } from '@/components/shared/pagination';
 import { Search, Mail, Phone, Building2, Calendar, MoreHorizontal, CheckCircle2, XCircle, MessageSquare, RefreshCw } from 'lucide-react';
 
 interface Inquiry {
@@ -48,20 +50,26 @@ export default function AdminInquiries() {
   const [replyOpen, setReplyOpen] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [saving, setSaving] = useState(false);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const pageSize = 10;
 
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await authFetch('/api/v1/inquiries');
+      const res = await authFetch(`/api/v1/inquiries?page=${page}&pageSize=${pageSize}`);
       if (!res) return;
       const d = await res.json();
       setInquiries(d.items ?? []);
+      setTotal(d.total ?? 0);
+      setTotalPages(d.totalPages ?? 0);
     } catch (e) {
       console.error('Failed to load inquiries:', e);
     } finally {
       setLoading(false);
     }
-  }, [authFetch]);
+  }, [authFetch, page]);
 
   useEffect(() => { loadData(); }, [loadData]);
 
@@ -75,8 +83,10 @@ export default function AdminInquiries() {
       });
       setInquiries(prev => prev.map(i => i.id === id ? { ...i, status: status as Inquiry['status'] } : i));
       setDetailOpen(false);
+      toast.success('状态已更新');
     } catch (e) {
       console.error('Failed to update status:', e);
+      toast.error('状态更新失败');
     } finally {
       setSaving(false);
     }
@@ -95,8 +105,10 @@ export default function AdminInquiries() {
       setReplyOpen(false);
       setReplyText('');
       setDetailOpen(false);
+      toast.success('回复已发送');
     } catch (e) {
       console.error('Failed to reply:', e);
+      toast.error('回复发送失败');
     } finally {
       setSaving(false);
     }
@@ -197,6 +209,10 @@ export default function AdminInquiries() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {!loading && totalPages > 1 && (
+        <Pagination page={page} pageSize={pageSize} total={total} totalPages={totalPages} onPageChange={setPage} />
       )}
 
       {/* Detail Dialog */}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAdminAuth } from '@/hooks/use-admin-auth';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -76,9 +77,11 @@ export default function AdminCustomers() {
       if (d.success) {
         setCustomers(prev => prev.map(c => c.id === selected.id ? { ...c, ...d.data } : c));
         setEditOpen(false);
+        toast.success('客户信息已更新');
       }
     } catch (e) {
       console.error('Failed to update customer:', e);
+      toast.error('更新失败');
     } finally {
       setSaving(false);
     }
@@ -96,9 +99,11 @@ export default function AdminCustomers() {
       const d = await res.json();
       if (d.success) {
         setCustomers(prev => prev.map(c => c.id === customer.id ? { ...c, isActive: !customer.isActive } : c));
+        toast.success(customer.isActive ? '客户已禁用' : '客户已启用');
       }
     } catch (e) {
       console.error('Failed to toggle customer status:', e);
+      toast.error('状态切换失败');
     } finally {
       setSaving(false);
     }

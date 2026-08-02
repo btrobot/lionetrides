@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAdminAuth } from '@/hooks/use-admin-auth';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +14,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Pagination } from '@/components/shared/pagination';
 import { Search, Star, Trash2, CheckCircle2, EyeOff, Eye, MessageSquare, RefreshCw, AlertTriangle } from 'lucide-react';
 
 interface Review {
@@ -43,21 +45,27 @@ export default function AdminReviews() {
   const [detailOpen, setDetailOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<Review | null>(null);
   const [saving, setSaving] = useState(false);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const pageSize = 10;
 
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await authFetch('/api/v1/reviews');
+      const res = await authFetch(`/api/v1/reviews?page=${page}&pageSize=${pageSize}`);
       if (!res) return;
       const d = await res.json();
       const items = d.data?.items ?? d.data ?? d.items ?? [];
       setReviews(items);
+      setTotal(d.data?.total ?? d.total ?? 0);
+      setTotalPages(d.data?.totalPages ?? d.totalPages ?? 0);
     } catch (e) {
       console.error('Failed to load reviews:', e);
     } finally {
       setLoading(false);
     }
-  }, [authFetch]);
+  }, [authFetch, page]);
 
   useEffect(() => { loadData(); }, [loadData]);
 
@@ -66,8 +74,10 @@ export default function AdminReviews() {
     try {
       await authFetch(`/api/v1/reviews/${id}/approve`, { method: 'PUT' });
       setReviews(prev => prev.map(r => r.id === id ? { ...r, status: 'approved' } : r));
+      toast.success('评价已审核通过');
     } catch (e) {
       console.error('Failed to approve review:', e);
+      toast.error('审核失败');
     } finally {
       setSaving(false);
     }
@@ -78,8 +88,10 @@ export default function AdminReviews() {
     try {
       await authFetch(`/api/v1/reviews/${id}/hide`, { method: 'PUT' });
       setReviews(prev => prev.map(r => r.id === id ? { ...r, status: 'hidden' } : r));
+      toast.success('评价已隐藏');
     } catch (e) {
       console.error('Failed to hide review:', e);
+      toast.error('隐藏失败');
     } finally {
       setSaving(false);
     }
@@ -91,8 +103,10 @@ export default function AdminReviews() {
       await authFetch(`/api/v1/reviews/${id}`, { method: 'DELETE' });
       setReviews(prev => prev.filter(r => r.id !== id));
       setDeleteConfirm(null);
+      toast.success('评价已删除');
     } catch (e) {
       console.error('Failed to delete review:', e);
+      toast.error('删除失败');
     } finally {
       setSaving(false);
     }
@@ -218,6 +232,10 @@ export default function AdminReviews() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {!loading && totalPages > 1 && (
+        <Pagination page={page} pageSize={pageSize} total={total} totalPages={totalPages} onPageChange={setPage} />
       )}
 
       {/* Detail Dialog */}

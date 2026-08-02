@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAdminAuth } from '@/hooks/use-admin-auth';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -111,6 +112,7 @@ export default function AdminNews() {
         });
         if (!res) return;
         await res.json();
+        toast.success('新闻已更新');
       } else {
         const res = await authFetch('/api/v1/news', {
           method: 'POST',
@@ -119,11 +121,13 @@ export default function AdminNews() {
         });
         if (!res) return;
         await res.json();
+        toast.success('新闻已创建');
       }
       setDialogOpen(false);
       loadData();
     } catch (e) {
       console.error('Failed to save news:', e);
+      toast.error('保存失败');
     } finally {
       setSaving(false);
     }
@@ -136,8 +140,10 @@ export default function AdminNews() {
       await authFetch(`/api/v1/news/${deleteConfirm.id}`, { method: 'DELETE' });
       setItems(prev => prev.filter(i => i.id !== deleteConfirm.id));
       setDeleteConfirm(null);
+      toast.success('新闻已删除');
     } catch (e) {
       console.error('Failed to delete news:', e);
+      toast.error('删除失败');
     } finally {
       setSaving(false);
     }
@@ -154,9 +160,11 @@ export default function AdminNews() {
       const d = await res.json();
       if (d.success) {
         setItems(prev => prev.map(i => i.id === item.id ? { ...i, is_published: !item.is_published } : i));
+        toast.success(item.is_published ? '新闻已下架' : '新闻已发布');
       }
     } catch (e) {
       console.error('Failed to toggle publish:', e);
+      toast.error('发布状态切换失败');
     }
   };
 
