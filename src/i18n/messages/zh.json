@@ -348,7 +348,9 @@
         "brand": "品牌",
         "contact": "联系方式",
         "social": "社交媒体",
-        "seo": "SEO"
+        "seo": "SEO",
+        "home": "首页",
+        "about": "关于"
       },
       "no_settings": "此部分暂无设置项。"
     }

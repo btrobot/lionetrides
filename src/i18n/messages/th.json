@@ -100,8 +100,10 @@
       "no_settings": "[TODO: translate] No settings in this section.",
       "save": "[TODO: translate] Save",
       "sections": {
+        "about": "[TODO: translate] About",
         "brand": "[TODO: translate] Brand",
         "contact": "[TODO: translate] Contact",
+        "home": "[TODO: translate] Homepage",
         "seo": "[TODO: translate] SEO",
         "social": "[TODO: translate] Social Media"
       },

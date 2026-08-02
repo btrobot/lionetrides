@@ -348,7 +348,9 @@
         "brand": "Brand",
         "contact": "Contact",
         "social": "Social Media",
-        "seo": "SEO"
+        "seo": "SEO",
+        "home": "Homepage",
+        "about": "About"
       },
       "no_settings": "No settings in this section."
     }

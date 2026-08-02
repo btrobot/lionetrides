@@ -90,8 +90,23 @@ export async function upsertSiteSetting(data: {
   return created;
 }
 
+/**
+ * Fetch all settings with full records (for admin panel).
+ */
+export async function getAllSiteSettings(locale = 'en'): Promise<SiteSetting[]> {
+  const rows = await db.select()
+    .from(site_settings)
+    .where(and(eq(site_settings.locale, locale), isNull(site_settings.deletedAt)))
+    .orderBy(asc(site_settings.section), asc(site_settings.sortOrder));
+  return rows.map(r => ({
+    ...r,
+    deletedAt: r.deletedAt ? String(r.deletedAt) : null,
+  }));
+}
+
 export const siteSettingsService = {
   getConfig: getSiteConfig,
   get: getSiteSetting,
   upsert: upsertSiteSetting,
+  getAll: getAllSiteSettings,
 };
