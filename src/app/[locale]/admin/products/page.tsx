@@ -1,11 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
 import { useAdminAuth } from '@/hooks/use-admin-auth';
 
 export default function AdminProducts() {
-  const t = useTranslations('admin');
   const { authFetch } = useAdminAuth();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [products, setProducts] = useState<any[]>([]);
@@ -19,26 +17,26 @@ export default function AdminProducts() {
       .finally(() => setLoading(false));
   }, [authFetch]);
 
-  if (loading) return <p className="text-gray-500">{t('products.loading')}</p>;
+  if (loading) return <p className="text-gray-500">加载中...</p>;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">{t('products.title')}</h1>
+        <h1 className="text-2xl font-bold text-gray-900">产品管理</h1>
       </div>
       <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-gray-600">
             <tr>
-              <th className="text-left px-4 py-3 font-medium">{t('products.name')}</th>
-              <th className="text-left px-4 py-3 font-medium">{t('products.sku')}</th>
-              <th className="text-left px-4 py-3 font-medium">{t('products.category')}</th>
-              <th className="text-right px-4 py-3 font-medium">{t('products.price')}</th>
+              <th className="text-left px-4 py-3 font-medium">名称</th>
+              <th className="text-left px-4 py-3 font-medium">SKU</th>
+              <th className="text-left px-4 py-3 font-medium">分类</th>
+              <th className="text-right px-4 py-3 font-medium">价格</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {products.length === 0 && (
-              <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-400">{t('products.no_results')}</td></tr>
+              <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-400">暂无产品。</td></tr>
             )}
             {products.map((p) => (
               <tr key={p.id} className="hover:bg-gray-50">

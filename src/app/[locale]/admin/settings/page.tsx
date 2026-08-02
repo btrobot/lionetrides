@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import { Loader2, Save, RefreshCw, Code } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,7 +21,6 @@ type FullSetting = {
 const SECTION_ORDER = ['brand', 'contact', 'social', 'seo', 'home', 'about'];
 
 export default function AdminSettings() {
-  const t = useTranslations('admin');
   const pathname = usePathname();
   const currentLocale = pathname.split('/')[1] as Locale;
   const { authFetch } = useAdminAuth();
@@ -252,13 +250,13 @@ export default function AdminSettings() {
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">{t('settings.title')}</h1>
+        <h1 className="text-2xl font-bold text-gray-900">站点设置</h1>
         <div className="flex items-center gap-3">
           {error && (
             <span className="text-sm text-red-600 font-medium">{error}</span>
           )}
           {saved && (
-            <span className="text-sm text-green-600 font-medium">✓ {t('settings.save')}</span>
+            <span className="text-sm text-green-600 font-medium">✓ 已保存</span>
           )}
           <Button variant="outline" size="sm" onClick={fetchSettings}>
             <RefreshCw className="h-4 w-4 mr-1" />
@@ -270,7 +268,7 @@ export default function AdminSettings() {
             ) : (
               <Save className="h-4 w-4 mr-1" />
             )}
-            {t('settings.save')}
+            {'保存'}
           </Button>
         </div>
       </div>
@@ -287,12 +285,12 @@ export default function AdminSettings() {
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
-            {section === 'brand' ? t('settings.sections.brand')
-              : section === 'contact' ? t('settings.sections.contact')
-              : section === 'social' ? t('settings.sections.social')
-              : section === 'seo' ? t('settings.sections.seo')
-              : section === 'home' ? t('settings.sections.home')
-              : section === 'about' ? t('settings.sections.about')
+            {section === 'brand' ? '品牌'
+              : section === 'contact' ? '联系方式'
+              : section === 'social' ? '社交媒体'
+              : section === 'seo' ? 'SEO'
+              : section === 'home' ? '首页'
+              : section === 'about' ? '关于我们'
               : section}
             <span className="ml-1.5 text-xs text-gray-400">
               ({filteredSettings.length})
@@ -304,7 +302,7 @@ export default function AdminSettings() {
       {/* Settings Form */}
       <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-6">
         {filteredSettings.length === 0 ? (
-          <p className="text-gray-400 text-center py-8">{t('settings.no_settings')}</p>
+          <p className="text-gray-400 text-center py-8">此部分暂无设置项</p>
         ) : (
           filteredSettings.map(setting => (
             <div key={setting.key}>

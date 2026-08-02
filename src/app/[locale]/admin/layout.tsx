@@ -2,7 +2,6 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
 import { Loader2, LogOut } from 'lucide-react';
 import {
   LayoutDashboard, Package, FolderTree, Building2, MessageSquare, Users, Star, Settings
@@ -11,20 +10,19 @@ import { useAdminAuth } from '@/hooks/use-admin-auth';
 import type { Locale } from '@/i18n/routing';
 
 const sidebarLinks = [
-  { href: '/admin', key: 'sidebar.dashboard', icon: LayoutDashboard },
-  { href: '/admin/products', key: 'sidebar.products', icon: Package },
-  { href: '/admin/categories', key: 'sidebar.categories', icon: FolderTree },
-  { href: '/admin/brands', key: 'sidebar.brands', icon: Building2 },
-  { href: '/admin/inquiries', key: 'sidebar.inquiries', icon: MessageSquare },
-  { href: '/admin/customers', key: 'sidebar.customers', icon: Users },
-  { href: '/admin/reviews', key: 'sidebar.reviews', icon: Star },
-  { href: '/admin/settings', key: 'sidebar.settings', icon: Settings },
+  { href: '/admin', label: '控制台', icon: LayoutDashboard },
+  { href: '/admin/products', label: '产品管理', icon: Package },
+  { href: '/admin/categories', label: '分类管理', icon: FolderTree },
+  { href: '/admin/brands', label: '品牌管理', icon: Building2 },
+  { href: '/admin/inquiries', label: '询盘管理', icon: MessageSquare },
+  { href: '/admin/customers', label: '客户管理', icon: Users },
+  { href: '/admin/reviews', label: '评价管理', icon: Star },
+  { href: '/admin/settings', label: '系统设置', icon: Settings },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const currentLocale = pathname.split('/')[1] as Locale;
-  const t = useTranslations('admin');
   const { checked, user } = useAdminAuth();
 
   const handleLogout = () => {
@@ -46,7 +44,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex">
         <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-100 min-h-screen p-4 shrink-0">
           <div className="flex items-center justify-between mb-8 px-3">
-            <span className="text-lg font-bold text-blue-600">{t('sidebar.brand')}</span>
+            <span className="text-lg font-bold text-blue-600">RideCraft 管理后台</span>
           </div>
           <nav className="space-y-1 flex-1">
             {sidebarLinks.map((link) => {
@@ -60,7 +58,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   }`}
                 >
                   <link.icon className="h-4 w-4" />
-                  {t(link.key)}
+                  {link.label}
                 </Link>
               );
             })}

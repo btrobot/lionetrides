@@ -10,7 +10,7 @@ describe('Admin - Categories Page', () => {
   it('shows loading text while fetching', () => {
     global.fetch = vi.fn(() => new Promise(() => {}));
     render(<AdminCategories />);
-    expect(screen.getByText('categories.loading')).toBeInTheDocument();
+    expect(screen.getByText('加载中...')).toBeInTheDocument();
   });
 
   it('renders empty state when API returns data.items as empty array', async () => {
@@ -19,7 +19,7 @@ describe('Admin - Categories Page', () => {
     });
     render(<AdminCategories />);
     await waitFor(() => {
-      expect(screen.getByText('categories.no_results')).toBeInTheDocument();
+      expect(screen.getByText('暂无分类。')).toBeInTheDocument();
     });
   });
 
@@ -54,7 +54,7 @@ describe('Admin - Categories Page', () => {
     });
     render(<AdminCategories />);
     await waitFor(() => {
-      expect(screen.getByText('categories.no_results')).toBeInTheDocument();
+      expect(screen.getByText('暂无分类。')).toBeInTheDocument();
     });
   });
 });

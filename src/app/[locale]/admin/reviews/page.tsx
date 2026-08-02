@@ -1,11 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
 import { useAdminAuth } from '@/hooks/use-admin-auth';
 
 export default function AdminReviews() {
-  const t = useTranslations('admin');
   const { authFetch } = useAdminAuth();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [items, setItems] = useState<any[]>([]);
@@ -19,25 +17,25 @@ export default function AdminReviews() {
       .finally(() => setLoading(false));
   }, [authFetch]);
 
-  if (loading) return <p className="text-gray-500">{t('reviews.loading')}</p>;
+  if (loading) return <p className="text-gray-500">加载中...</p>;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">{t('reviews.title')}</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">评价管理</h1>
       <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-gray-600">
             <tr>
-              <th className="text-left px-4 py-3 font-medium">{t('reviews.customer')}</th>
-              <th className="text-left px-4 py-3 font-medium">{t('reviews.rating')}</th>
-              <th className="text-left px-4 py-3 font-medium">{t('reviews.content')}</th>
-              <th className="text-left px-4 py-3 font-medium">{t('reviews.status')}</th>
-              <th className="text-left px-4 py-3 font-medium">{t('reviews.date')}</th>
+              <th className="text-left px-4 py-3 font-medium">客户</th>
+              <th className="text-left px-4 py-3 font-medium">评分</th>
+              <th className="text-left px-4 py-3 font-medium">内容</th>
+              <th className="text-left px-4 py-3 font-medium">状态</th>
+              <th className="text-left px-4 py-3 font-medium">日期</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {items.length === 0 && (
-              <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">{t('reviews.no_results')}</td></tr>
+              <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">暂无评价。</td></tr>
             )}
             {items.map((r) => (
               <tr key={r.id} className="hover:bg-gray-50">
