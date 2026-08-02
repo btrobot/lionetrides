@@ -76,13 +76,31 @@ async function handler(request: NextRequest) {
         );
       }
 
+      // Check if account is locked
+      if (user.locked_until && new Date(user.locked_until) > new Date()) {
+        const minutes = Math.ceil((new Date(user.locked_until).getTime() - Date.now()) / 60000);
+        return NextResponse.json(
+          { success: false, error: "Account locked. Try again in " + minutes + " minutes", code: "ACCOUNT_LOCKED" },
+          { status: 423 }
+        );
+      }
+
       const valid = await bcrypt.compare(parsed.password, user.password_hash);
       if (!valid) {
+        const attempts = (user.login_attempts || 0) + 1;
+        const updateData: any = { login_attempts: attempts };
+        if (attempts >= 5) {
+          updateData.locked_until = new Date(Date.now() + 60 * 60 * 1000); // Lock 1 hour
+        }
+        await db.update(users).set(updateData).where(eq(users.id, user.id));
         return NextResponse.json(
-          { success: false, error: 'Invalid email or password' },
+          { success: false, error: 'Invalid email or password', remaining: 5 - attempts },
           { status: 401 }
         );
       }
+
+      // Reset login attempts on success
+      await db.update(users).set({ login_attempts: 0, locked_until: null, last_login_at: new Date() }).where(eq(users.id, user.id));
 
       const token = signToken({ userId: user.id, email: user.email, role: user.role || 'customer' });
 

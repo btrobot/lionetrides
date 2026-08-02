@@ -125,6 +125,8 @@ export const users = pgTable('users', {
   is_active: boolean('is_active').default(true),
   email_verified_at: timestamp('email_verified_at'),
   last_login_at: timestamp('last_login_at'),
+  login_attempts: integer('login_attempts').default(0),
+  locked_until: timestamp('locked_until'),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),
   deleted_at: timestamp('deleted_at'),
@@ -375,3 +377,47 @@ export const notifications = pgTable('notifications', {
   userIdx: index('idx_notifications_user_id').on(table.user_id),
   unreadIdx: index('idx_notifications_unread').on(table.user_id, table.is_read),
 }));
+// ─── Customer Addresses ───────────────────────────────
+export const customer_addresses = pgTable('customer_addresses', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().references(() => users.id),
+  label: varchar('label', { length: 50 }),
+  receiver: varchar('receiver', { length: 255 }).notNull(),
+  phone: varchar('phone', { length: 50 }).notNull(),
+  country: varchar('country', { length: 100 }),
+  province: varchar('province', { length: 100 }),
+  city: varchar('city', { length: 100 }),
+  district: varchar('district', { length: 100 }),
+  address: varchar('address', { length: 500 }).notNull(),
+  zipCode: varchar('zip_code', { length: 20 }),
+  isDefault: boolean('is_default').default(false),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index('idx_addresses_user_id').on(table.userId),
+}));
+
+// ─── Review Images ────────────────────────────────────
+export const review_images = pgTable('review_images', {
+  id: serial('id').primaryKey(),
+  reviewId: integer('review_id').notNull().references(() => reviews.id, { onDelete: 'cascade' }),
+  url: varchar('url', { length: 500 }).notNull(),
+  sortOrder: integer('sort_order').default(0),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  reviewIdx: index('idx_review_images_review_id').on(table.reviewId),
+}));
+
+// ─── Team Members ─────────────────────────────────────
+export const team_members = pgTable('team_members', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  title: varchar('title', { length: 255 }),
+  avatar: varchar('avatar', { length: 500 }),
+  description: text('description'),
+  sortOrder: integer('sort_order').default(0),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  deletedAt: timestamp('deleted_at'),
+});
