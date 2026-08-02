@@ -147,7 +147,59 @@ describe('POST /api/v1/auth', () => {
 });
 ```
 
-### 2.4 E2E 测试 (End-to-End Tests) — 占比 5%
+### 2.4 API 契约测试 (API Contract Tests) — 新增
+
+**目标**: 验证 API 响应结构的一致性，防止前后端数据格式不匹配
+
+**工具**: `Vitest` + 直接调用工具函数
+
+**背景**: 此前因 `paginatedResponse` 被页面误用（`d.data ?? []` 拿到对象而非数组），导致 `a.map is not a function` 运行时错误。此类测试确保 API 工具函数返回的结构始终符合前端预期。
+
+**覆盖范围**:
+
+| 文件 | 测试项 | 验证点 |
+|------|--------|--------|
+| `src/__tests__/integration/api-response-structure.test.ts` | `paginatedResponse` | `items` 始终为数组、`totalPages` 计算正确 |
+| | `errorResponse` | 不同错误类型映射到正确 HTTP 状态码 |
+| | `successResponse` | 数据包装结构一致 |
+
+**编写规范**:
+```typescript
+describe('paginatedResponse', () => {
+  it('items 必须始终是数组', () => {
+    const result = paginatedResponse([], 0, { page: 1, pageSize: 10 });
+    expect(Array.isArray(result.items)).toBe(true);
+  });
+});
+```
+
+### 2.5 组件测试 — 数据加载路径 (Component Tests) — 新增
+
+**目标**: 覆盖页面从 API 加载数据到渲染的完整路径，确保 API 响应结构变化时前端不崩溃
+
+**工具**: `Vitest` + `@testing-library/react` + `jsdom`
+
+**覆盖范围**（当前已实现）:
+
+| 页面 | 测试场景 | 验证点 |
+|------|---------|--------|
+| 管理后台 - 分类 | 加载中、正常渲染、空数据、**错误数据结构** | 页面不崩溃，显示正确状态 |
+| 前台 - 品牌 | 加载中、正常渲染、空数据 | 页面不崩溃，显示品牌列表 |
+
+**关键测试模式** — 模拟旧 bug 场景：
+```typescript
+it('API 返回错误结构时页面不崩溃', async () => {
+  global.fetch = vi.fn().mockResolvedValue({
+    json: () => Promise.resolve({ success: true, data: [...] }), // 数组而非 {items:[]}
+  });
+  render(<AdminCategories />);
+  await waitFor(() => {
+    expect(screen.getByText('categories.no_results')).toBeInTheDocument();
+  });
+});
+```
+
+### 2.6 E2E 测试 (End-to-End Tests) — 占比 5%
 
 **目标**: 覆盖关键 B2B 业务路径
 

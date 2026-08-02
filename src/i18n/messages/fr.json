@@ -126,6 +126,8 @@
     "register_success": "[TODO: translate] Account created successfully"
   },
   "brands": {
+    "loading": "[TODO: translate] Loading...",
+    "no_results": "[TODO: translate] No brands found.",
     "subtitle": "[TODO: translate] Leading amusement ride manufacturers worldwide",
     "title": "[TODO: translate] Brands",
     "view_products": "[TODO: translate] View Products"

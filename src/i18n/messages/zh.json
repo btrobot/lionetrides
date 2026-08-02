@@ -218,7 +218,9 @@
   "brands": {
     "title": "品牌",
     "subtitle": "全球领先的游乐设施制造商",
-    "view_products": "查看产品"
+    "view_products": "查看产品",
+    "no_results": "暂无品牌。",
+    "loading": "加载中..."
   },
   "account": {
     "inquiries_title": "我的询盘",

@@ -218,7 +218,9 @@
   "brands": {
     "title": "Brands",
     "subtitle": "Leading amusement ride manufacturers worldwide",
-    "view_products": "View Products"
+    "view_products": "View Products",
+    "no_results": "No brands found.",
+    "loading": "Loading..."
   },
   "account": {
     "inquiries_title": "My Inquiries",
