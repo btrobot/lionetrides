@@ -19,7 +19,7 @@ const MESSAGES_DIR = 'src/i18n/messages';
 const LOCALES = ['en', 'zh', 'ar', 'de', 'es', 'fr', 'ja', 'ko', 'pt', 'ru', 'th'];
 
 // 所有页面使用的命名空间（从 useTranslations() 调用中提取）
-const USED_NAMESPACES = ['home', 'categories', 'products', 'news', 'brands', 'account', 'admin', 'auth', 'common', 'hero', 'stats', 'certifications', 'partners', 'footer'];
+const USED_NAMESPACES = ['home', 'categories', 'products', 'news', 'brands', 'admin', 'auth', 'common', 'hero', 'stats', 'certifications', 'partners', 'footer'];
 
 describe('Reg: i18n Namespace Coverage', () => {
   it('en.json contains all used namespaces', () => {

@@ -17,6 +17,7 @@
     "validate": "pnpm dlx concurrently --group --names lint-tsc,lint-build,lint-style,test \"pnpm ts-check\" \"pnpm lint:build\" \"pnpm lint:style\" \"pnpm test\"",
     "validate:i18n": "npx tsx scripts/validate-i18n.ts",
     "sync:i18n": "npx tsx scripts/sync-i18n.ts",
+    "translate:i18n": "npx tsx scripts/translate-i18n.ts",
     "gate:commit": "pnpm validate && pnpm validate:i18n"
   },
   "dependencies": {

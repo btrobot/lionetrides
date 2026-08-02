@@ -148,17 +148,6 @@
     "profile": "Profile",
     "settings": "Account Settings"
   },
-  "about": {
-    "title": "About Us",
-    "subtitle": "Your trusted partner in amusement ride manufacturing",
-    "factory": "Factory & Facilities",
-    "factory_desc": "50,000㎡ smart factory with 200+ engineers",
-    "history": "Our History",
-    "team": "Our Team",
-    "values": "Our Values",
-    "quality": "Quality Assurance",
-    "innovation": "Innovation & R&D"
-  },
   "certifications": {
     "title": "Certifications & Standards",
     "subtitle": "International quality and safety certifications"
@@ -246,10 +235,10 @@
   },
   "account": {
     "inquiries_title": "My Inquiries",
-    "inquiries_subtitle": "Track and manage your product inquiries",
+    "inquiries_subtitle": "Track and manage your inquiries",
+    "no_inquiries": "No inquiries yet",
     "search_inquiries": "Search inquiries...",
     "filter": "Filter",
-    "no_inquiries": "No inquiries found. Start by browsing our products.",
     "view_details": "View Details"
   },
   "admin": {

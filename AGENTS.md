@@ -69,6 +69,10 @@ src/
 - `pnpm gate:commit` — 提交前门禁（lint + ts-check + test + i18n 校验）
 - `pnpm validate:i18n` — 校验 11 种语言文件一致性（以 en.json 为真相源）
 - `pnpm sync:i18n` — 将 en.json 缺失的键同步到所有语言文件（标记 [TODO: translate]）
+- `pnpm translate:i18n` — 使用 AI 大模型自动翻译 `[TODO: translate]` 标记的条目
+- `pnpm translate:i18n --lang=ja` — 只翻译日语
+- `pnpm translate:i18n --dry-run` — 仅列出待翻译条目，不实际翻译
+- `pnpm translate:i18n --model=kimi-k2-5-260127` — 使用指定模型翻译
 
 ## i18n 维护流程
 
@@ -78,7 +82,7 @@ src/
 1. 在 `en.json` 中添加键和英文值
 2. 在 `zh.json` 中添加对应中文翻译
 3. 运行 `pnpm sync:i18n` — 自动将缺失的键同步到其他 9 种语言（标记 `[TODO: translate]`）
-4. 通知翻译人员补全 `[TODO: translate]` 标记的条目
+4. 运行 `pnpm translate:i18n` — 使用 AI 自动翻译所有 `[TODO: translate]` 标记的条目
 
 ### 删除/重命名键
 1. 更新 `en.json` 后运行 `pnpm validate:i18n` — 会报告多余键
