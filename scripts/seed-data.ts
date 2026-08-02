@@ -81,4 +81,7 @@ async function main() {
   console.log('\n🎉 Seeding complete!');
 }
 
-main().catch(console.error);
+main().catch((error) => {
+  console.error('❌ Failed to seed database:', error);
+  process.exit(1);
+});

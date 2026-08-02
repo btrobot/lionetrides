@@ -34,7 +34,7 @@ COPY . .
 # 设置环境变量
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
-ENV DATABASE_URL=postgresql://postgres:postgres@localhost:5432/lionetrides
+ENV DATABASE_URL=postgresql://postgres:postgres@localhost:5433/lionetrides
 
 # 构建 Next.js
 RUN pnpm next build && \
@@ -53,7 +53,7 @@ ENV NODE_ENV=production
 ENV COZE_PROJECT_ENV=PROD
 ENV PORT=5000
 ENV HOSTNAME="0.0.0.0"
-ENV DATABASE_URL=postgresql://postgres:postgres@localhost:5432/lionetrides
+ENV DATABASE_URL=postgresql://postgres:postgres@localhost:5433/lionetrides
 
 ENTRYPOINT ["tini", "--"]
 CMD ["./docker-entrypoint.sh"]
