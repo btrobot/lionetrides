@@ -2,26 +2,13 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import * as schema from './schema';
 
-const connectionString = process.env.DATABASE_URL || '';
+const connectionString = process.env.DATABASE_URL || 'postgresql://ridex:ridex123@localhost:5432/ridex_db';
 
 function createDb() {
-  if (!connectionString) {
-    // Return a proxy that throws descriptive errors at runtime if called
-    return new Proxy(
-      {},
-      {
-        get(_target, prop) {
-          return (..._: unknown[]) => {
-            throw new Error(
-              `Database not configured. Set DATABASE_URL environment variable to use the database. Called: ${String(prop)}`
-            );
-          };
-        },
-      }
-    ) as unknown as ReturnType<typeof drizzle>;
-  }
-
-  const pool = new Pool({ connectionString });
+  const pool = new Pool({
+    connectionString,
+    ssl: { rejectUnauthorized: false },
+  });
   return drizzle({ client: pool, schema });
 }
 

@@ -5,6 +5,11 @@ export default defineConfig({
   out: './drizzle',
   dialect: 'postgresql',
   dbCredentials: {
-    url: process.env.DATABASE_URL || '',
+    host: 'localhost',
+    port: 5432,
+    user: 'ridex',
+    password: 'ridex123',
+    database: 'ridex_db',
+    ssl: false,
   },
 });

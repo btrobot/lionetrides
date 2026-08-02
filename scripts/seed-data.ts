@@ -75,7 +75,7 @@ async function main() {
     { name: 'OCT Group', description: 'China\'s largest theme park operator', logo_url: '/api/placeholder/200/80', website: 'https://oct.com', sort_order: 5 },
     { name: 'Chimelong', description: 'Guangzhou-based theme park group', logo_url: '/api/placeholder/200/80', website: 'https://chimelong.com', sort_order: 6 },
   ];
-  await db.insert(partners).values(partnerData).onConflictDoNothing({ target: partners.name }).returning();
+  await db.insert(partners).values(partnerData).returning();
   console.log(`  ✅ ${partnerData.length} partners`);
 
   console.log('\n🎉 Seeding complete!');

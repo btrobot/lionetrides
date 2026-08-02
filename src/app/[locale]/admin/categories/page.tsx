@@ -1,27 +1,122 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useAdminAuth } from '@/hooks/use-admin-auth';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
+import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
+
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+}
+
+interface CategoryForm {
+  name: string;
+  slug: string;
+  description: string;
+}
+
+const emptyForm: CategoryForm = { name: '', slug: '', description: '' };
 
 export default function AdminCategories() {
   const { authFetch } = useAdminAuth();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [editing, setEditing] = useState<Category | null>(null);
+  const [deleting, setDeleting] = useState<Category | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState<CategoryForm>(emptyForm);
 
-  useEffect(() => {
-    authFetch('/api/v1/categories')
-      .then((r) => r?.json())
-      .then((d) => setItems(d?.data?.items ?? []))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+  const loadData = useCallback(async () => {
+    const res = await authFetch('/api/v1/categories');
+    const d = await res?.json();
+    setItems(d?.data?.items ?? []);
+    setLoading(false);
   }, [authFetch]);
+
+  useEffect(() => { loadData(); }, [loadData]);
+
+  function openAdd() {
+    setEditing(null);
+    setForm(emptyForm);
+    setDialogOpen(true);
+  }
+
+  function openEdit(cat: Category) {
+    setEditing(cat);
+    setForm({ name: cat.name, slug: cat.slug, description: cat.description ?? '' });
+    setDialogOpen(true);
+  }
+
+  function confirmDelete(cat: Category) {
+    setDeleting(cat);
+    setDeleteOpen(true);
+  }
+
+  async function handleSave() {
+    if (!form.name.trim()) { toast.error('请输入分类名称'); return; }
+    if (!form.slug.trim()) { toast.error('请输入标识'); return; }
+    setSaving(true);
+    try {
+      const body = { name: form.name.trim(), slug: form.slug.trim(), description: form.description.trim() };
+      if (editing) {
+        const res = await authFetch(`/api/v1/categories/${editing.id}`, {
+          method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+        });
+        if (!res?.ok) { const e = await res?.json(); throw new Error(e?.error || '保存失败'); }
+        toast.success('分类已更新');
+      } else {
+        const res = await authFetch('/api/v1/categories', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+        });
+        if (!res?.ok) { const e = await res?.json(); throw new Error(e?.error || '创建失败'); }
+        toast.success('分类已创建');
+      }
+      setDialogOpen(false);
+      loadData();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : '操作失败');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!deleting) return;
+    setSaving(true);
+    try {
+      const res = await authFetch(`/api/v1/categories/${deleting.id}`, { method: 'DELETE' });
+      if (!res?.ok) { const e = await res?.json(); throw new Error(e?.error || '删除失败'); }
+      toast.success('分类已删除');
+      setDeleteOpen(false);
+      setDeleting(null);
+      loadData();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : '删除失败');
+    } finally {
+      setSaving(false);
+    }
+  }
 
   if (loading) return <p className="text-gray-500">加载中...</p>;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">分类管理</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">分类管理</h1>
+        <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" />新增分类</Button>
+      </div>
+
       <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-gray-600">
@@ -29,22 +124,72 @@ export default function AdminCategories() {
               <th className="text-left px-4 py-3 font-medium">名称</th>
               <th className="text-left px-4 py-3 font-medium">标识</th>
               <th className="text-left px-4 py-3 font-medium">描述</th>
+              <th className="text-center px-4 py-3 font-medium">操作</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {items.length === 0 && (
-              <tr><td colSpan={3} className="px-4 py-8 text-center text-gray-400">暂无分类。</td></tr>
+              <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-400">暂无分类。</td></tr>
             )}
             {items.map((c) => (
               <tr key={c.id} className="hover:bg-gray-50">
                 <td className="px-4 py-3 font-medium text-gray-900">{c.name}</td>
                 <td className="px-4 py-3 text-gray-600">{c.slug}</td>
                 <td className="px-4 py-3 text-gray-600">{c.description || '—'}</td>
+                <td className="px-4 py-3 text-center">
+                  <div className="flex items-center justify-center gap-2">
+                    <button onClick={() => openEdit(c)} className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors" title="编辑"><Pencil className="w-4 h-4" /></button>
+                    <button onClick={() => confirmDelete(c)} className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors" title="删除"><Trash2 className="w-4 h-4" /></button>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editing ? '编辑分类' : '新增分类'}</DialogTitle>
+            <DialogDescription>{editing ? '修改分类信息' : '填写新分类信息'}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>分类名称 *</Label>
+              <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="分类名称" />
+            </div>
+            <div className="space-y-2">
+              <Label>标识 (slug) *</Label>
+              <Input value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="category-slug" />
+            </div>
+            <div className="space-y-2">
+              <Label>描述</Label>
+              <Textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="分类描述" rows={3} />
+            </div>
+          </div>
+          <div className="flex justify-end gap-3 mt-4">
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>取消</Button>
+            <Button onClick={handleSave} disabled={saving}>
+              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {editing ? '保存修改' : '创建'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>确认删除</AlertDialogTitle>
+            <AlertDialogDescription>确定要删除分类「{deleting?.name}」吗？此操作不可撤销。</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleting(null)}>取消</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">删除</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
