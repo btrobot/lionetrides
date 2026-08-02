@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { locales, type Locale } from '@/i18n/routing';
 import { useSiteConfig } from '@/providers/site-config-provider';
+import { useRouter } from 'next/navigation';
 
 const localeNames: Record<Locale, string> = {
   en: 'English',
@@ -29,8 +30,10 @@ export default function Header() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [langOpen, setLangOpen] = useState(false);
   const { config } = useSiteConfig();
+  const router = useRouter();
 
   const siteName = config.site_name || 'RideCraft';
   const logoSrc = config.site_logo_url || '';
@@ -159,6 +162,25 @@ export default function Header() {
       {mobileOpen && (
         <div className="lg:hidden border-t border-gray-100 bg-white">
           <div className="px-4 py-4 space-y-1">
+            {/* Mobile Search */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const input = (e.target as HTMLFormElement).querySelector('input');
+                if (input?.value.trim()) {
+                  router.push(`/${currentLocale}/search?q=${encodeURIComponent(input.value.trim())}`);
+                  setMobileOpen(false);
+                }
+              }}
+              className="relative mb-3"
+            >
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder={t('search')}
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm focus:border-blue-500 focus:outline-none"
+              />
+            </form>
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -200,14 +222,28 @@ export default function Header() {
       {searchOpen && (
         <div className="border-t border-gray-100 bg-gray-50 px-4 py-3">
           <div className="mx-auto max-w-2xl">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder={t('search')}
-                className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-              />
-            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (searchQuery.trim()) {
+                  router.push(`/${currentLocale}/search?q=${encodeURIComponent(searchQuery.trim())}`);
+                  setSearchOpen(false);
+                  setSearchQuery('');
+                }
+              }}
+            >
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={t('search')}
+                  className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  autoFocus
+                />
+              </div>
+            </form>
           </div>
         </div>
       )}
