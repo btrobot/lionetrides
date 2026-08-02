@@ -12,11 +12,11 @@ export const certificationService = {
     if (!item) throw new NotFoundError('Certification not found');
     return item;
   },
-  async create(data: any) {
+  async create(data: typeof certifications.$inferInsert) {
     const [item] = await db.insert(certifications).values(data).returning();
     return item;
   },
-  async update(id: number, data: any) {
+  async update(id: number, data: Partial<typeof certifications.$inferInsert>) {
     const [item] = await db.update(certifications).set(data).where(eq(certifications.id, id)).returning();
     if (!item) throw new NotFoundError('Certification not found');
     return item;

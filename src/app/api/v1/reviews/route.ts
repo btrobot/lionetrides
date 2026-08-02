@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { withMiddleware, withAuth } from '@/middleware/api';
+import { withMiddleware } from '@/middleware/api';
 import { reviewService } from '@/services/review-service';
 import { cacheResponse, errorResponse } from '@/lib/errors';
 

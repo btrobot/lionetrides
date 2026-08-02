@@ -1,8 +1,7 @@
 import { db } from '@/db';
 import { categories } from '@/db/schema';
-import { eq, ilike, isNull, asc } from 'drizzle-orm';
-import { NotFoundError } from '@/lib/errors';
-import { paginatedResponse } from '@/lib/errors';
+import { eq, ilike, isNull, asc, and } from 'drizzle-orm';
+import { NotFoundError, paginatedResponse } from '@/lib/errors';
 
 export const categoryService = {
   async list(params: { page?: number; pageSize?: number; search?: string }) {
@@ -11,11 +10,11 @@ export const categoryService = {
     const conditions = [isNull(categories.deleted_at)];
     if (params.search) conditions.push(ilike(categories.name, `%${params.search}%`));
     const items = await db.select().from(categories)
-      .where(conditions.length === 1 ? conditions[0] : (conditions as any))
+      .where(and(...conditions))
       .orderBy(asc(categories.sort_order))
       .limit(pageSize).offset((page - 1) * pageSize);
     const total = await db.select({ count: categories.id }).from(categories)
-      .where(conditions.length === 1 ? conditions[0] : (conditions as any));
+      .where(and(...conditions));
     return paginatedResponse(items, total.length > 0 ? total[0].count : 0, { page, pageSize });
   },
   async getById(id: number) {

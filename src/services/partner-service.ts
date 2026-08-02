@@ -12,11 +12,11 @@ export const partnerService = {
     if (!item) throw new NotFoundError('Partner not found');
     return item;
   },
-  async create(data: any) {
+  async create(data: typeof partners.$inferInsert) {
     const [item] = await db.insert(partners).values(data).returning();
     return item;
   },
-  async update(id: number, data: any) {
+  async update(id: number, data: Partial<typeof partners.$inferInsert>) {
     const [item] = await db.update(partners).set(data).where(eq(partners.id, id)).returning();
     if (!item) throw new NotFoundError('Partner not found');
     return item;

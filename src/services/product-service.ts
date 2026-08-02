@@ -1,8 +1,7 @@
 import { db } from '@/db';
-import { products, categories, brands, reviews } from '@/db/schema';
-import { eq, like, or, and, isNull, desc, asc, count, sql } from 'drizzle-orm';
-import { NotFoundError, ValidationError, parsePagination, paginatedResponse, PaginatedResult } from '@/lib/errors';
-import type { PaginationParams } from '@/lib/errors';
+import { products } from '@/db/schema';
+import { eq, and, isNull, desc, asc, count, sql } from 'drizzle-orm';
+import { NotFoundError, paginatedResponse } from '@/lib/errors';
 
 export const productService = {
   async list(params: {
@@ -90,7 +89,7 @@ export const productService = {
         brand_id: data.brandId || null,
         price: data.price,
         main_image: data.mainImage || null,
-        status: (data.status as any) || 'draft',
+        status: data.status || 'draft',
         is_featured: data.isFeatured || false,
       })
       .returning();

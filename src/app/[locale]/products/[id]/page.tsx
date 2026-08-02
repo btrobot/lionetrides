@@ -1,9 +1,8 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Star, CheckCircle2, ShieldCheck, Wrench, Clock, Ruler, Weight, Zap, Users, Download, Truck } from 'lucide-react';
+import { ArrowLeft, Star, CheckCircle2, ShieldCheck, Clock, Download, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -48,8 +47,7 @@ const reviews = [
   { id: 2, customer: 'Adventure Land Resort', rating: 5, content: 'Exceptional quality and safety standards. The RideCraft team provided excellent support throughout the project.', date: '2024-12-20' },
 ];
 
-export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const t = useTranslations('products');
+export default function ProductDetailPage() {
   const pathname = usePathname();
   const currentLocale = pathname.split('/')[1] as Locale;
   const { openInquiry } = useInquiry();

@@ -1,8 +1,9 @@
 import { db } from '@/db';
 import { reviews } from '@/db/schema';
-import { eq, desc, isNull } from 'drizzle-orm';
-import { NotFoundError } from '@/lib/errors';
-import { paginatedResponse } from '@/lib/errors';
+import { eq, desc, isNull, and } from 'drizzle-orm';
+import { NotFoundError, paginatedResponse } from '@/lib/errors';
+
+type ReviewStatus = 'pending' | 'approved' | 'rejected' | 'hidden';
 
 export const reviewService = {
   async list(params: { page?: number; pageSize?: number; productId?: number; status?: string }) {
@@ -10,12 +11,12 @@ export const reviewService = {
     const pageSize = Math.min(100, Math.max(1, params.pageSize || 12));
     const conditions = [isNull(reviews.deleted_at)];
     if (params.productId) conditions.push(eq(reviews.product_id, params.productId));
-    if (params.status) conditions.push(eq(reviews.status, params.status as any));
+    if (params.status) conditions.push(eq(reviews.status, params.status as ReviewStatus));
     const items = await db.select().from(reviews)
-      .where(conditions.length === 1 ? conditions[0] : (conditions as any))
+      .where(and(...conditions))
       .orderBy(desc(reviews.created_at)).limit(pageSize).offset((page - 1) * pageSize);
     const [{ count }] = await db.select({ count: reviews.id }).from(reviews)
-      .where(conditions.length === 1 ? conditions[0] : (conditions as any));
+      .where(and(...conditions));
     return paginatedResponse(items, count, { page, pageSize });
   },
   async getById(id: number) {
@@ -23,7 +24,7 @@ export const reviewService = {
     if (!item) throw new NotFoundError('Review not found');
     return item;
   },
-  async create(data: any) {
+  async create(data: Record<string, unknown>) {
     const dbData = {
       product_id: data.productId,
       rating: data.rating,
@@ -36,7 +37,7 @@ export const reviewService = {
     return item;
   },
   async approve(id: number) {
-    const [item] = await db.update(reviews).set({ status: 'approved' as any }).where(eq(reviews.id, id)).returning();
+    const [item] = await db.update(reviews).set({ status: 'approved' as ReviewStatus }).where(eq(reviews.id, id)).returning();
     if (!item) throw new NotFoundError('Review not found');
     return item;
   },

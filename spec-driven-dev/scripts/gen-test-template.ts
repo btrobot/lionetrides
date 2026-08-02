@@ -18,7 +18,7 @@ function extractModuleInfo(file: string): { module: string; operations: string[]
   const content = readFileSync(file, 'utf-8');
   const lines = content.split('\n');
 
-  const module = file.replace('.spec.yaml', '').split('/').pop()!;
+  // const specModule = file.replace('.spec.yaml', '').split('/').pop()!;
   const operations: string[] = [];
   const rules: string[] = [];
 
@@ -109,9 +109,9 @@ function generateTestContent(module: string, operations: string[], rules: string
   }).join('\n\n');
 
   const ruleTests = rules.map(rule => {
-    return `    it('${rule}: 应验证对应业务规则', async () => {`);
-    // return `      // TODO: 实现规则 ${rule} 测试`;
-    // return `    });`;
+    return `    it('${rule}: 应验证对应业务规则', async () => {
+      // TODO: 实现规则 ${rule} 测试
+    });`;
   }).join('\n');
 
   return `import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -182,9 +182,7 @@ async function main() {
   }
 
   if (!existsSync(TESTS_DIR)) {
-    // Create directory
-    const dir = TESTS_DIR;
-    // Already handled by fs
+    // Create directory - handled by mkdir
   }
 
   const content = generateTestContent(module, operations, rules);

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { z } from 'zod';
 
+
 /**
  * Regression Test: Zod Validation Format
  *
@@ -33,7 +34,7 @@ describe('ZodError Format Compatibility', () => {
       expect(zodError.issues).toBeDefined();
       expect(Array.isArray(zodError.issues)).toBe(true);
       // 不应依赖 .errors（Zod v3 兼容属性）
-      expect((zodError as any).errors).toBeUndefined();
+      expect((zodError).errors).toBeUndefined();
     }
   });
 

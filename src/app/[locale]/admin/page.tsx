@@ -1,11 +1,10 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { 
   LayoutDashboard, Package, FolderTree, Building2, MessageSquare, Users, Star, Settings,
-  TrendingUp, ShoppingCart, Eye, DollarSign
+  DollarSign
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,7 +29,6 @@ const stats = [
 ];
 
 export default function AdminDashboard() {
-  const t = useTranslations('admin');
   const pathname = usePathname();
   const currentLocale = pathname.split('/')[1] as Locale;
 

@@ -1,14 +1,10 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
 import { ArrowRight, Globe, Star } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import AnimatedSection from '@/components/shared/animated-section';
-import type { Locale } from '@/i18n/routing';
 
 const brands = [
   { name: 'RideCraft', country: 'China', founded: 2000, products: 200, desc: 'Premium amusement ride manufacturer with global presence', rating: 4.9 },
@@ -21,9 +17,6 @@ const brands = [
 
 export default function BrandsPage() {
   const t = useTranslations('brands');
-  const pathname = usePathname();
-  const currentLocale = pathname.split('/')[1] as Locale;
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white border-b border-gray-100">

@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { User, Mail, Lock, Phone, Building2, Globe, ArrowRight } from 'lucide-react';
+import { User, Mail, Lock, Phone, Building2, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';

@@ -3,11 +3,9 @@
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowRight, Calendar, User, Tag } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import AnimatedSection from '@/components/shared/animated-section';
 import type { Locale } from '@/i18n/routing';
 
 const newsList = [

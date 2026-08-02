@@ -19,7 +19,7 @@ export const brandService = {
     }).returning();
     return item;
   },
-  async update(id: number, data: any) {
+  async update(id: number, data: Partial<typeof brands.$inferSelect>) {
     const [item] = await db.update(brands).set(data).where(eq(brands.id, id)).returning();
     if (!item) throw new NotFoundError('Brand not found');
     return item;

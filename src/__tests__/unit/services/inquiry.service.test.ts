@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createMockDb, resetMockDb } from '../helpers/mock-db';
-import { buildInquiry, buildInquiryList } from '../../factories/inquiry.factory';
+import { describe, it, expect, vi } from 'vitest'
+/* eslint-disable @typescript-eslint/no-explicit-any */;
+import { createMockDb } from '../helpers/mock-db';
+import { buildInquiry, buildInquiryList } from '@/__tests__/factories/inquiry.factory';
 import { NotFoundError } from '@/lib/errors';
 
 // Mock the db module
@@ -11,6 +12,10 @@ vi.mock('@/db', () => ({
 
 // Import the actual service after mocking
 import { inquiryService } from '@/services/inquiry-service';
+
+const inquiries = buildInquiryList(3);
+const userInquiries = buildInquiryList(2).map(i => ({ ...i, user_id: 5 }));
+const pendingInquiries = buildInquiryList(2).map(i => ({ ...i, status: 'pending' as const }));
 
 describe('InquiryService', () => {
   beforeEach(() => {
@@ -59,7 +64,6 @@ describe('InquiryService', () => {
 
   describe('list', () => {
     it('应返回分页询盘列表', async () => {
-      const inquiries = buildInquiryList(3);
       mockDb.select
         .mockReturnValueOnce({
           from: vi.fn().mockReturnThis(),
@@ -111,7 +115,6 @@ describe('InquiryService', () => {
     });
 
     it('应支持按 userId 过滤', async () => {
-      const userInquiries = buildInquiryList(2).map(i => ({ ...i, user_id: 5 }));
       mockDb.select.mockReturnValue({
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
@@ -136,7 +139,6 @@ describe('InquiryService', () => {
     });
 
     it('应支持按 status 过滤', async () => {
-      const pendingInquiries = buildInquiryList(2).map(i => ({ ...i, status: 'pending' as const }));
       mockDb.select.mockReturnValue({
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),

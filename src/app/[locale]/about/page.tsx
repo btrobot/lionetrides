@@ -1,9 +1,8 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowRight, ShieldCheck, Building2, Award, Target, Users, History, ChevronRight } from 'lucide-react';
+import { ArrowRight, Award, Target, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import AnimatedSection from '@/components/shared/animated-section';
@@ -27,8 +26,7 @@ const team = [
 ];
 
 export default function AboutPage() {
-  const t = useTranslations('about');
-  const pathname = usePathname();
+    const pathname = usePathname();
   const currentLocale = pathname.split('/')[1] as Locale;
 
   return (
@@ -83,7 +81,7 @@ export default function AboutPage() {
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Our Vision</h2>
               <p className="text-gray-600 leading-relaxed">
-                To be the world's most trusted partner for amusement ride solutions, setting the global standard for ride safety, innovation, and customer satisfaction.
+                To be the world&apos;s most trusted partner for amusement ride solutions, setting the global standard for ride safety, innovation, and customer satisfaction.
               </p>
             </Card>
           </div>
@@ -138,7 +136,7 @@ export default function AboutPage() {
       <AnimatedSection className="bg-gradient-to-br from-blue-900 via-blue-700 to-indigo-900 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">Ready to Partner With Us?</h2>
-          <p className="text-blue-200 mb-8 max-w-2xl mx-auto">Let's discuss how we can bring your vision to life with our world-class amusement ride solutions.</p>
+          <p className="text-blue-200 mb-8 max-w-2xl mx-auto">Let&apos;s discuss how we can bring your vision to life with our world-class amusement ride solutions.</p>
           <Link href={`/${currentLocale}/products`}>
             <Button size="lg" className="bg-white text-blue-700 hover:bg-blue-50 px-8">
               Explore Products <ArrowRight className="ml-2 h-5 w-5" />

@@ -88,7 +88,7 @@ async function handler(request: NextRequest) {
       const valid = await bcrypt.compare(parsed.password, user.password_hash);
       if (!valid) {
         const attempts = (user.login_attempts || 0) + 1;
-        const updateData: any = { login_attempts: attempts };
+        const updateData: Partial<typeof users.$inferSelect> = { login_attempts: attempts };
         if (attempts >= 5) {
           updateData.locked_until = new Date(Date.now() + 60 * 60 * 1000); // Lock 1 hour
         }

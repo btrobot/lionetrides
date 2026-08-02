@@ -1,9 +1,8 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Calendar, User, Tag, Share2, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Share2, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -37,7 +36,6 @@ const newsItem = {
 };
 
 export default function NewsDetailPage() {
-  const t = useTranslations('news');
   const pathname = usePathname();
   const currentLocale = pathname.split('/')[1] as Locale;
 

@@ -1,13 +1,11 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { usePathname } from 'next/navigation';
-import { MessageSquare, ChevronRight, Search, Filter } from 'lucide-react';
+import { ChevronRight, Search, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import type { Locale } from '@/i18n/routing';
 
 const inquiries = [
   { id: 'INQ-0001', product: 'Thunderbolt Coaster', customer: 'Ocean Paradise Park', email: 'info@oceanparadise.com', quantity: 1, status: 'pending', date: '2025-06-15', message: 'Interested in purchasing for our new park expansion in Q1 2026.' },
@@ -25,8 +23,6 @@ const statusStyles: Record<string, string> = {
 
 export default function AccountInquiriesPage() {
   const t = useTranslations('account');
-  const pathname = usePathname();
-  const currentLocale = pathname.split('/')[1] as Locale;
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -9,22 +9,12 @@
 
 import { readdirSync, readFileSync, existsSync } from 'fs';
 import { join, resolve } from 'path';
-import { parse } from 'yaml';
 
 const PROJECT_ROOT = resolve(import.meta.dirname, '..');
 const SPECS_DIR = join(PROJECT_ROOT, 'specs');
 const SERVICES_DIR = join(PROJECT_ROOT, 'src', 'services');
 const API_DIR = join(PROJECT_ROOT, 'src', 'app', 'api', 'v1');
 const FACTORIES_DIR = join(PROJECT_ROOT, 'src', '__tests__', 'factories');
-
-interface SpecField {
-  type: string;
-  required?: boolean;
-  primary_key?: boolean;
-  unique?: boolean;
-  relation?: string;
-  [key: string]: unknown;
-}
 
 interface SpecOperation {
   method: string;
@@ -35,12 +25,7 @@ interface SpecOperation {
   response?: unknown;
 }
 
-interface SpecStateMachine {
-  initial: string;
-  states: Array<{ name: string; label: string }>;
-  transitions: Array<{ from: string; to: string; action: string; auth: string | string[] }>;
-  rules?: Array<{ description: string; constraint: string }>;
-}
+
 
 interface SpecRule {
   id: string;
@@ -50,80 +35,12 @@ interface SpecRule {
   error?: string;
 }
 
-interface SpecFile {
-  module: string;
-  entity?: { name?: string; table?: string; fields?: Record<string, SpecField> };
-  operations?: Record<string, SpecOperation>;
-  state_machine?: SpecStateMachine;
-  rules?: SpecRule[];
-}
-
 interface AuditItem {
   module: string;
   category: 'field' | 'operation' | 'state_machine' | 'rule';
   severity: 'P0' | 'P1' | 'P2';
   description: string;
   detail: string;
-}
-
-function parseSpecFiles(): SpecFile[] {
-  if (!existsSync(SPECS_DIR)) {
-    console.error('❌ specs/ 目录不存在');
-    process.exit(1);
-  }
-
-  const files = readdirSync(SPECS_DIR).filter(f => f.endsWith('.spec.yaml'));
-  const specs: SpecFile[] = [];
-
-  for (const file of files) {
-    const content = readFileSync(join(SPECS_DIR, file), 'utf-8');
-    try {
-      // Simple YAML-like parser (no yaml dependency needed)
-      const spec = parseSimpleYaml(content);
-      specs.push({ ...spec, module: spec.module || file.replace('.spec.yaml', '') });
-    } catch (e) {
-      console.error(`⚠️  无法解析 ${file}:`, e);
-    }
-  }
-
-  return specs;
-}
-
-function parseSimpleYaml(content: string): any {
-  // Use a simple approach - read the file and parse it as structured data
-  // Since we can't use yaml library directly, let's read each spec file
-  // and extract the key structure
-  const lines = content.split('\n');
-  const result: any = {};
-  let currentSection = '';
-  let currentSubSection = '';
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (trimmed.startsWith('#') || trimmed === '') continue;
-
-    // Top-level keys (module, entity, operations, etc.)
-    const topMatch = trimmed.match(/^(\w+):\s*(.*)/);
-    if (topMatch && !line.startsWith('  ')) {
-      currentSection = topMatch[1];
-      currentSubSection = '';
-      const val = topMatch[2].trim();
-      result[currentSection] = val || {};
-      continue;
-    }
-
-    // Section: module, entity, operations, state_machine, rules
-    const sectionMatch = trimmed.match(/^(\w+):/);
-    if (sectionMatch && !line.startsWith('  ')) {
-      result[sectionMatch[1]] = {};
-      currentSection = sectionMatch[1];
-      currentSubSection = '';
-    }
-  }
-
-  // For now, just return the basics - the detailed parsing is done
-  // by reading the raw YAML content
-  return result;
 }
 
 function readYamlContent(file: string): string {
@@ -138,8 +55,6 @@ function checkApiRoutes(module: string, operations: Record<string, SpecOperation
   const missing: string[] = [];
 
   for (const [opName, op] of Object.entries(operations)) {
-    // Convert spec path to file path
-    // /api/v1/products/:id -> app/api/v1/products/[id]/route.ts
     const routePath = op.path
       .replace(/^\/api\/v1\//, '')
       .replace(/:(\w+)/g, '[$1]');
@@ -170,7 +85,6 @@ async function main() {
   const isJson = process.argv.includes('--json');
   const items: AuditItem[] = [];
 
-  // Read spec files directly (since we can't rely on yaml parser in all envs)
   const specFiles = readdirSync(SPECS_DIR)
     .filter(f => f.endsWith('.spec.yaml'))
     .sort();
@@ -183,7 +97,7 @@ async function main() {
   console.log(`\n📋 发现 ${specFiles.length} 个 spec 文件\n`);
 
   for (const file of specFiles) {
-    const module = file.replace('.spec.yaml', '');
+    const moduleName = file.replace('.spec.yaml', '');
     const content = readYamlContent(join(SPECS_DIR, file));
     const lines = content.split('\n');
 
@@ -250,47 +164,47 @@ async function main() {
       }
     }
 
-    console.log(`\n## ${module}`);
+    console.log(`\n## ${moduleName}`);
 
     // 1. Check service
-    const serviceExists = checkServiceExists(module);
-    console.log(`  服务层: ${serviceExists ? '✅' : '❌'} ${module}-service.ts`);
+    const serviceExists = checkServiceExists(moduleName);
+    console.log(`  服务层: ${serviceExists ? '✅' : '❌'} ${moduleName}-service.ts`);
     if (!serviceExists && Object.keys(operations).length > 0) {
       items.push({
-        module,
+        module: moduleName,
         category: 'operation',
         severity: 'P1',
         description: '服务层缺失',
-        detail: `${module}-service.ts 不存在，但有 ${Object.keys(operations).length} 个操作需要实现`,
+        detail: `${moduleName}-service.ts 不存在，但有 ${Object.keys(operations).length} 个操作需要实现`,
       });
     }
 
     // 2. Check API routes
-    const missingRoutes = checkApiRoutes(module, operations);
+    const missingRoutes = checkApiRoutes(moduleName, operations);
     for (const route of missingRoutes) {
       const opName = route.split(' ')[0];
       const op = operations[opName];
       const priority = op ? getPriority(opName, op.auth) : 'P1';
       items.push({
-        module,
+        module: moduleName,
         category: 'operation',
         severity: priority,
         description: `API 路由缺失: ${route}`,
-        detail: `未找到对应的 route.ts 文件`,
+        detail: '未找到对应的 route.ts 文件',
       });
       console.log(`  ${priority === 'P0' ? '🔴' : '🟡'} [${priority}] API 路由缺失: ${route}`);
     }
 
     // 3. Check factory
-    const factoryExists = checkFactoryExists(module);
-    console.log(`  工厂: ${factoryExists ? '✅' : '❌'} ${module}.factory.ts`);
+    const factoryExists = checkFactoryExists(moduleName);
+    console.log(`  工厂: ${factoryExists ? '✅' : '❌'} ${moduleName}.factory.ts`);
     if (!factoryExists && Object.keys(operations).length > 0) {
       items.push({
-        module,
+        module: moduleName,
         category: 'field',
         severity: 'P2',
         description: '工厂文件缺失',
-        detail: `${module}.factory.ts 不存在，测试数据无法生成`,
+        detail: `${moduleName}.factory.ts 不存在，测试数据无法生成`,
       });
     }
 
@@ -298,9 +212,9 @@ async function main() {
     for (const rule of rules) {
       const priority = rule.severity === 'error' ? 'P0' : rule.severity === 'warning' ? 'P1' : 'P2';
       items.push({
-        module,
+        module: moduleName,
         category: 'rule',
-        severity: priority as any,
+        severity: priority,
         description: `规则审计: ${rule.id}`,
         detail: `${rule.description} — 需要检查代码中是否有对应校验逻辑`,
       });
@@ -314,7 +228,7 @@ async function main() {
   const p2 = items.filter(i => i.severity === 'P2');
 
   console.log(`\n${'='.repeat(50)}`);
-  console.log(`📊 Audit 汇总`);
+  console.log('📊 Audit 汇总');
   console.log(`${'='.repeat(50)}`);
   console.log(`  总计: ${items.length} 项`);
   console.log(`  🔴 P0: ${p0.length} 项（核心功能）`);

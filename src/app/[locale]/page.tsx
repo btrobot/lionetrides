@@ -3,27 +3,18 @@
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useRef } from 'react';
 import {
   ArrowRight,
-  ShieldCheck,
-  Cog,
-  Globe,
-  Award,
-  Factory,
-  Truck,
-  Headphones,
-  Star,
   ChevronRight,
-  Building2,
-  Wrench,
+  ShieldCheck,
+  Star,
+  Package,
   Ruler,
   Users,
-  Clock,
+  Wrench,
   CheckCircle2,
   MessageSquare,
   FileText,
-  Package,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -83,7 +74,7 @@ const stats = [
 const factoryFeatures = [
   { icon: Ruler, title: '50,000㎡ Smart Factory', desc: 'State-of-the-art manufacturing facility with automated production lines' },
   { icon: Users, title: '200+ Engineers', desc: 'Experienced R&D team dedicated to innovation and quality' },
-  { icon: ShieldCheck, title: 'Full Quality Traceability', desc: 'End-to-end quality control system with digital tracking' },
+  { icon: CheckCircle2, title: 'Full Quality Traceability', desc: 'End-to-end quality control system with digital tracking' },
   { icon: Wrench, title: 'Advanced Testing Lab', desc: 'In-house testing facility for safety and performance validation' },
 ];
 

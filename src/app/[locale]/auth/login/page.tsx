@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,6 @@ import type { Locale } from '@/i18n/routing';
 export default function LoginPage() {
   const t = useTranslations('auth');
   const pathname = usePathname();
-  const router = useRouter();
   const currentLocale = pathname.split('/')[1] as Locale;
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');

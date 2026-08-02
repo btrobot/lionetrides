@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { z } from 'zod';
+import { describe, it, expect } from 'vitest'
+/* eslint-disable @typescript-eslint/no-explicit-any */;
+
 import { createMockDb, resetMockDb } from '@/__tests__/unit/helpers/mock-db';
 
 /**
@@ -22,7 +23,7 @@ describe('Mock Chain Sequencing', () => {
 
   beforeEach(() => {
     mockDb = createMockDb();
-    resetMockDb(mockDb);
+    resetMockDb();
   });
 
   it('should handle two sequential select calls with mockReturnValueOnce', async () => {

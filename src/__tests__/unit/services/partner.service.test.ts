@@ -1,4 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest'
+/* eslint-disable @typescript-eslint/no-explicit-any */;
 import { createMockDb } from '../helpers/mock-db';
 import { buildPartner, buildPartnerList } from '../../factories/partner.factory';
 import { NotFoundError } from '@/lib/errors';

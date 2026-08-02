@@ -1,5 +1,5 @@
 /** @type {import('stylelint').Config} */
-export default {
+const stylelintConfig = {
   extends: 'stylelint-config-standard',
   rules: {
     'at-rule-no-unknown': [
@@ -15,3 +15,5 @@ export default {
     'value-keyword-case': null,
   },
 };
+
+export default stylelintConfig;

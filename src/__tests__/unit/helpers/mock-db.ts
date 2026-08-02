@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { vi } from 'vitest';
 
-export function createMockDb(): any {
+export function createMockDb() {
   const defaultInsertReturn = [{ id: 1, createdAt: new Date() }];
   const defaultSelectReturn: any[] = [];
 
@@ -54,6 +55,6 @@ function createSelectMock(returnValue: any[]) {
   return chain;
 }
 
-export function resetMockDb(mockDb: any) {
+export function resetMockDb() {
   vi.clearAllMocks();
 }

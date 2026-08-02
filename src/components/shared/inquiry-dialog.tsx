@@ -2,7 +2,7 @@
 
 import { useState, createContext, useContext, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { Loader2, Send, CheckCircle } from 'lucide-react';
+import { Loader2, CheckCircle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,

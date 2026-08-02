@@ -109,7 +109,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href={`/${currentLocale}/products?category=kids-rides`} className="hover:text-blue-400 transition-colors">
-                  Kids' Rides
+                  Kids&apos; Rides
                 </Link>
               </li>
             </ul>

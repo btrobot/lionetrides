@@ -3,10 +3,8 @@
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronRight, Package, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import AnimatedSection from '@/components/shared/animated-section';
 import type { Locale } from '@/i18n/routing';
 
 const categories = [

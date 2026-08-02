@@ -3,6 +3,8 @@ import { inquiries, inquiry_history } from '@/db/schema';
 import { eq, and, isNull, desc, count } from 'drizzle-orm';
 import { NotFoundError, paginatedResponse } from '@/lib/errors';
 
+type InquiryStatus = 'pending' | 'replied' | 'closed';
+
 export const inquiryService = {
   async create(data: {
     name: string;
@@ -40,7 +42,7 @@ export const inquiryService = {
 
     const conditions = [isNull(inquiries.deleted_at)];
     if (userId) conditions.push(eq(inquiries.user_id, userId));
-    if (status) conditions.push(eq(inquiries.status, status as any));
+    if (status) conditions.push(eq(inquiries.status, status as InquiryStatus));
 
     const where = and(...conditions);
 
@@ -73,7 +75,7 @@ export const inquiryService = {
     const [inquiry] = await db
       .update(inquiries)
       .set({
-        status: status as any,
+        status: status as InquiryStatus,
         updated_at: new Date(),
         ...(status === 'replied' ? { replied_at: new Date() } : {}),
         ...(status === 'closed' ? { closed_at: new Date() } : {}),
@@ -87,7 +89,7 @@ export const inquiryService = {
     await db.insert(inquiry_history).values({
       inquiry_id: id,
       previous_status: inquiry.status,
-      new_status: status as any,
+      new_status: status as InquiryStatus,
       changed_by: changedBy || null,
       note: note || null,
     });

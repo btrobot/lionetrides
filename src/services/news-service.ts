@@ -1,8 +1,7 @@
 import { db } from '@/db';
 import { news } from '@/db/schema';
-import { eq, desc, isNull, ilike } from 'drizzle-orm';
-import { NotFoundError } from '@/lib/errors';
-import { paginatedResponse } from '@/lib/errors';
+import { eq, desc, isNull, ilike, and } from 'drizzle-orm';
+import { NotFoundError, paginatedResponse } from '@/lib/errors';
 
 export const newsService = {
   async list(params: { page?: number; pageSize?: number; search?: string; category?: string }) {
@@ -12,10 +11,10 @@ export const newsService = {
     if (params.search) conditions.push(ilike(news.title, `%${params.search}%`));
     if (params.category) conditions.push(eq(news.category, params.category));
     const items = await db.select().from(news)
-      .where(conditions.length === 1 ? conditions[0] : (conditions as any))
+      .where(and(...conditions))
       .orderBy(desc(news.created_at)).limit(pageSize).offset((page - 1) * pageSize);
     const [{ count }] = await db.select({ count: news.id }).from(news)
-      .where(conditions.length === 1 ? conditions[0] : (conditions as any));
+      .where(and(...conditions));
     return paginatedResponse(items, count, { page, pageSize });
   },
   async getById(id: number) {
@@ -28,11 +27,11 @@ export const newsService = {
     if (!item) throw new NotFoundError('News not found');
     return item;
   },
-  async create(data: any) {
+  async create(data: Record<string, unknown>) {
     const [item] = await db.insert(news).values(data).returning();
     return item;
   },
-  async update(id: number, data: any) {
+  async update(id: number, data: Record<string, unknown>) {
     const [item] = await db.update(news).set(data).where(eq(news.id, id)).returning();
     if (!item) throw new NotFoundError('News not found');
     return item;
