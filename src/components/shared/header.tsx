@@ -48,6 +48,7 @@ export default function Header() {
     { href: `/${currentLocale}/brands`, label: t('brands') },
     { href: `/${currentLocale}/news`, label: t('news') },
     { href: `/${currentLocale}/about`, label: t('about') },
+    { href: `/${currentLocale}/contact`, label: t('contact') },
   ];
 
   return (

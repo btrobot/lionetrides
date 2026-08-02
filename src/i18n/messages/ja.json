@@ -185,6 +185,26 @@
     "submit": "送信",
     "subscribe": "購読する"
   },
+  "contact": {
+    "address": "[TODO: translate] Address",
+    "email": "[TODO: translate] Email",
+    "follow_us": "[TODO: translate] Follow Us",
+    "form_company": "[TODO: translate] Company (Optional)",
+    "form_email": "[TODO: translate] Your Email",
+    "form_error": "[TODO: translate] Failed to send message. Please try again later.",
+    "form_message": "[TODO: translate] Your Message",
+    "form_name": "[TODO: translate] Your Name",
+    "form_phone": "[TODO: translate] Phone (Optional)",
+    "form_submit": "[TODO: translate] Send Message",
+    "form_success": "[TODO: translate] Thank you! Your message has been sent successfully. We'll get back to you within 24 hours.",
+    "form_title": "[TODO: translate] Send Us a Message",
+    "map_title": "[TODO: translate] Visit Our Factory",
+    "phone": "[TODO: translate] Phone",
+    "subtitle": "[TODO: translate] Get in touch with our team",
+    "title": "[TODO: translate] Contact Us",
+    "working_hours": "[TODO: translate] Working Hours",
+    "working_hours_value": "[TODO: translate] Monday - Friday: 9:00 AM - 6:00 PM"
+  },
   "footer": {
     "address": "No. 88, Industrial Avenue, Guangzhou, China",
     "contact_us": "お問い合わせ",

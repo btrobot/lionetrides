@@ -7,6 +7,26 @@
     "search_inquiries": "搜索询盘...",
     "view_details": "查看详情"
   },
+  "contact": {
+    "title": "联系我们",
+    "subtitle": "与我们的团队取得联系",
+    "address": "地址",
+    "phone": "电话",
+    "email": "邮箱",
+    "form_title": "发送消息",
+    "form_name": "您的姓名",
+    "form_phone": "电话（选填）",
+    "form_company": "公司（选填）",
+    "form_message": "您的留言",
+    "form_submit": "发送消息",
+    "form_success": "感谢您！消息已成功发送，我们将在24小时内回复。",
+    "form_error": "发送失败，请稍后重试。",
+    "form_email": "您的邮箱",
+    "map_title": "参观我们的工厂",
+    "working_hours": "工作时间",
+    "working_hours_value": "周一至周五：9:00 - 18:00",
+    "follow_us": "关注我们"
+  },
   "admin": {
     "brands": {
       "actions": "操作",

@@ -102,7 +102,7 @@ export const products = pgTable('products', {
 // ─── Product Attributes ──────────────────────────────────
 export const product_attributes = pgTable('product_attributes', {
   id: serial('id').primaryKey(),
-  product_id: integer('product_id').notNull().references(() => products.id),
+  product_id: integer('product_id').references(() => products.id),
   name: varchar('name', { length: 255 }).notNull(),
   value: text('value').notNull(),
   sort_order: integer('sort_order').default(0),

@@ -241,6 +241,26 @@
     "filter": "Filter",
     "view_details": "View Details"
   },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Get in touch with our team",
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "form_title": "Send Us a Message",
+    "form_name": "Your Name",
+    "form_email": "Your Email",
+    "form_phone": "Phone (Optional)",
+    "form_company": "Company (Optional)",
+    "form_message": "Your Message",
+    "form_submit": "Send Message",
+    "form_success": "Thank you! Your message has been sent successfully. We'll get back to you within 24 hours.",
+    "form_error": "Failed to send message. Please try again later.",
+    "map_title": "Visit Our Factory",
+    "working_hours": "Working Hours",
+    "working_hours_value": "Monday - Friday: 9:00 AM - 6:00 PM",
+    "follow_us": "Follow Us"
+  },
   "admin": {
     "sidebar": {
       "dashboard": "Dashboard",
