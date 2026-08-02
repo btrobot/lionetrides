@@ -67,6 +67,73 @@ export const productService = {
     return product;
   },
 
+  async create(data: {
+    name: string;
+    slug: string;
+    sku: string;
+    description?: string;
+    categoryId?: number;
+    brandId?: number;
+    price: string;
+    mainImage?: string;
+    status?: 'draft' | 'published' | 'archived';
+    isFeatured?: boolean;
+  }) {
+    const [product] = await db
+      .insert(products)
+      .values({
+        name: data.name,
+        slug: data.slug,
+        sku: data.sku,
+        description: data.description || '',
+        category_id: data.categoryId || null,
+        brand_id: data.brandId || null,
+        price: data.price,
+        main_image: data.mainImage || null,
+        status: (data.status as any) || 'draft',
+        is_featured: data.isFeatured || false,
+      })
+      .returning();
+
+    return product;
+  },
+
+  async update(id: number, data: Partial<{
+    name: string;
+    slug: string;
+    sku: string;
+    description: string;
+    categoryId: number;
+    brandId: number;
+    price: string;
+    mainImage: string;
+    status: 'draft' | 'published' | 'archived';
+    isFeatured: boolean;
+  }>) {
+    const [product] = await db
+      .update(products)
+      .set({
+        ...data,
+        updated_at: new Date(),
+      })
+      .where(and(eq(products.id, id), isNull(products.deleted_at)))
+      .returning();
+
+    if (!product) throw new NotFoundError('Product');
+    return product;
+  },
+
+  async remove(id: number) {
+    const [product] = await db
+      .update(products)
+      .set({ deleted_at: new Date(), updated_at: new Date() })
+      .where(eq(products.id, id))
+      .returning();
+
+    if (!product) throw new NotFoundError('Product');
+    return product;
+  },
+
   async getFeatured(limit: number = 8) {
     const items = await db
       .select()

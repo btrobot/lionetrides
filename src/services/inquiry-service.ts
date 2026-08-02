@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { inquiries } from '@/db/schema';
+import { inquiries, inquiry_history } from '@/db/schema';
 import { eq, and, isNull, desc, count } from 'drizzle-orm';
 import { NotFoundError, paginatedResponse } from '@/lib/errors';
 
@@ -69,12 +69,28 @@ export const inquiryService = {
     return inquiry;
   },
 
-  async updateStatus(id: number, status: string) {
+  async updateStatus(id: number, status: string, changedBy?: number, note?: string) {
     const [inquiry] = await db
       .update(inquiries)
-      .set({ status: status as any, updated_at: new Date() })
+      .set({
+        status: status as any,
+        updated_at: new Date(),
+        ...(status === 'replied' ? { replied_at: new Date() } : {}),
+        ...(status === 'closed' ? { closed_at: new Date() } : {}),
+      })
       .where(eq(inquiries.id, id))
       .returning();
+
+    if (!inquiry) throw new NotFoundError('Inquiry');
+
+    // Log to inquiry_history
+    await db.insert(inquiry_history).values({
+      inquiry_id: id,
+      previous_status: inquiry.status,
+      new_status: status as any,
+      changed_by: changedBy || null,
+      note: note || null,
+    });
 
     return inquiry;
   },

@@ -13,7 +13,6 @@ vi.mock('@/db', () => ({
 let mockDb: ReturnType<typeof createMockDb>;
 
 // Mock the product service
-// This is a placeholder - the actual service will be imported once implemented
 const productService = {
   list: vi.fn(),
   getById: vi.fn(),
@@ -113,13 +112,13 @@ describe('ProductService', () => {
   });
 
   describe('softDelete', () => {
-    it('软删除产品应设置 deletedAt', async () => {
-      const deletedProduct = buildProduct({ deletedAt: new Date() });
+    it('软删除产品应设置 deleted_at', async () => {
+      const deletedProduct = buildProduct({ deleted_at: new Date() });
       productService.softDelete.mockResolvedValue(deletedProduct);
 
       const result = await productService.softDelete(1);
 
-      expect(result?.deletedAt).not.toBeNull();
+      expect(result?.deleted_at).not.toBeNull();
     });
 
     it('不存在的产品应返回 null', async () => {

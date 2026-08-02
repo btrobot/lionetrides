@@ -1,22 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { withMiddleware, withAdmin } from '@/middleware/api';
 import { productService } from '@/services/product-service';
-import { withMiddleware, withAuth, withAdmin, AuthenticatedRequest } from '@/middleware/api';
-import { cacheResponse, errorResponse, parsePagination } from '@/lib/errors';
+import { cacheResponse, errorResponse } from '@/lib/errors';
 
-// GET /api/v1/products — Public product listing
+const createSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  slug: z.string().min(1, 'Slug is required'),
+  sku: z.string().min(1, 'SKU is required'),
+  description: z.string().optional(),
+  categoryId: z.number().optional(),
+  brandId: z.number().optional(),
+  price: z.string().min(1, 'Price is required'),
+  mainImage: z.string().optional(),
+  status: z.enum(['draft', 'published']).optional(),
+  isFeatured: z.boolean().optional(),
+});
+
+// GET /api/v1/products — List products (public)
 async function listHandler(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const { page, pageSize } = parsePagination(searchParams);
+    const page = parseInt(searchParams.get('page') || '1');
+    const pageSize = parseInt(searchParams.get('pageSize') || '12');
+    const search = searchParams.get('search') || undefined;
+    const categoryId = searchParams.get('categoryId')
+      ? parseInt(searchParams.get('categoryId')!)
+      : undefined;
+    const brandId = searchParams.get('brandId')
+      ? parseInt(searchParams.get('brandId')!)
+      : undefined;
+    const sortBy = (searchParams.get('sortBy') || 'sort_order') as string;
+    const sortOrder = (searchParams.get('sortOrder') || 'asc') as 'asc' | 'desc';
 
     const result = await productService.list({
       page,
       pageSize,
-      search: searchParams.get('search') || undefined,
-      categoryId: searchParams.get('categoryId') ? parseInt(searchParams.get('categoryId')!) : undefined,
-      brandId: searchParams.get('brandId') ? parseInt(searchParams.get('brandId')!) : undefined,
-      sortBy: searchParams.get('sortBy') || 'created_at',
-      sortOrder: (searchParams.get('sortOrder') as 'asc' | 'desc') || 'desc',
+      search,
+      categoryId,
+      brandId,
+      
+      sortBy,
+      sortOrder,
     });
 
     return NextResponse.json(
@@ -32,13 +57,20 @@ async function listHandler(request: NextRequest) {
   }
 }
 
-// POST /api/v1/products — Admin create product
+// POST /api/v1/products — Create product (admin)
 async function createHandler(request: NextRequest) {
   try {
     const body = await request.json();
-    // Product creation would go through admin service
-    return NextResponse.json({ success: true, data: body });
+    const parsed = createSchema.parse(body);
+    const product = await productService.create(parsed);
+    return NextResponse.json({ success: true, data: product }, { status: 201 });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { success: false, error: 'Validation failed', details: error.issues },
+        { status: 400 }
+      );
+    }
     const err = errorResponse(error);
     return NextResponse.json(
       { success: err.success, error: err.error, code: err.code },

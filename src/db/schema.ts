@@ -65,7 +65,7 @@ export const products = pgTable('products', {
   slug: varchar('slug', { length: 255 }).notNull().unique(),
   description: text('description'),
   short_description: varchar('short_description', { length: 500 }),
-  category_id: integer('category_id').notNull().references(() => categories.id),
+  category_id: integer('category_id').references(() => categories.id),
   brand_id: integer('brand_id').references(() => brands.id),
   price: decimal('price', { precision: 12, scale: 2 }),
   weight: varchar('weight', { length: 50 }),
@@ -156,6 +156,21 @@ export const inquiries = pgTable('inquiries', {
   productIdx: index('idx_inquiries_product_id').on(table.product_id),
   statusIdx: index('idx_inquiries_status').on(table.status),
   inquiryNoIdx: uniqueIndex('idx_inquiries_inquiry_no').on(table.inquiry_no),
+}));
+
+// ─── Inquiry History ───────────────────────────────────────
+export const inquiry_history = pgTable('inquiry_history', {
+  id: serial('id').primaryKey(),
+  inquiry_id: integer('inquiry_id').notNull().references(() => inquiries.id, { onDelete: 'cascade' }),
+  previous_status: inquiry_status('previous_status'),
+  new_status: inquiry_status('new_status').notNull(),
+  changed_by: integer('changed_by').references(() => users.id),
+  admin_id: integer('admin_id').references(() => users.id),
+  note: text('note'),
+  created_at: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  inquiryIdx: index('idx_inquiry_history_inquiry_id').on(table.inquiry_id),
+  statusIdx: index('idx_inquiry_history_status').on(table.new_status),
 }));
 
 // ─── Reviews ─────────────────────────────────────────────
