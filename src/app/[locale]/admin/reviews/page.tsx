@@ -15,7 +15,7 @@ const [items, setItems] = useState<any[]>([]);
       headers: tok ? { Authorization: `Bearer ${tok}` } : {},
     })
       .then((r) => r.json())
-      .then((d) => setItems(d.data ?? []))
+      .then((d) => setItems(d.data?.items ?? []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);

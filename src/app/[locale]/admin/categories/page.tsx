@@ -12,7 +12,7 @@ const [items, setItems] = useState<any[]>([]);
   useEffect(() => {
     fetch('/api/v1/categories')
       .then((r) => r.json())
-      .then((d) => setItems(d.data ?? []))
+      .then((d) => setItems(d.data?.items ?? []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);

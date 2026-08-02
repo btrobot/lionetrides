@@ -24,7 +24,7 @@ export default function BrandsPage() {
   useEffect(() => {
     fetch('/api/v1/brands')
       .then((res) => res.json())
-      .then((data) => setBrands(data.data?.items || []))
+      .then((data) => setBrands(data.data || []))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
