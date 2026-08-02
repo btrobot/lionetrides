@@ -56,5 +56,4 @@ docker-stop.sh
 .codex
 
 # 其他不需要的
-scripts
 *.md
