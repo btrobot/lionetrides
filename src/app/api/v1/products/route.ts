@@ -18,7 +18,7 @@ const createSchema = z.object({
 });
 
 // GET /api/v1/products — List products (public)
-async function listHandler(request: NextRequest) {
+async function listHandler(request: NextRequest, _context: { params: Promise<{}> }) {
   try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
@@ -58,7 +58,7 @@ async function listHandler(request: NextRequest) {
 }
 
 // POST /api/v1/products — Create product (admin)
-async function createHandler(request: NextRequest) {
+async function createHandler(request: NextRequest, _context: { params: Promise<{}> }) {
   try {
     const body = await request.json();
     const parsed = createSchema.parse(body);

@@ -31,10 +31,11 @@ export function rateLimit(
 }
 
 // ─── Middleware helpers ─────────────────────────────────
-type ApiHandler = (request: NextRequest, ...args: string[]) => Promise<NextResponse>;
+type RouteContext = any;
+type ApiHandler = (request: any, context: any) => Promise<NextResponse>;
 
-export function withMiddleware(handler: ApiHandler) {
-  return async (request: NextRequest, ...args: string[]) => {
+export function withMiddleware(handler: ApiHandler): ApiHandler {
+  return async (request: NextRequest, context: RouteContext) => {
     // Rate limiting by IP
     const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
     const rl = rateLimit(ip);
@@ -61,12 +62,12 @@ export function withMiddleware(handler: ApiHandler) {
       'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
     });
 
-    return handler(request, ...args);
+    return handler(request, context);
   };
 }
 
-export function withAuth(handler: ApiHandler) {
-  return async (request: NextRequest, ...args: string[]) => {
+export function withAuth(handler: ApiHandler): ApiHandler {
+  return async (request: NextRequest, context: RouteContext) => {
     const token = getTokenFromRequest(request);
     if (!token) {
       return NextResponse.json(
@@ -85,12 +86,12 @@ export function withAuth(handler: ApiHandler) {
       );
     }
 
-    return handler(request, ...args);
+    return handler(request, context);
   };
 }
 
-export function withAdmin(handler: ApiHandler) {
-  return async (request: NextRequest, ...args: string[]) => {
+export function withAdmin(handler: ApiHandler): ApiHandler {
+  return async (request: NextRequest, context: RouteContext) => {
     const token = getTokenFromRequest(request);
     if (!token) {
       return NextResponse.json(
@@ -115,6 +116,6 @@ export function withAdmin(handler: ApiHandler) {
       );
     }
 
-    return handler(request, ...args);
+    return handler(request, context);
   };
 }

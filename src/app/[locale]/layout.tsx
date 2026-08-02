@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Omit<Props, 'children'>) {
 export default async function LocaleLayout({ children, params }: Props) {
   const { locale } = await params;
 
-  if (!routing.locales.includes(locale as string)) {
+  if (!routing.locales.includes(locale as any)) {
     notFound();
   }
 

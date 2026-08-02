@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import { withMiddleware, withAuth, AuthenticatedRequest } from '@/middleware/api';
 import { NotFoundError, errorResponse } from '@/lib/errors';
 
-async function handler(request: AuthenticatedRequest) {
+async function handler(request: AuthenticatedRequest, _context: { params: Promise<{}> }) {
   try {
     const userId = request.user.userId;
 
