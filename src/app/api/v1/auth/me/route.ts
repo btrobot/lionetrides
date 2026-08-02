@@ -1,13 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { withMiddleware, withAuth, AuthenticatedRequest } from '@/middleware/api';
 import { NotFoundError, errorResponse } from '@/lib/errors';
 
-async function handler(request: AuthenticatedRequest, _context: { params: Promise<Record<string, string>> }) {
+async function handler(request: NextRequest, _context: { params: Promise<Record<string, string>> }) {
   try {
-    const userId = request.user.userId;
+    const userId = (request as AuthenticatedRequest).user.userId;
 
     const [user] = await db
       .select({

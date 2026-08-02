@@ -99,6 +99,7 @@ export default function AdminSettings() {
             sortOrder: setting.sortOrder,
           }),
         });
+        if (!res) continue;
         const data = await res.json();
         if (!data.success) {
           setError(`Failed to save ${setting.key}`);

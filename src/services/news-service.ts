@@ -28,11 +28,11 @@ export const newsService = {
     return item;
   },
   async create(data: Record<string, unknown>) {
-    const [item] = await db.insert(news).values(data).returning();
+    const [item] = await db.insert(news).values(data as typeof news.$inferInsert).returning();
     return item;
   },
   async update(id: number, data: Record<string, unknown>) {
-    const [item] = await db.update(news).set(data).where(eq(news.id, id)).returning();
+    const [item] = await db.update(news).set(data as Partial<typeof news.$inferInsert>).where(eq(news.id, id)).returning();
     if (!item) throw new NotFoundError('News not found');
     return item;
   },

@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import InquiryDialog from '@/components/shared/inquiry-dialog';
+import { useInquiry } from '@/components/shared/inquiry-dialog';
 
 interface Product {
   id: number;
@@ -50,7 +50,7 @@ export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
   const [sortBy, setSortBy] = useState('newest');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [inquiryProduct, setInquiryProduct] = useState<Product | null>(null);
+  const { openInquiry } = useInquiry();
 
   useEffect(() => {
     async function fetchData() {
@@ -128,7 +128,7 @@ export default function ProductsPage() {
           <Button
             variant="outline"
             className="w-full border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
-            onClick={() => setInquiryProduct(product)}
+            onClick={() => { openInquiry(product.id, product.name); }}
           >
             {t('send_inquiry')}
           </Button>
@@ -164,7 +164,7 @@ export default function ProductsPage() {
           <Button
             size="sm"
             className="bg-blue-600 hover:bg-blue-700 text-white"
-            onClick={() => setInquiryProduct(product)}
+            onClick={() => { openInquiry(product.id, product.name); }}
           >
             {t('send_inquiry')}
           </Button>
@@ -276,12 +276,6 @@ export default function ProductsPage() {
         )}
       </div>
 
-      <InquiryDialog
-        open={!!inquiryProduct}
-        onOpenChange={(open) => !open && setInquiryProduct(null)}
-        productName={inquiryProduct?.name}
-        productId={inquiryProduct?.id}
-      />
-    </div>
+      </div>
   );
 }

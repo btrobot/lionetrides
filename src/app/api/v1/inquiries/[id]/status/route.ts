@@ -5,8 +5,9 @@ import { inquiryService } from '@/services/inquiry-service';
 import { errorResponse } from '@/lib/errors';
 
 const statusSchema = z.object({
-  status: z.enum(['pending', 'quoted', 'confirmed', 'closed']),
+  status: z.enum(['pending', 'processing', 'replied', 'closed']),
   note: z.string().optional(),
+  reply: z.string().optional(),
 });
 
 // PUT /api/v1/inquiries/[id]/status — Update inquiry status (admin)
@@ -20,7 +21,7 @@ async function handler(
     const body = await request.json();
     const parsed = statusSchema.parse(body);
 
-    const result = await inquiryService.updateStatus(inquiryId, parsed.status, undefined, parsed.note);
+    const result = await inquiryService.updateStatus(inquiryId, parsed.status, undefined, parsed.note, parsed.reply);
 
     return NextResponse.json({ success: true, data: result });
   } catch (error) {

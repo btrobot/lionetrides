@@ -16,16 +16,16 @@ type Props = {
 export async function generateMetadata({ params }: Omit<Props, 'children'>) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'meta' });
-  const siteConfig = await getSiteConfig(locale).catch(() => ({}));
-  const siteName = siteConfig.site_name || t('title');
+  const siteConfig = await getSiteConfig(locale).catch(() => ({} as Record<string, string>));
+  const siteName = siteConfig['site_name'] || t('title');
 
   return {
     title: {
       default: siteName,
       template: `%s | ${siteName}`,
     },
-    description: siteConfig.site_description || t('description'),
-    keywords: siteConfig.site_keywords || t('keywords'),
+    description: siteConfig['site_description'] || t('description'),
+    keywords: siteConfig['site_keywords'] || t('keywords'),
   };
 }
 

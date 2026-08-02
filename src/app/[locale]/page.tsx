@@ -113,7 +113,7 @@ export default function HomePage() {
                       <div>
                         <span className="text-3xl mb-3 block">{getCategoryIcon(cat.slug)}</span>
                         <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{cat.name}</h3>
-                        <p className="text-sm text-gray-500 mt-1">{(cat as Record<string, unknown>).product_count ?? 0} Models</p>
+                        <p className="text-sm text-gray-500 mt-1">{cat.product_count ?? 0} Models</p>
                       </div>
                       <ChevronRight className="h-5 w-5 text-gray-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
                     </div>

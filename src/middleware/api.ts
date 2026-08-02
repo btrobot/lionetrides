@@ -32,7 +32,8 @@ export function rateLimit(
 
 // ─── Middleware helpers ─────────────────────────────────
 type RouteContext = { params: Promise<Record<string, string>> };
-type ApiHandler = (request: NextRequest, context: RouteContext) => Promise<NextResponse>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ApiHandler = (request: NextRequest, context: any) => Promise<NextResponse>;
 
 export function withMiddleware(handler: ApiHandler): ApiHandler {
   return async (request: NextRequest, context: RouteContext) => {

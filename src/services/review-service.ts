@@ -33,7 +33,7 @@ export const reviewService = {
       customer_name: data.customerName || null,
       company_name: data.companyName || null,
     };
-    const [item] = await db.insert(reviews).values(dbData).returning();
+    const [item] = await db.insert(reviews).values(dbData as typeof reviews.$inferInsert).returning();
     return item;
   },
   async approve(id: number) {

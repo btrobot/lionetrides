@@ -117,7 +117,7 @@ export function getCategoryIcon(slug: string): string {
 // ─── Hook ─────────────────────────────────────────────────
 
 export function useHomeData(): HomeData {
-  const config = useSiteConfig();
+  const { config: siteConfig } = useSiteConfig();
   const [data, setData] = useState<HomeData>(defaultData);
 
   const fetchData = useCallback(async () => {
@@ -144,13 +144,13 @@ export function useHomeData(): HomeData {
       let factoryFeatures: FactoryFeature[] = [];
 
       try {
-        processSteps = JSON.parse(config.home_process_steps || '[]');
+        processSteps = JSON.parse(siteConfig.home_process_steps || '[]');
       } catch { /* ignore */ }
       try {
-        stats = JSON.parse(config.home_stats || '[]');
+        stats = JSON.parse(siteConfig.home_stats || '[]');
       } catch { /* ignore */ }
       try {
-        factoryFeatures = JSON.parse(config.home_factory_features || '[]');
+        factoryFeatures = JSON.parse(siteConfig.home_factory_features || '[]');
       } catch { /* ignore */ }
 
       setData({
@@ -180,7 +180,7 @@ export function useHomeData(): HomeData {
     } catch (err) {
       setData((prev) => ({ ...prev, loading: false, error: String(err) }));
     }
-  }, [config.home_process_steps, config.home_stats, config.home_factory_features]);
+  }, [siteConfig.home_process_steps, siteConfig.home_stats, siteConfig.home_factory_features]);
 
   useEffect(() => {
     fetchData();

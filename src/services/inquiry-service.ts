@@ -3,7 +3,7 @@ import { inquiries, inquiry_history } from '@/db/schema';
 import { eq, and, isNull, desc, count } from 'drizzle-orm';
 import { NotFoundError, paginatedResponse } from '@/lib/errors';
 
-type InquiryStatus = 'pending' | 'replied' | 'closed';
+type InquiryStatus = 'pending' | 'processing' | 'replied' | 'closed';
 
 export const inquiryService = {
   async create(data: {
@@ -71,15 +71,22 @@ export const inquiryService = {
     return inquiry;
   },
 
-  async updateStatus(id: number, status: string, changedBy?: number, note?: string) {
+  async updateStatus(id: number, status: string, changedBy?: number, note?: string, reply?: string) {
+    const updateData: Record<string, unknown> = {
+      status: status as InquiryStatus,
+      updated_at: new Date(),
+      ...(status === 'replied' ? { replied_at: new Date() } : {}),
+      ...(status === 'closed' ? { closed_at: new Date() } : {}),
+    };
+
+    // If reply is provided, store it in admin_notes
+    if (reply !== undefined) {
+      updateData.admin_notes = reply;
+    }
+
     const [inquiry] = await db
       .update(inquiries)
-      .set({
-        status: status as InquiryStatus,
-        updated_at: new Date(),
-        ...(status === 'replied' ? { replied_at: new Date() } : {}),
-        ...(status === 'closed' ? { closed_at: new Date() } : {}),
-      })
+      .set(updateData)
       .where(eq(inquiries.id, id))
       .returning();
 

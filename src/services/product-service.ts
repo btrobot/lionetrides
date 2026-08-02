@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { products } from '@/db/schema';
+import { products, reviews } from '@/db/schema';
 import { eq, and, isNull, desc, asc, count, sql } from 'drizzle-orm';
 import { NotFoundError, paginatedResponse } from '@/lib/errors';
 
