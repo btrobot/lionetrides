@@ -1,0 +1,185 @@
+{
+  "about": {
+    "factory": "[TODO: translate] Factory & Facilities",
+    "factory_desc": "[TODO: translate] 50,000㎡ smart factory with 200+ engineers",
+    "history": "[TODO: translate] Our History",
+    "innovation": "[TODO: translate] Innovation & R&D",
+    "quality": "[TODO: translate] Quality Assurance",
+    "subtitle": "[TODO: translate] Your trusted partner in amusement ride manufacturing",
+    "team": "[TODO: translate] Our Team",
+    "title": "[TODO: translate] About Us",
+    "values": "[TODO: translate] Our Values"
+  },
+  "auth": {
+    "company": "[TODO: translate] Company",
+    "email": "[TODO: translate] Email",
+    "forgot_password": "[TODO: translate] Forgot Password?",
+    "has_account": "[TODO: translate] Already have an account?",
+    "login": "[TODO: translate] Sign In",
+    "login_failed": "[TODO: translate] Invalid email or password",
+    "name": "[TODO: translate] Full Name",
+    "no_account": "[TODO: translate] Don't have an account?",
+    "password": "[TODO: translate] Password",
+    "phone": "[TODO: translate] Phone",
+    "register": "[TODO: translate] Create Account",
+    "register_success": "[TODO: translate] Account created successfully"
+  },
+  "categories": {
+    "bumper_cars": "[TODO: translate] Bumper Cars",
+    "carousels": "[TODO: translate] Carousels",
+    "ferris_wheels": "[TODO: translate] Ferris Wheels",
+    "kids_rides": "[TODO: translate] Kids' Rides",
+    "roller_coasters": "[TODO: translate] Roller Coasters",
+    "subtitle": "[TODO: translate] Comprehensive range of amusement rides for every type of venue",
+    "title": "[TODO: translate] Product Categories",
+    "water_rides": "[TODO: translate] Water Park Rides"
+  },
+  "certifications": {
+    "subtitle": "[TODO: translate] International quality and safety certifications",
+    "title": "[TODO: translate] Certifications & Standards"
+  },
+  "common": {
+    "back_home": "[TODO: translate] Back to Home",
+    "cancel": "[TODO: translate] Cancel",
+    "confirm": "[TODO: translate] Confirm",
+    "error": "[TODO: translate] Something went wrong",
+    "learn_more": "[TODO: translate] Learn More",
+    "loading": "[TODO: translate] Loading...",
+    "no_results": "[TODO: translate] No results found",
+    "not_found": "[TODO: translate] Page not found",
+    "of": "[TODO: translate] of",
+    "page": "[TODO: translate] Page",
+    "placeholder": "[TODO: translate] Enter your email",
+    "search": "[TODO: translate] Search",
+    "send_message": "[TODO: translate] Send Message",
+    "submit": "[TODO: translate] Submit",
+    "subscribe": "[TODO: translate] Subscribe"
+  },
+  "footer": {
+    "address": "[TODO: translate] No. 88, Industrial Avenue, Guangzhou, China",
+    "contact_us": "[TODO: translate] Contact Us",
+    "copyright": "[TODO: translate] All rights reserved.",
+    "email": "[TODO: translate] info@ridecraft.com",
+    "follow_us": "[TODO: translate] Follow Us",
+    "phone": "[TODO: translate] +86 20-8888-8888",
+    "products": "[TODO: translate] Products",
+    "quick_links": "[TODO: translate] Quick Links",
+    "support": "[TODO: translate] Support"
+  },
+  "hero": {
+    "cta_inquiry": "[TODO: translate] Send Inquiry",
+    "cta_products": "[TODO: translate] Explore Products",
+    "subtitle": "[TODO: translate] From roller coasters to water park attractions — we design, engineer and deliver thrill experiences that captivate millions of visitors worldwide.",
+    "title": "[TODO: translate] World-Class Amusement Rides Manufacturer"
+  },
+  "inquiry": {
+    "company": "[TODO: translate] Company Name",
+    "date": "[TODO: translate] Date",
+    "email": "[TODO: translate] Email Address",
+    "form_title": "[TODO: translate] Get a Quote",
+    "history": "[TODO: translate] Inquiry History",
+    "inquiry_no": "[TODO: translate] Inquiry No.",
+    "message": "[TODO: translate] Message",
+    "name": "[TODO: translate] Your Name",
+    "no_inquiries": "[TODO: translate] No inquiries yet",
+    "phone": "[TODO: translate] Phone Number",
+    "product": "[TODO: translate] Product",
+    "quantity": "[TODO: translate] Quantity",
+    "status": "[TODO: translate] Status",
+    "status_closed": "[TODO: translate] Closed",
+    "status_pending": "[TODO: translate] Pending",
+    "status_replied": "[TODO: translate] Replied",
+    "submit": "[TODO: translate] Submit Inquiry",
+    "success": "[TODO: translate] Your inquiry has been submitted successfully! We will get back to you within 24 hours.",
+    "title": "[TODO: translate] Send Inquiry"
+  },
+  "meta": {
+    "description": "[TODO: translate] Leading manufacturer of amusement rides since 1995",
+    "title": "[TODO: translate] RideCraft Industries"
+  },
+  "nav": {
+    "about": "[TODO: translate] About Us",
+    "brands": "[TODO: translate] Brands",
+    "categories": "[TODO: translate] Categories",
+    "contact": "[TODO: translate] Contact",
+    "dashboard": "[TODO: translate] Dashboard",
+    "home": "[TODO: translate] Home",
+    "inquiries": "[TODO: translate] My Inquiries",
+    "login": "[TODO: translate] Login",
+    "logout": "[TODO: translate] Logout",
+    "news": "[TODO: translate] News",
+    "products": "[TODO: translate] Products",
+    "register": "[TODO: translate] Register",
+    "search": "[TODO: translate] Search products..."
+  },
+  "news": {
+    "categories": {
+      "company": "[TODO: translate] Company News",
+      "industry": "[TODO: translate] Industry News",
+      "technology": "[TODO: translate] Technology"
+    },
+    "latest": "[TODO: translate] Latest News",
+    "read_more": "[TODO: translate] Read More",
+    "subtitle": "[TODO: translate] Latest industry news, company updates and technical insights",
+    "title": "[TODO: translate] News & Insights"
+  },
+  "partners": {
+    "subtitle": "[TODO: translate] Trusted by leading theme parks and entertainment venues worldwide",
+    "title": "[TODO: translate] Our Partners"
+  },
+  "process": {
+    "step1_desc": "[TODO: translate] Tell us your requirements — ride type, specifications, quantity and any custom needs.",
+    "step1_title": "[TODO: translate] Submit Inquiry",
+    "step2_desc": "[TODO: translate] Our engineers review your requirements and provide a detailed quotation within 24 hours.",
+    "step2_title": "[TODO: translate] Get Quote",
+    "step3_desc": "[TODO: translate] Once confirmed, we manufacture with full quality control and deliver worldwide.",
+    "step3_title": "[TODO: translate] Manufacturing & Delivery",
+    "subtitle": "[TODO: translate] Simple 3-step process to get your custom amusement rides",
+    "title": "[TODO: translate] How It Works"
+  },
+  "products": {
+    "all": "[TODO: translate] All",
+    "brand": "[TODO: translate] Brand",
+    "capacity": "[TODO: translate] Capacity",
+    "category": "[TODO: translate] Category",
+    "certification": "[TODO: translate] Certification",
+    "description": "[TODO: translate] Description",
+    "details": "[TODO: translate] Product Details",
+    "dimensions": "[TODO: translate] Dimensions",
+    "featured": "[TODO: translate] Featured Products",
+    "filter": "[TODO: translate] Filter",
+    "grid_view": "[TODO: translate] Grid View",
+    "inquiry_btn": "[TODO: translate] Send Inquiry",
+    "list_view": "[TODO: translate] List View",
+    "material": "[TODO: translate] Material",
+    "min_order": "[TODO: translate] Min. Order",
+    "no_products": "[TODO: translate] No products found",
+    "power": "[TODO: translate] Power",
+    "products_found": "[TODO: translate] products found",
+    "related": "[TODO: translate] Related Products",
+    "reviews": "[TODO: translate] Reviews",
+    "search": "[TODO: translate] Search products...",
+    "sku": "[TODO: translate] SKU",
+    "sort_by": "[TODO: translate] Sort by",
+    "sort_newest": "[TODO: translate] Newest",
+    "sort_price_asc": "[TODO: translate] Price: Low to High",
+    "sort_price_desc": "[TODO: translate] Price: High to Low",
+    "specifications": "[TODO: translate] Technical Specifications",
+    "subtitle": "[TODO: translate] High-quality amusement rides engineered for safety and excitement",
+    "title": "[TODO: translate] Our Products",
+    "view_details": "[TODO: translate] View Details",
+    "warranty": "[TODO: translate] Warranty",
+    "weight": "[TODO: translate] Weight"
+  },
+  "site": {
+    "description": "[TODO: translate] Leading manufacturer of amusement rides since 1995",
+    "name": "[TODO: translate] RideCraft Industries",
+    "tagline": "[TODO: translate] Engineering Thrills, Building Trust"
+  },
+  "stats": {
+    "countries": "[TODO: translate] Countries Served",
+    "patents": "[TODO: translate] Patents",
+    "products": "[TODO: translate] Products",
+    "years": "[TODO: translate] Years Experience"
+  }
+}

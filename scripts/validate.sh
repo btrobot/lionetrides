@@ -7,4 +7,8 @@ cd "${COZE_WORKSPACE_PATH}"
 
 echo "🔍 Running validate..."
 pnpm validate
-echo "✅ Validate passed!"
+
+echo ""
+echo "🔍 Checking i18n consistency..."
+npx tsx scripts/validate-i18n.ts
+echo "✅ i18n check passed!"

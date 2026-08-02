@@ -4,6 +4,10 @@
     "tagline": "工程惊险，铸就信赖",
     "description": "自1995年以来的领先游乐设施制造商"
   },
+  "meta": {
+    "title": "瑞德凯特工业",
+    "description": "自1995年以来的领先游乐设施制造商"
+  },
   "nav": {
     "home": "首页",
     "products": "产品中心",
@@ -66,7 +70,13 @@
     "grid_view": "网格视图",
     "list_view": "列表视图",
     "sort_by": "排序",
+    "sort_newest": "最新",
+    "sort_price_asc": "价格：从低到高",
+    "sort_price_desc": "价格：从高到低",
     "filter": "筛选",
+    "search": "搜索产品...",
+    "all": "全部",
+    "products_found": "个产品找到",
     "no_products": "暂无产品"
   },
   "inquiry": {

@@ -15,7 +15,9 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "validate": "pnpm dlx concurrently --group --names lint-tsc,lint-build,lint-style,test \"pnpm ts-check\" \"pnpm lint:build\" \"pnpm lint:style\" \"pnpm test\"",
-    "gate:commit": "pnpm validate"
+    "validate:i18n": "npx tsx scripts/validate-i18n.ts",
+    "sync:i18n": "npx tsx scripts/sync-i18n.ts",
+    "gate:commit": "pnpm validate && pnpm validate:i18n"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.958.0",

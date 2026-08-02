@@ -63,7 +63,32 @@ src/
 - `pnpm test` — 运行所有测试
 - `pnpm test:watch` — 监听模式运行测试
 - `pnpm test:coverage` — 运行测试 + 覆盖率报告
-- `pnpm gate:commit` — 提交前门禁（lint + ts-check + test）
+- `pnpm gate:commit` — 提交前门禁（lint + ts-check + test + i18n 校验）
+- `pnpm validate:i18n` — 校验 11 种语言文件一致性（以 en.json 为真相源）
+- `pnpm sync:i18n` — 将 en.json 缺失的键同步到所有语言文件（标记 [TODO: translate]）
+
+## i18n 维护流程
+
+项目使用 `next-intl` 支持 11 种语言，以 `src/i18n/messages/en.json` 为真相源。
+
+### 添加新翻译键
+1. 在 `en.json` 中添加键和英文值
+2. 在 `zh.json` 中添加对应中文翻译
+3. 运行 `pnpm sync:i18n` — 自动将缺失的键同步到其他 9 种语言（标记 `[TODO: translate]`）
+4. 通知翻译人员补全 `[TODO: translate]` 标记的条目
+
+### 删除/重命名键
+1. 更新 `en.json` 后运行 `pnpm validate:i18n` — 会报告多余键
+2. 手动清理其他语言文件中的多余键，或全量同步
+
+### 校验规则
+- **缺失键**：键在 en.json 中存在但目标语言缺失 → 报错
+- **多余键**：键在目标语言中存在但 en.json 中已删除 → 报错
+- **未翻译值**：键值等于英文原文（中例外） → 警告
+- **空值**：键值为空字符串 → 警告
+
+### 门禁集成
+`pnpm gate:commit` 会自动运行 `pnpm validate:i18n`，确保不一致的翻译文件无法提交。
 
 ## 测试治理规范（必须遵守）
 
