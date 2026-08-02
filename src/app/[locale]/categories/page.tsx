@@ -1,56 +1,85 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import type { Locale } from '@/i18n/routing';
 
-const categories = [
-  { name: 'Roller Coasters', slug: 'roller-coasters', count: 8, gradient: 'from-blue-500 to-cyan-500', icon: '🎢', desc: 'High-speed thrill rides with inversions, drops, and twists' },
-  { name: 'Ferris Wheels', slug: 'ferris-wheels', count: 6, gradient: 'from-purple-500 to-pink-500', icon: '🎡', desc: 'Panoramic observation wheels with luxury cabins' },
-  { name: 'Carousels', slug: 'carousels', count: 5, gradient: 'from-rose-500 to-orange-500', icon: '🎠', desc: 'Classic merry-go-rounds with hand-painted figures' },
-  { name: 'Bumper Cars', slug: 'bumper-cars', count: 4, gradient: 'from-amber-500 to-red-500', icon: '🏎️', desc: 'Electric bumper car arenas for family fun' },
-  { name: 'Water Park Rides', slug: 'water-rides', count: 7, gradient: 'from-teal-500 to-emerald-500', icon: '🌊', desc: 'Water slides, wave pools, and aquatic attractions' },
-  { name: "Kids' Rides", slug: 'kids-rides', count: 6, gradient: 'from-green-500 to-lime-500', icon: '🎪', desc: 'Safe and fun rides designed for young children' },
-];
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  image_url: string | null;
+  icon: string | null;
+  sort_order: number;
+}
 
 export default function CategoriesPage() {
   const t = useTranslations('categories');
-  const pathname = usePathname();
-  const currentLocale = pathname.split('/')[1] as Locale;
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/v1/categories')
+      .then((res) => res.json())
+      .then((data) => setCategories(data.data?.items || []))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const gradientColors = [
+    'from-blue-500 to-indigo-600',
+    'from-cyan-500 to-blue-600',
+    'from-purple-500 to-pink-600',
+    'from-orange-500 to-red-600',
+    'from-teal-500 to-green-600',
+    'from-pink-500 to-rose-600',
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-gray-100">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
-          <p className="mt-2 text-gray-500">{t('subtitle')}</p>
+      <div className="bg-gradient-to-br from-blue-900 via-blue-700 to-indigo-900 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">{t('title')}</h1>
+          <p className="text-xl text-blue-200 max-w-2xl">{t('subtitle')}</p>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {categories.map((cat) => (
-            <Link key={cat.slug} href={`/${currentLocale}/products?category=${cat.slug}`}>
-              <Card className="group border-0 p-6 hover:shadow-xl transition-all duration-300 cursor-pointer h-full">
-                <div className={`absolute inset-0 bg-gradient-to-br ${cat.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300 rounded-xl`} />
-                <div className="relative">
-                  <span className="text-4xl mb-4 block">{cat.icon}</span>
-                  <h3 className="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{cat.name}</h3>
-                  <p className="text-sm text-gray-500 mt-2 mb-4">{cat.desc}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-400">{cat.count} Models</span>
-                    <span className="text-blue-600 text-sm font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
-                      Explore <ArrowRight className="h-3 w-3" />
-                    </span>
+      <div className="max-w-7xl mx-auto px-4 py-16">
+        {loading ? (
+          <div className="text-center py-20">
+            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {categories.map((cat, i) => (
+              <Link
+                key={cat.id}
+                href={`/products?category=${cat.id}`}
+                className="group relative overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-xl transition-all duration-300"
+              >
+                <div className={`h-48 bg-gradient-to-br ${gradientColors[i % gradientColors.length]} flex items-center justify-center`}>
+                  {cat.image_url ? (
+                    <Image src={cat.image_url} alt={cat.name} width={120} height={120} className="object-contain opacity-80" />
+                  ) : (
+                    <span className="text-6xl font-bold text-white/30">{cat.name.charAt(0)}</span>
+                  )}
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{cat.name}</h3>
+                  {cat.description && (
+                    <p className="text-gray-500 mt-2 text-sm">{cat.description}</p>
+                  )}
+                  <div className="flex items-center text-blue-600 font-medium mt-4 text-sm group-hover:gap-2 transition-all">
+                    {t('view_all')} <ArrowRight className="w-4 h-4 ml-1" />
                   </div>
                 </div>
-              </Card>
-            </Link>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,217 +1,287 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Search, SlidersHorizontal, Grid3X3, List, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { useInquiry } from '@/components/shared/inquiry-dialog';
-import AnimatedSection from '@/components/shared/animated-section';
-import type { Locale } from '@/i18n/routing';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import InquiryDialog from '@/components/shared/inquiry-dialog';
 
-const allProducts = [
-  { id: 1, name: 'Thunderbolt Coaster', category: 'Roller Coasters', slug: 'roller-coasters', image: '/api/placeholder/400/300', sku: 'RC-001', brand: 'RideCraft', weight: '120t', price: '$1,200,000', rating: 4.9, desc: 'High-speed thrill coaster with 3 inversions and 90° drop' },
-  { id: 2, name: 'SkyView Ferris Wheel', category: 'Ferris Wheels', slug: 'ferris-wheels', image: '/api/placeholder/400/300', sku: 'FW-002', brand: 'RideCraft', weight: '450t', price: '$850,000', rating: 4.8, desc: 'Panoramic observation wheel with luxury cabins' },
-  { id: 3, name: 'Dream Carousel', category: 'Carousels', slug: 'carousels', image: '/api/placeholder/400/300', sku: 'CR-003', brand: 'RideCraft', weight: '35t', price: '$280,000', rating: 4.7, desc: 'Classic carousel with hand-painted horses and LED lighting' },
-  { id: 4, name: 'Bumper Circuit Pro', category: 'Bumper Cars', slug: 'bumper-cars', image: '/api/placeholder/400/300', sku: 'BC-004', brand: 'RideCraft', weight: '15t', price: '$180,000', rating: 4.6, desc: 'Professional bumper car arena with electric powered vehicles' },
-  { id: 5, name: 'AquaBlast Slide', category: 'Water Park Rides', slug: 'water-rides', image: '/api/placeholder/400/300', sku: 'WP-005', brand: 'RideCraft', weight: '28t', price: '$450,000', rating: 4.9, desc: 'Multi-lane water slide with LED effects and splash pool' },
-  { id: 6, name: 'Happy Swing Boat', category: "Kids' Rides", slug: 'kids-rides', image: '/api/placeholder/400/300', sku: 'KR-006', brand: 'RideCraft', weight: '8t', price: '$95,000', rating: 4.8, desc: 'Gentle swing boat ride for young children' },
-  { id: 7, name: 'LoopMaster 360', category: 'Roller Coasters', slug: 'roller-coasters', image: '/api/placeholder/400/300', sku: 'RC-007', brand: 'RideCraft', weight: '180t', price: '$2,500,000', rating: 5.0, desc: 'Ultimate looping coaster with 360° spiral and zero-G roll' },
-  { id: 8, name: 'Rainbow Carousel', category: 'Carousels', slug: 'carousels', image: '/api/placeholder/400/300', sku: 'CR-008', brand: 'RideCraft', weight: '28t', price: '$220,000', rating: 4.7, desc: 'Colorful carousel with diverse animal figures' },
-  { id: 9, name: 'Tsunami Wave Pool', category: 'Water Park Rides', slug: 'water-rides', image: '/api/placeholder/400/300', sku: 'WP-009', brand: 'RideCraft', weight: '200t', price: '$1,800,000', rating: 4.8, desc: 'Large wave pool with programmable wave patterns' },
-  { id: 10, name: 'Kiddie Coaster', category: "Kids' Rides", slug: 'kids-rides', image: '/api/placeholder/400/300', sku: 'KR-010', brand: 'RideCraft', weight: '12t', price: '$150,000', rating: 4.6, desc: 'Safe and fun roller coaster designed for children' },
-  { id: 11, name: 'Spinning Tea Cups', category: "Kids' Rides", slug: 'kids-rides', image: '/api/placeholder/400/300', sku: 'KR-011', brand: 'RideCraft', weight: '6t', price: '$85,000', rating: 4.5, desc: 'Classic spinning tea cup ride with themed decoration' },
-  { id: 12, name: 'Giant Discovery', category: 'Roller Coasters', slug: 'roller-coasters', image: '/api/placeholder/400/300', sku: 'RC-012', brand: 'RideCraft', weight: '95t', price: '$980,000', rating: 4.7, desc: 'Pendulum ride with 360° rotations and spectacular views' },
-];
+interface Product {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  short_description: string | null;
+  main_image: string | null;
+  price: string | null;
+  category_id: number | null;
+  brand_id: number | null;
+  is_featured: boolean;
+  status: string;
+  category_name?: string;
+  brand_name?: string;
+}
 
-const categories = ['Roller Coasters', 'Ferris Wheels', 'Carousels', 'Bumper Cars', 'Water Park Rides', "Kids' Rides"];
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+}
 
 export default function ProductsPage() {
   const t = useTranslations('products');
-  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const currentLocale = pathname.split('/')[1] as Locale;
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [search, setSearch] = useState('');
-  const [sortBy, setSortBy] = useState('newest');
-  const [showFilters, setShowFilters] = useState(false);
-  const activeCategory = searchParams.get('category') || '';
+  const router = useRouter();
 
-  const filtered = allProducts
-    .filter((p) => !activeCategory || p.slug === activeCategory)
-    .filter((p) => !search || p.name.toLowerCase().includes(search.toLowerCase()))
-    .sort((a, b) => sortBy === 'price-asc' ? a.price.localeCompare(b.price) : sortBy === 'price-desc' ? b.price.localeCompare(a.price) : b.rating - a.rating);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState(searchParams.get('q') || '');
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
+  const [sortBy, setSortBy] = useState('newest');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [inquiryProduct, setInquiryProduct] = useState<Product | null>(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [prodRes, catRes] = await Promise.all([
+          fetch('/api/v1/products?limit=100'),
+          fetch('/api/v1/categories'),
+        ]);
+        const prodData = await prodRes.json();
+        const catData = await catRes.json();
+        setProducts(prodData.items || []);
+        setCategories(catData.data?.items || []);
+      } catch (err) {
+        console.error('Failed to load products:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  const filtered = products
+    .filter((p) => p.status === 'published')
+    .filter((p) => selectedCategory === 'all' || p.category_id === Number(selectedCategory))
+    .filter((p) => !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.description?.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      if (sortBy === 'price-asc') return Number(a.price || 0) - Number(b.price || 0);
+      if (sortBy === 'price-desc') return Number(b.price || 0) - Number(a.price || 0);
+      if (sortBy === 'name') return a.name.localeCompare(b.name);
+      return b.id - a.id;
+    });
+
+  const handleCategoryChange = (val: string) => {
+    setSelectedCategory(val);
+    const params = new URLSearchParams(searchParams.toString());
+    if (val && val !== 'all') params.set('category', val);
+    else params.delete('category');
+    router.replace(`?${params.toString()}`);
+  };
+
+  function ProductCardItem({ product }: { product: Product }) {
+    return (
+      <Card className="group overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-300 rounded-xl">
+        <Link href={`/products/${product.slug}`} className="block relative aspect-[4/3] overflow-hidden bg-gray-100">
+          {product.main_image ? (
+            <Image
+              src={product.main_image}
+              alt={product.name}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-300 text-4xl font-bold">
+              {product.name.charAt(0)}
+            </div>
+          )}
+          {product.is_featured && (
+            <Badge className="absolute top-3 left-3 bg-orange-500 hover:bg-orange-600">
+              <Star className="w-3 h-3 mr-1 fill-white" /> Featured
+            </Badge>
+          )}
+        </Link>
+        <CardContent className="p-5">
+          <Link href={`/products/${product.slug}`}>
+            <h3 className="font-semibold text-lg text-gray-900 group-hover:text-blue-600 transition-colors">{product.name}</h3>
+          </Link>
+          {product.short_description && (
+            <p className="text-sm text-gray-500 mt-1 line-clamp-2">{product.short_description}</p>
+          )}
+          {product.price && (
+            <p className="text-lg font-bold text-blue-600 mt-2">${Number(product.price).toLocaleString()}</p>
+          )}
+        </CardContent>
+        <CardFooter className="px-5 pb-5 pt-0">
+          <Button
+            variant="outline"
+            className="w-full border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
+            onClick={() => setInquiryProduct(product)}
+          >
+            {t('send_inquiry')}
+          </Button>
+        </CardFooter>
+      </Card>
+    );
+  }
+
+  function ProductListItem({ product }: { product: Product }) {
+    return (
+      <div className="flex gap-4 p-4 border rounded-xl hover:shadow-md transition-shadow bg-white">
+        <Link href={`/products/${product.slug}`} className="relative w-32 h-24 shrink-0 rounded-lg overflow-hidden bg-gray-100">
+          {product.main_image ? (
+            <Image src={product.main_image} alt={product.name} fill className="object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-300 text-2xl font-bold">
+              {product.name.charAt(0)}
+            </div>
+          )}
+        </Link>
+        <div className="flex-1 min-w-0">
+          <Link href={`/products/${product.slug}`}>
+            <h3 className="font-semibold text-gray-900 hover:text-blue-600 transition-colors">{product.name}</h3>
+          </Link>
+          {product.short_description && (
+            <p className="text-sm text-gray-500 mt-1 line-clamp-1">{product.short_description}</p>
+          )}
+          {product.price && (
+            <p className="text-base font-bold text-blue-600 mt-1">${Number(product.price).toLocaleString()}</p>
+          )}
+        </div>
+        <div className="shrink-0 flex items-center">
+          <Button
+            size="sm"
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+            onClick={() => setInquiryProduct(product)}
+          >
+            {t('send_inquiry')}
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-gray-100">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
-          <p className="mt-2 text-gray-500">{t('subtitle')}</p>
+      <div className="bg-gradient-to-br from-blue-900 via-blue-700 to-indigo-900 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">{t('title')}</h1>
+          <p className="text-xl text-blue-200 max-w-2xl">{t('subtitle')}</p>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        {/* Toolbar */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder={t('search')}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="icon" onClick={() => setShowFilters(!showFilters)} className={showFilters ? 'bg-blue-50 text-blue-600' : ''}>
-              <SlidersHorizontal className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={() => setViewMode('grid')} className={viewMode === 'grid' ? 'bg-blue-50 text-blue-600' : ''}>
-              <Grid3X3 className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={() => setViewMode('list')} className={viewMode === 'list' ? 'bg-blue-50 text-blue-600' : ''}>
-              <List className="h-4 w-4" />
-            </Button>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-100"
-            >
-              <option value="newest">{t('sort_newest')}</option>
-              <option value="price-asc">{t('sort_price_asc')}</option>
-              <option value="price-desc">{t('sort_price_desc')}</option>
-            </select>
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Filters */}
+        <div className="bg-white rounded-xl shadow-sm p-4 mb-8">
+          <div className="flex flex-wrap gap-4 items-center">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                placeholder={t('search_placeholder')}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+              <SelectTrigger className="w-[180px]">
+                <SlidersHorizontal className="w-4 h-4 mr-2" />
+                <SelectValue placeholder={t('all_categories')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t('all_categories')}</SelectItem>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={String(cat.id)}>{cat.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">{t('newest')}</SelectItem>
+                <SelectItem value="price-asc">{t('price_low')}</SelectItem>
+                <SelectItem value="price-desc">{t('price_high')}</SelectItem>
+                <SelectItem value="name">{t('name')}</SelectItem>
+              </SelectContent>
+            </Select>
+            <div className="flex border rounded-lg overflow-hidden">
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                size="icon"
+                onClick={() => setViewMode('grid')}
+                className="rounded-none"
+              >
+                <Grid3X3 className="w-4 h-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="icon"
+                onClick={() => setViewMode('list')}
+                className="rounded-none"
+              >
+                <List className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
 
-        {/* Category Filters */}
-        {showFilters && (
-          <AnimatedSection className="mb-8 p-4 bg-white rounded-xl border border-gray-100">
-            <div className="flex flex-wrap gap-2">
-              <Link href={`/${currentLocale}/products`}>
-                <Button variant={!activeCategory ? 'default' : 'outline'} size="sm" className={!activeCategory ? 'bg-blue-600' : ''}>
-                  {t('all')}
-                </Button>
-              </Link>
-              {categories.map((cat) => (
-                <Link key={cat} href={`/${currentLocale}/products?category=${cat.toLowerCase().replace(/\s+/g, '-').replace(/'/g, '')}`}>
-                  <Button variant={activeCategory === cat.toLowerCase().replace(/\s+/g, '-').replace(/'/g, '') ? 'default' : 'outline'} size="sm" className={activeCategory === cat.toLowerCase().replace(/\s+/g, '-').replace(/'/g, '') ? 'bg-blue-600' : ''}>
-                    {cat}
-                  </Button>
-                </Link>
-              ))}
-            </div>
-          </AnimatedSection>
+        {/* Loading */}
+        {loading && (
+          <div className="text-center py-20">
+            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
+            <p className="text-gray-500 mt-4">{t('loading')}</p>
+          </div>
         )}
 
-        {/* Results Count */}
-        <p className="text-sm text-gray-500 mb-4">{filtered.length} {t('products_found')}</p>
+        {/* Empty */}
+        {!loading && filtered.length === 0 && (
+          <div className="text-center py-20">
+            <p className="text-gray-400 text-lg">{t('no_results')}</p>
+            <Button variant="outline" className="mt-4" onClick={() => { setSearch(''); setSelectedCategory('all'); }}>
+              {t('clear_filters')}
+            </Button>
+          </div>
+        )}
 
-        {/* Products Grid / List */}
-        {viewMode === 'grid' ? (
+        {/* Grid */}
+        {!loading && filtered.length > 0 && viewMode === 'grid' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filtered.map((product) => (
-              <ProductCardItem key={product.id} product={product} locale={currentLocale} />
+              <ProductCardItem key={product.id} product={product} />
             ))}
           </div>
-        ) : (
+        )}
+
+        {/* List */}
+        {!loading && filtered.length > 0 && viewMode === 'list' && (
           <div className="space-y-4">
             {filtered.map((product) => (
-              <ProductListItem key={product.id} product={product} locale={currentLocale} />
+              <ProductListItem key={product.id} product={product} />
             ))}
           </div>
         )}
-
-        {filtered.length === 0 && (
-          <div className="text-center py-20">
-            <p className="text-gray-500">{t('no_products')}</p>
-          </div>
-        )}
       </div>
+
+      <InquiryDialog
+        open={!!inquiryProduct}
+        onOpenChange={(open) => !open && setInquiryProduct(null)}
+        productName={inquiryProduct?.name}
+        productId={inquiryProduct?.id}
+      />
     </div>
-  );
-}
-
-function ProductCardItem({ product, locale }: { product: typeof allProducts[0]; locale: string }) {
-  const { openInquiry } = useInquiry();
-  return (
-    <Link href={`/${locale}/products/${product.id}`}>
-      <Card className="group border-0 overflow-hidden hover:shadow-xl transition-all duration-300">
-        <div className="aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
-          <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm">{product.category}</div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <div className="absolute bottom-0 left-0 right-0 p-4">
-              <div className="bg-white/95 backdrop-blur-sm rounded-lg p-3 space-y-1">
-                <p className="text-xs text-gray-600"><span className="font-medium">SKU:</span> {product.sku}</p>
-                <p className="text-xs text-gray-600"><span className="font-medium">Brand:</span> {product.brand}</p>
-                <p className="text-xs text-gray-600"><span className="font-medium">Weight:</span> {product.weight}</p>
-                <p className="text-xs text-gray-600"><span className="font-medium">Price:</span> {product.price}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="p-4">
-          <div className="flex items-start justify-between mb-1">
-            <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{product.name}</h3>
-            <div className="flex items-center gap-1 text-amber-500">
-              <Star className="h-3.5 w-3.5 fill-current" />
-              <span className="text-xs font-medium">{product.rating}</span>
-            </div>
-          </div>
-          <p className="text-xs text-gray-500 mb-3">{product.category}</p>
-          <Button
-            size="sm"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-            onClick={(e) => {
-              e.preventDefault();
-              openInquiry(product.id);
-            }}
-          >
-            Send Inquiry
-          </Button>
-        </div>
-      </Card>
-    </Link>
-  );
-}
-
-function ProductListItem({ product, locale }: { product: typeof allProducts[0]; locale: string }) {
-  const { openInquiry } = useInquiry();
-  return (
-    <Card className="border-0 p-4 hover:shadow-lg transition-all duration-300">
-      <div className="flex gap-4">
-        <div className="w-32 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-xs shrink-0">
-          {product.category}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between mb-1">
-            <div>
-              <h3 className="font-semibold text-gray-900">{product.name}</h3>
-              <p className="text-sm text-gray-500">{product.category} | {product.brand}</p>
-            </div>
-            <div className="flex items-center gap-1 text-amber-500">
-              <Star className="h-3.5 w-3.5 fill-current" />
-              <span className="text-xs font-medium">{product.rating}</span>
-            </div>
-          </div>
-          <p className="text-sm text-gray-600 line-clamp-1 mb-2">{product.desc}</p>
-          <div className="flex items-center gap-4 text-xs text-gray-500">
-            <span>SKU: {product.sku}</span>
-            <span>Weight: {product.weight}</span>
-            <span className="font-semibold text-blue-600">{product.price}</span>
-          </div>
-        </div>
-        <div className="flex flex-col gap-2 justify-center">
-          <Link href={`/${locale}/products/${product.id}`}>
-            <Button variant="outline" size="sm">Details</Button>
-          </Link>
-          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => openInquiry(product.id)}>Inquiry</Button>
-        </div>
-      </div>
-    </Card>
   );
 }

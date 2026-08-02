@@ -43,7 +43,9 @@
     "carousels": "旋转木马",
     "bumper_cars": "碰碰车",
     "water_rides": "水上乐园设备",
-    "kids_rides": "儿童游乐设施"
+    "kids_rides": "儿童游乐设施",
+    "view_all": "查看全部",
+    "loading": "正在加载分类..."
   },
   "products": {
     "title": "产品中心",
@@ -77,7 +79,17 @@
     "search": "搜索产品...",
     "all": "全部",
     "products_found": "个产品找到",
-    "no_products": "暂无产品"
+    "no_products": "暂无产品",
+    "send_inquiry": "发送询盘",
+    "search_placeholder": "搜索产品...",
+    "all_categories": "全部分类",
+    "newest": "最新",
+    "price_low": "价格：从低到高",
+    "price_high": "价格：从高到低",
+    "name": "名称",
+    "loading": "正在加载产品...",
+    "no_results": "未找到产品",
+    "clear_filters": "清除筛选"
   },
   "inquiry": {
     "title": "发送询盘",
@@ -202,5 +214,18 @@
     "start_inquiry": "开始询盘",
     "news_title": "新闻动态",
     "news_subtitle": "最新行业资讯、公司动态和技术洞察"
+  },
+  "brands": {
+    "title": "品牌",
+    "subtitle": "全球领先的游乐设施制造商",
+    "view_products": "查看产品"
+  },
+  "account": {
+    "inquiries_title": "我的询盘",
+    "inquiries_subtitle": "跟踪和管理您的产品询盘",
+    "search_inquiries": "搜索询盘...",
+    "filter": "筛选",
+    "no_inquiries": "暂无询盘。浏览产品开始询盘吧。",
+    "view_details": "查看详情"
   }
 }

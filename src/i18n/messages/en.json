@@ -43,7 +43,9 @@
     "carousels": "Carousels",
     "bumper_cars": "Bumper Cars",
     "water_rides": "Water Park Rides",
-    "kids_rides": "Kids' Rides"
+    "kids_rides": "Kids' Rides",
+    "view_all": "View All",
+    "loading": "Loading categories..."
   },
   "products": {
     "title": "Our Products",
@@ -77,7 +79,17 @@
     "search": "Search products...",
     "all": "All",
     "products_found": "products found",
-    "no_products": "No products found"
+    "no_products": "No products found",
+    "send_inquiry": "Send Inquiry",
+    "search_placeholder": "Search products...",
+    "all_categories": "All Categories",
+    "newest": "Newest",
+    "price_low": "Price: Low to High",
+    "price_high": "Price: High to Low",
+    "name": "Name",
+    "loading": "Loading products...",
+    "no_results": "No products found",
+    "clear_filters": "Clear Filters"
   },
   "inquiry": {
     "title": "Send Inquiry",
@@ -202,5 +214,18 @@
     "start_inquiry": "Start Your Inquiry",
     "news_title": "News & Insights",
     "news_subtitle": "Latest industry news, company updates and technical insights"
+  },
+  "brands": {
+    "title": "Brands",
+    "subtitle": "Leading amusement ride manufacturers worldwide",
+    "view_products": "View Products"
+  },
+  "account": {
+    "inquiries_title": "My Inquiries",
+    "inquiries_subtitle": "Track and manage your product inquiries",
+    "search_inquiries": "Search inquiries...",
+    "filter": "Filter",
+    "no_inquiries": "No inquiries found. Start by browsing our products.",
+    "view_details": "View Details"
   }
 }
