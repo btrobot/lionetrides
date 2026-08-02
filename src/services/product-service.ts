@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import { products, reviews } from '@/db/schema';
-import { eq, and, isNull, desc, asc, count, sql } from 'drizzle-orm';
+import { eq, and, ne, isNull, desc, asc, count, sql } from 'drizzle-orm';
 import { NotFoundError, paginatedResponse } from '@/lib/errors';
 
 export const productService = {
@@ -157,6 +157,22 @@ export const productService = {
       .where(and(eq(reviews.product_id, productId), eq(reviews.status, 'approved')));
 
     return { items, total: Number(totalResult.count) };
+  },
+
+  async getRelated(productId: number, categoryId: number | null, limit: number = 4) {
+    if (!categoryId) return [];
+    const items = await db
+      .select()
+      .from(products)
+      .where(and(
+        eq(products.category_id, categoryId),
+        ne(products.id, productId),
+        eq(products.status, 'published'),
+        isNull(products.deleted_at)
+      ))
+      .orderBy(desc(products.created_at))
+      .limit(limit);
+    return items;
   },
 };
 

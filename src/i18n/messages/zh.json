@@ -309,7 +309,13 @@
     "latest": "最新动态",
     "read_more": "阅读更多",
     "subtitle": "最新行业资讯、公司动态和技术洞察",
-    "title": "新闻动态"
+    "title": "新闻动态",
+    "back_to_list": "返回新闻列表",
+    "not_found": "未找到相关新闻",
+    "content_unavailable": "内容暂时不可用。",
+    "share": "分享",
+    "link_copied": "链接已复制到剪贴板！",
+    "related": "相关新闻"
   },
   "partners": {
     "subtitle": "备受全球领先主题乐园和娱乐场所的信赖",

@@ -181,7 +181,13 @@
       "company": "Company News",
       "industry": "Industry News",
       "technology": "Technology"
-    }
+    },
+    "back_to_list": "Back to News",
+    "not_found": "News not found",
+    "content_unavailable": "Content is not available at this time.",
+    "share": "Share",
+    "link_copied": "Link copied to clipboard!",
+    "related": "Related News"
   },
   "footer": {
     "quick_links": "Quick Links",
