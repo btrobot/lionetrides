@@ -80,6 +80,8 @@ COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=builder /app/node_modules   ./node_modules
 COPY --from=builder /app/scripts        ./scripts
 COPY --from=builder /app/docker-entrypoint.sh ./docker-entrypoint.sh
+COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
+COPY --from=builder /app/tsconfig.json  ./tsconfig.json
 
 # 环境变量
 ENV NEXT_TELEMETRY_DISABLED=1
