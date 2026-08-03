@@ -2,7 +2,7 @@
 # ============================================================
 # 镜像源自动检测脚本 — detect-mirror.sh
 # 功能：自动检测当前网络环境，选择最优镜像源
-# 用法：./detect-mirror.sh [--force-cn|--force-global]
+# 用法：./detect-mirror.sh [--force-cn|--force-global|--clear-cache]
 # ============================================================
 set -euo pipefail
 
@@ -29,6 +29,15 @@ warn()  { echo -e "${YELLOW}[detect]${NC} $1" >&2; }
 
 # ─── 检测网络环境 ───
 detect_region() {
+  # 清除缓存开关（必须在缓存判断之前）
+  if [ "${1:-}" = "--clear-cache" ]; then
+    rm -f "$DETECT_FLAG"
+    info "缓存已清除，重新检测..."
+    # 去掉 --clear-cache 参数，递归调用自身
+    detect_region ""
+    return $?
+  fi
+
   # 如果已有标记，跳过检测
   if [ -f "$DETECT_FLAG" ]; then
     cat "$DETECT_FLAG"
