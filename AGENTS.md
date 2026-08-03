@@ -63,9 +63,11 @@ src/
 - `pnpm ts-check` — TypeScript 类型检查
 - `pnpm lint` — ESLint 检查
 - `pnpm validate` — 完整验证（lint + ts-check + test）
-- `pnpm test` — 运行所有测试
+- `pnpm test` — 运行所有测试（213 个）
 - `pnpm test:watch` — 监听模式运行测试
 - `pnpm test:coverage` — 运行测试 + 覆盖率报告
+- `pnpm test:e2e` — 运行 Playwright E2E 端到端测试（25 个场景）
+- `pnpm test:e2e:ui` — 以 UI 模式运行 Playwright E2E 测试
 - `pnpm gate:commit` — 提交前门禁（lint + ts-check + test + i18n 校验）
 - `pnpm validate:i18n` — 校验 11 种语言文件一致性（以 en.json 为真相源）
 - `pnpm sync:i18n` — 将 en.json 缺失的键同步到所有语言文件（标记 [TODO: translate]）
@@ -106,14 +108,14 @@ src/
 70% 单元测试 (Unit)     — 服务层（services/）、工具函数（lib/）
 15% 组件测试 (Component) — 共享组件（components/shared/）
 10% 集成测试 (Integration) — API 路由（app/api/）
- 5% 端到端测试 (E2E)     — 关键用户流程
+ 5% 端到端测试 (E2E)     — 关键用户流程（e2e/）
 ```
 
 ### 测试文件规范
 - **单元测试**: `src/__tests__/unit/**/*.test.ts` — 测试服务层函数、工具函数
 - **组件测试**: `src/__tests__/component/**/*.test.tsx` — 测试 React 组件渲染与交互
 - **集成测试**: `src/__tests__/integration/**/*.test.ts` — 测试 API 路由端到端
-- **E2E 测试**: `e2e/**/*.spec.ts` — Playwright 端到端测试
+- **E2E 测试**: `e2e/**/*.spec.ts` — Playwright 端到端测试（25 个场景覆盖首页/产品/分类/品牌/新闻/关于/认证/API）
 - **工厂函数**: `src/__tests__/factories/*.factory.ts` — 测试数据生成
 - **测试工具**: `src/__tests__/unit/helpers/*.ts` — Mock 辅助函数
 

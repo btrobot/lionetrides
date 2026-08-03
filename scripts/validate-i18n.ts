@@ -17,6 +17,60 @@ import * as path from 'path';
 const LOCALES = ['en', 'zh', 'ar', 'de', 'es', 'fr', 'ja', 'ko', 'pt', 'ru', 'th'] as const;
 const MESSAGES_DIR = path.resolve(__dirname, '../src/i18n/messages');
 
+// 这些键的值应保持英文（品牌名、缩写、固定标签等）
+const SKIP_UNTRANSLATED_CHECK = new Set([
+  'site.name',        // 品牌名（RideCraft Industries）
+  'meta.title',       // 品牌名
+  'products.sku',     // 缩写（SKU）
+  'footer.phone',     // 电话号码标签
+  'footer.email',     // 邮箱标签
+  'admin.sidebar.brand',  // 品牌名
+  'admin.products.sku',   // 缩写
+  'admin.settings.sections.seo', // SEO 标签
+  'admin.brands.slug',    // 固定字段名
+  'admin.brands.website', // 固定字段标签
+  'admin.brands.name',    // 固定字段
+  'admin.products.name',  // 固定字段
+  'admin.categories.name', // 固定字段
+  'admin.categories.slug',  // 固定字段
+  'admin.inquiries.name',   // 固定字段
+  'admin.inquiries.status', // 固定字段
+  'admin.customers.name',   // 固定字段
+  'admin.customers.email',  // 固定字段
+  'admin.reviews.status',   // 固定字段
+  'admin.dashboard.title',  // 固定标题
+  'admin.sidebar.dashboard', // 固定导航
+  'products.material',  // 属性标签
+  'products.name',      // 属性标签
+  'products.description', // 属性标签
+  'products.dimensions',  // 属性标签
+  'products.certification', // 属性标签
+  'products.filter',      // UI 标签
+  'products.contact',     // 导航标签
+  'inquiry.status',       // 字段名
+  'inquiry.message',      // 字段名
+  'inquiry.date',         // 字段名
+  'auth.email',           // 字段名
+  'footer.support',       // 导航标签
+  'footer.address',       // 标签
+  'account.filter',       // UI 标签
+  'common.page',          // UI 通用标签
+  'contact.email',        // 标签
+  'nav.dashboard',        // 导航标签
+  'nav.contact',          // 导航标签
+  'admin.products.actions',     // 操作标签
+  'admin.products.settings',    // 设置标签
+  'admin.categories.description', // 字段名
+  'admin.categories.actions',    // 操作标签
+  'admin.brands.actions',       // 操作标签
+  'admin.inquiries.date',       // 字段名
+  'admin.inquiries.actions',    // 操作标签
+  'admin.reviews.date',         // 字段名
+  'admin.reviews.actions',      // 操作标签
+  'admin.settings.sections.contact', // 设置标签
+  'site.tagline',       // 品牌标语
+]);
+
 type Messages = Record<string, string | Record<string, unknown>>;
 
 function flatten(obj: Messages, prefix = ''): Record<string, string> {
@@ -108,7 +162,7 @@ function main() {
         empty.push(k);
         totalEmpty++;
       }
-      if (keys.has(k) && flat[k] === enFlat[k] && locale !== 'zh') {
+      if (keys.has(k) && flat[k] === enFlat[k] && locale !== 'zh' && !SKIP_UNTRANSLATED_CHECK.has(k)) {
         // 非中文语言，如果值与英文完全相同，视为未翻译
         untranslated.push(k);
         totalUntranslated++;
@@ -141,13 +195,21 @@ function main() {
       untranslated.forEach(k => console.log(`       - ${k}`));
     }
 
-    // --fix 模式：自动填充
-    if (fixMode && missing.length > 0) {
+    // --fix 模式：自动填充缺失键和标记未翻译
+    if (fixMode) {
+      let changes = 0;
       for (const k of missing) {
         flat[k] = `[TODO: translate] ${enFlat[k]}`;
+        changes++;
       }
-      saveMessages(locale, unflatten(flat));
-      console.log(`     → 已填充 ${missing.length} 个缺失键`);
+      for (const k of untranslated) {
+        flat[k] = `[TODO: translate] ${enFlat[k]}`;
+        changes++;
+      }
+      if (changes > 0) {
+        saveMessages(locale, unflatten(flat));
+        console.log(`     → 已处理 ${changes} 个条目（缺失 ${missing.length} + 未翻译 ${untranslated.length}）`);
+      }
     }
   }
 

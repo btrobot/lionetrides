@@ -292,7 +292,7 @@ export default function ProductsPage() {
               <span className="text-sm text-gray-500">Filters:</span>
               {search && (
                 <Badge variant="secondary" className="gap-1 cursor-pointer" onClick={() => updateParams({ q: null })}>
-                  "{search}" <X className="w-3 h-3" />
+                  &ldquo;{search}&rdquo; <X className="w-3 h-3" />
                 </Badge>
               )}
               {selectedCategory && (

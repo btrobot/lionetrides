@@ -14,7 +14,7 @@
       "loading": "กำลังโหลด...",
       "name": "ชื่อ",
       "no_results": "ไม่พบแบรนด์",
-      "slug": "Slug",
+      "slug": "สลัก",
       "title": "แบรนด์",
       "website": "เว็บไซต์"
     },
@@ -25,7 +25,7 @@
       "loading": "กำลังโหลด...",
       "name": "ชื่อ",
       "no_results": "ไม่พบหมวดหมู่",
-      "slug": "Slug",
+      "slug": "สลัก",
       "title": "หมวดหมู่"
     },
     "customers": {
@@ -219,7 +219,7 @@
     "working_hours_value": "วันจันทร์ - วันศุกร์: 9:00 น. - 18:00 น."
   },
   "footer": {
-    "address": "No. 88, Industrial Avenue, Guangzhou, China",
+    "address": "เลขที่ 88 ถนนอุตสาหกรรม กวางโจว ประเทศจีน",
     "contact_us": "ติดต่อเรา",
     "copyright": "สงวนลิขสิทธิ์ทั้งหมด",
     "email": "info@ridecraft.com",
@@ -293,7 +293,7 @@
     "description": "ผู้ผลิตเครื่องเล่นสวนสนุกชั้นนำตั้งแต่ปี 1995",
     "error_description": "มีบางอย่างผิดพลาดในระบบของเรา กรุณาลองใหม่อีกครั้งหรือติดต่อเราเพื่อขอความช่วยเหลือ",
     "error_title": "500 - ข้อผิดพลาดของเซิร์ฟเวอร์",
-    "keywords": "amusement rides, roller coaster manufacturer, ferris wheel, carousel, water park equipment, theme park rides, B2B, ride manufacturer",
+    "keywords": "เครื่องเล่นสวนสนุก, ผู้ผลิตรถไฟเหาะ, ชิงช้าสวรรค์, ม้าหมุน, อุปกรณ์สวนน้ำ, เครื่องเล่นสวนสนุกธีม, B2B, ผู้ผลิตเครื่องเล่น",
     "news_description": "ข่าวสารล่าสุด การอัปเดต และข้อมูลเชิงลึกจากอุตสาหกรรมเครื่องเล่น amusement การประกาศของบริษัท งานแสดงสินค้า และการแสดงโครงการ",
     "news_detail_description": "%s - อ่านข่าวและอัปเดตล่าสุดจาก RideCraft Industries",
     "news_detail_title": "%s - ข่าว",
@@ -418,7 +418,7 @@
   "site": {
     "description": "ผู้ผลิตเครื่องเล่นสวนสนุกชั้นนำตั้งแต่ปี 1995",
     "name": "RideCraft Industries",
-    "tagline": "Engineering Thrills, Building Trust"
+    "tagline": "วิศวกรรมแห่งความตื่นเต้น สร้างความไว้วางใจ"
   },
   "stats": {
     "countries": "ประเทศที่ให้บริการ",

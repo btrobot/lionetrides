@@ -14,7 +14,7 @@
       "loading": "Cargando...",
       "name": "Nombre",
       "no_results": "No se encontraron marcas.",
-      "slug": "Slug",
+      "slug": "Fragmento URL",
       "title": "Marcas",
       "website": "Sitio web"
     },
@@ -25,7 +25,7 @@
       "loading": "Cargando...",
       "name": "Nombre",
       "no_results": "No se encontraron categorías.",
-      "slug": "Slug",
+      "slug": "Fragmento URL",
       "title": "Categorías"
     },
     "customers": {
@@ -219,7 +219,7 @@
     "working_hours_value": "Lunes - Viernes: 9:00 AM - 6:00 PM"
   },
   "footer": {
-    "address": "No. 88, Industrial Avenue, Guangzhou, China",
+    "address": "No. 88, Avenida Industrial, Guangzhou, China",
     "contact_us": "Contáctenos",
     "copyright": "Todos los derechos reservados.",
     "email": "info@ridecraft.com",

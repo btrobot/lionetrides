@@ -16,7 +16,7 @@
       "no_results": "Nenhuma marca encontrada.",
       "slug": "Slug",
       "title": "Marcas",
-      "website": "Website"
+      "website": "Site"
     },
     "categories": {
       "actions": "Ações",
@@ -219,7 +219,7 @@
     "working_hours_value": "Segunda - Sexta: 9:00 AM - 6:00 PM"
   },
   "footer": {
-    "address": "No. 88, Industrial Avenue, Guangzhou, China",
+    "address": "No. 88, Avenida Industrial, Guangzhou, China",
     "contact_us": "Fale Conosco",
     "copyright": "Todos os direitos reservados.",
     "email": "info@ridecraft.com",

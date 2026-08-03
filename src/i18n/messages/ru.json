@@ -14,7 +14,7 @@
       "loading": "Загрузка...",
       "name": "Название",
       "no_results": "Бренды не найдены.",
-      "slug": "Slug",
+      "slug": "Псевдоним",
       "title": "Бренды",
       "website": "Веб-сайт"
     },
@@ -25,12 +25,12 @@
       "loading": "Загрузка...",
       "name": "Название",
       "no_results": "Категории не найдены.",
-      "slug": "Slug",
+      "slug": "Псевдоним",
       "title": "Категории"
     },
     "customers": {
       "company": "Компания",
-      "email": "Email",
+      "email": "Эл. почта",
       "joined": "Дата регистрации",
       "loading": "Загрузка...",
       "name": "Имя",
@@ -116,7 +116,7 @@
     "company": "Компания",
     "create_account": "Создать аккаунт",
     "dont_have_account": "Нет аккаунта?",
-    "email": "Email",
+    "email": "Эл. почта",
     "email_verification_sent": "Письмо для верификации отправлено",
     "forgot_password": "Забыли пароль?",
     "has_account": "Уже есть аккаунт?",

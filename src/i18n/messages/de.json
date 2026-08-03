@@ -1,6 +1,6 @@
 {
   "account": {
-    "filter": "Filter",
+    "filter": "Filtern",
     "inquiries_subtitle": "Verfolgen und verwalten Sie Ihre Anfragen",
     "inquiries_title": "Meine Anfragen",
     "no_inquiries": "Bisher keine Anfragen",
@@ -94,7 +94,7 @@
         "contact": "Kontakt",
         "home": "Startseite",
         "seo": "SEO",
-        "social": "Social Media"
+        "social": "Soziale Medien"
       },
       "title": "Einstellungen"
     },
@@ -316,7 +316,7 @@
     "inquiries": "Meine Anfragen",
     "login": "Anmelden",
     "logout": "Abmelden",
-    "news": "News",
+    "news": "Neuigkeiten",
     "products": "Produkte",
     "register": "Registrieren",
     "search": "Produkte suchen..."
@@ -364,7 +364,7 @@
     "details": "Produktdetails",
     "dimensions": "Abmessungen",
     "featured": "Empfohlene Produkte",
-    "filter": "Filter",
+    "filter": "Filtern",
     "grid_view": "Rasteransicht",
     "inquiry_btn": "Anfrage senden",
     "list_view": "Listenansicht",
@@ -406,7 +406,7 @@
     "error": "Suche fehlgeschlagen",
     "error_desc": "Die Suchanfrage ist fehlgeschlagen, bitte versuchen Sie es später erneut",
     "loading": "Suchen...",
-    "news": "News",
+    "news": "Neuigkeiten",
     "no_results": "Keine Ergebnisse gefunden",
     "no_results_desc": "Probieren Sie andere Schlüsselwörter aus oder durchsuchen Sie unsere Produkte und News",
     "placeholder": "Produkte, News suchen...",
@@ -418,7 +418,7 @@
   "site": {
     "description": "Führender Hersteller von Fahrgeschäften seit 1995",
     "name": "RideCraft Industries",
-    "tagline": "Engineering Thrills, Building Trust"
+    "tagline": "Nervenkitzel durch Technik, Vertrauen durch Qualität"
   },
   "stats": {
     "countries": "Bediente Länder",

@@ -219,9 +219,9 @@
     "working_hours_value": "月曜日 - 金曜日: 9:00 AM - 6:00 PM"
   },
   "footer": {
-    "address": "No. 88, Industrial Avenue, Guangzhou, China",
+    "address": "中華人民共和国広東省広州市工業大道88番",
     "contact_us": "お問い合わせ",
-    "copyright": "All rights reserved.",
+    "copyright": "全著作権所有",
     "email": "info@ridecraft.com",
     "follow_us": "フォローする",
     "phone": "+86 20-8888-8888",
@@ -293,7 +293,7 @@
     "description": "1995年創業の大手遊園地用乗り物メーカー",
     "error_description": "サーバー側で問題が発生しました。もう一度お試しいただくか、お問い合わせください。",
     "error_title": "500 - サーバーエラー",
-    "keywords": "amusement rides, roller coaster manufacturer, ferris wheel, carousel, water park equipment, theme park rides, B2B, ride manufacturer",
+    "keywords": "遊園地アトラクション、ジェットコースターメーカー、観覧車、回転木馬、ウォーターパーク設備、テーマパークアトラクション、B2B、アトラクションメーカー",
     "news_description": "遊園地機器業界の最新ニュース、更新情報、インサイト。会社からのお知らせ、展示会、プロジェクト紹介などをお届けします。",
     "news_detail_description": "%s - RideCraft Industriesからの最新ニュースと更新情報を読む",
     "news_detail_title": "%s - ニュース",
@@ -418,7 +418,7 @@
   "site": {
     "description": "1995年創業の遊園地アトラクション大手メーカー",
     "name": "RideCraft Industries",
-    "tagline": "Engineering Thrills, Building Trust"
+    "tagline": "スリルを設計し、信頼を築く"
   },
   "stats": {
     "countries": "導入実績国数",

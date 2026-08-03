@@ -5,7 +5,7 @@ const stylelintConfig = {
     'at-rule-no-unknown': [
       true,
       {
-        ignoreAtRules: ['tailwind', 'apply', 'layer', 'theme', 'custom-variant'],
+        ignoreAtRules: ['tailwind', 'apply', 'layer', 'theme', 'custom-variant', 'utility'],
       },
     ],
     'hue-degree-notation': null,

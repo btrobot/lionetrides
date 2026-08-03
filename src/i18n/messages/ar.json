@@ -14,7 +14,7 @@
       "loading": "جاري التحميل...",
       "name": "الاسم",
       "no_results": "لم يتم العثور على علامات تجارية.",
-      "slug": "Slug",
+      "slug": "المعرِف",
       "title": "العلامات التجارية",
       "website": "الموقع الإلكتروني"
     },
@@ -25,7 +25,7 @@
       "loading": "جاري التحميل...",
       "name": "الاسم",
       "no_results": "لم يتم العثور على فئات.",
-      "slug": "Slug",
+      "slug": "المعرِف",
       "title": "الفئات"
     },
     "customers": {
@@ -219,7 +219,7 @@
     "working_hours_value": "الاثنين - الجمعة: 9:00 صباحاً - 6:00 مساءً"
   },
   "footer": {
-    "address": "No. 88, Industrial Avenue, Guangzhou, China",
+    "address": "رقم 88، الجادة الصناعية، قوانغتشو، الصين",
     "contact_us": "اتصل بنا",
     "copyright": "جميع الحقوق محفوظة.",
     "email": "info@ridecraft.com",

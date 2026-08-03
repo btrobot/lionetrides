@@ -166,5 +166,6 @@ html {
 /* Image placeholder — prevent CLS before image loads */
 .image-placeholder {
   @apply overflow-hidden rounded-xl bg-muted;
+
   aspect-ratio: 16 / 9;
 }
