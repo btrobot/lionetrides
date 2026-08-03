@@ -171,4 +171,4 @@ test-results/
 
 .omx/
 
-.github/workflows/
+# .github/workflows/ 已从 gitignore 移除，GitHub Actions 必须纳入版本控制

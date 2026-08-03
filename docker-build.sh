@@ -25,20 +25,26 @@ fail() { echo -e "${RED}[FAIL]${NC} $1"; exit 1; }
 # ─── 参数解析 ───
 CLEAN=false
 NO_CACHE=false
+DEPLOY_REGION="auto"
 for arg in "$@"; do
   case $arg in
-    --clean)    CLEAN=true ;;
-    --no-cache) NO_CACHE=true ;;
+    --clean)       CLEAN=true ;;
+    --no-cache)    NO_CACHE=true ;;
+    --region=*)    DEPLOY_REGION="${arg#*=}" ;;
+    --region)      DEPLOY_REGION="$2"; shift ;;
     -h|--help)
       echo "用法: ./docker-build.sh [选项]"
       echo ""
       echo "选项:"
-      echo "  --clean      构建前清理 Docker 缓存和悬空镜像"
-      echo "  --no-cache   不使用 Docker 缓存（完全重新构建）"
-      echo "  -h, --help   显示帮助"
+      echo "  --clean        构建前清理 Docker 缓存和悬空镜像"
+      echo "  --no-cache     不使用 Docker 缓存（完全重新构建）"
+      echo "  --region=auto  自动检测镜像源（默认）"
+      echo "  --region=cn    强制使用国内镜像源"
+      echo "  --region=global 强制使用官方源"
+      echo "  -h, --help     显示帮助"
       exit 0
       ;;
-    *)          echo "未知参数: $arg"; exit 1 ;;
+    *)           echo "未知参数: $arg"; exit 1 ;;
   esac
 done
 
@@ -118,7 +124,11 @@ log "构建上下文: $CONTEXT_SIZE"
 
 # 构建
 BUILD_START=$SECONDS
-sudo docker build --network=host $BUILD_ARGS -t "${IMAGE_NAME}:${IMAGE_TAG}" . 2>&1
+log "构建参数: DEPLOY_REGION=${DEPLOY_REGION}"
+sudo docker build --network=host \
+  --build-arg "DEPLOY_REGION=${DEPLOY_REGION}" \
+  --build-arg "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
+  $BUILD_ARGS -t "${IMAGE_NAME}:${IMAGE_TAG}" . 2>&1
 BUILD_ELAPSED=$((SECONDS - BUILD_START))
 
 echo ""

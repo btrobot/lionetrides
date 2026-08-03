@@ -1,15 +1,21 @@
 # ============================================================
 # Lion E-Trides — Next.js 16 + PostgreSQL 多阶段构建
 # 优化目标：最小化最终镜像体积，分离构建环境与运行环境
-# 镜像源：自动检测国内/国际环境，也可通过构建参数指定
+# 遵循 GitHub CI/CD 最佳实践：
+#   - 多阶段构建
+#   - 非 root 运行（应用进程）
+#   - HEALTHCHECK 健康检查
+#   - LABEL 元数据标注
+#   - 镜像源自动适配国内/国际环境
+#   - 最小化 Attack Surface
 # ============================================================
 # 构建参数
 #   DEPLOY_REGION=auto   自动检测（默认）
 #   DEPLOY_REGION=cn     强制国内镜像
 #   DEPLOY_REGION=global 强制官方源
 # 用法:
-#   国内: docker build -t lionetrides .
-#   国外: docker build --build-arg DEPLOY_REGION=global -t lionetrides .
+#   国内 (Mode A): docker build -t lionetrides .
+#   国外 (Mode B): docker build --build-arg DEPLOY_REGION=global -t lionetrides .
 # ============================================================
 ARG DEPLOY_REGION=auto
 
@@ -18,12 +24,13 @@ FROM node:24-bookworm-slim AS deps
 
 ARG DEPLOY_REGION
 
-# 镜像源自动检测脚本
+# 镜像源自动检测脚本（配置 npm registry + apt sources，持久化写入）
 COPY scripts/detect-mirror.sh /tmp/detect-mirror.sh
 RUN bash /tmp/detect-mirror.sh ${DEPLOY_REGION:+--force-${DEPLOY_REGION}}
 
-# corepack 镜像源（仅国内环境有效，global 环境自动使用官方源）
-# 注：npm config 已由检测脚本持久化写入，这里只作为 corepack 下载 pnpm 的加速
+# corepack 镜像源
+# 国内环境: 使用腾讯云镜像加速 corepack 下载 pnpm
+# 国际环境: 腾讯云镜像仍可达，仅一次下载，影响可忽略
 ENV COREPACK_REGISTRY=https://mirrors.cloud.tencent.com/npm
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 
@@ -36,7 +43,6 @@ FROM node:24-bookworm-slim AS builder
 
 ARG DEPLOY_REGION
 
-# 镜像源自动检测
 COPY scripts/detect-mirror.sh /tmp/detect-mirror.sh
 RUN bash /tmp/detect-mirror.sh ${DEPLOY_REGION:+--force-${DEPLOY_REGION}}
 
@@ -46,9 +52,11 @@ RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm next build
 RUN pnpm tsup src/server.ts --format cjs --platform node --target node20 --outDir dist --no-splitting --no-minify
+
 # 保留完整 node_modules（种子脚本需要 tsx/drizzle-kit），仅清理缓存
 RUN rm -rf .next/cache node_modules/.cache && \
     tar cf /tmp/node_modules.tar node_modules --dereference --hard-links
@@ -57,17 +65,32 @@ RUN rm -rf .next/cache node_modules/.cache && \
 FROM node:24-bookworm-slim AS runner
 
 ARG DEPLOY_REGION
+ARG BUILD_DATE
+ARG BUILD_VERSION
+ARG GIT_COMMIT
 
-# 镜像源自动检测
+# ─── LABEL 元数据（OCI 标准） ───────────────────────────────
+LABEL org.opencontainers.image.title="Lion E-Trides"
+LABEL org.opencontainers.image.description="B2B 游乐设施制造企业官网"
+LABEL org.opencontainers.image.url="https://lionetrides.com"
+LABEL org.opencontainers.image.source="https://github.com/lionetrides/lionetrides"
+LABEL org.opencontainers.image.version="${BUILD_VERSION:-latest}"
+LABEL org.opencontainers.image.revision="${GIT_COMMIT:-unknown}"
+LABEL org.opencontainers.image.created="${BUILD_DATE:-unknown}"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.vendor="Lion E-Trides"
+LABEL maintainer="dev@lionetrides.com"
+
+# ─── 镜像源自动检测 ──────────────────────────────────────
 COPY scripts/detect-mirror.sh /tmp/detect-mirror.sh
 RUN bash /tmp/detect-mirror.sh ${DEPLOY_REGION:+--force-${DEPLOY_REGION}}
 
-# 安装 PostgreSQL + 运行时工具
+# ─── 安装运行时依赖 ──────────────────────────────────────
 # 不使用 --no-install-recommends 确保 tini 等工具完整安装
 RUN apt-get update -qq && \
     apt-get install -y -qq --no-install-recommends \
       postgresql postgresql-client \
-      curl tini && \
+      curl tini ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 # 自动检测 PostgreSQL 主版本并初始化
@@ -89,22 +112,29 @@ RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 
 WORKDIR /app
 
-# ─── 从构建阶段复制产物（仅运行时需要的内容） ────────────
-COPY --from=builder /app/.next          ./.next
-COPY --from=builder /app/dist           ./dist
-COPY --from=builder /app/public         ./public
-COPY --from=builder /app/package.json   ./package.json
-COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
+# ─── 从构建阶段复制产物 ──────────────────────────────────
+# 使用 --chown=node:node 确保文件归属非 root 用户
+COPY --chown=node:node --from=builder /app/.next          ./.next
+COPY --chown=node:node --from=builder /app/dist           ./dist
+COPY --chown=node:node --from=builder /app/public         ./public
+COPY --chown=node:node --from=builder /app/package.json   ./package.json
+COPY --chown=node:node --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
 # 复制 node_modules（tar 归档方式，避免 COPY 数万小文件超时）
 COPY --from=builder /tmp/node_modules.tar /tmp/node_modules.tar
-RUN tar xf /tmp/node_modules.tar -C /app && rm /tmp/node_modules.tar
-COPY --from=builder /app/scripts        ./scripts
-COPY --from=builder /app/docker-entrypoint.sh ./docker-entrypoint.sh
-COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
-COPY --from=builder /app/tsconfig.json  ./tsconfig.json
-COPY --from=builder /app/src/db        ./src/db
+RUN tar xf /tmp/node_modules.tar -C /app && rm /tmp/node_modules.tar && \
+    chown -R node:node /app/node_modules
+COPY --chown=node:node --from=builder /app/scripts        ./scripts
+COPY --chown=node:node --from=builder /app/docker-entrypoint.sh ./docker-entrypoint.sh
+COPY --chown=node:node --from=builder /app/drizzle.config.ts ./drizzle.config.ts
+COPY --chown=node:node --from=builder /app/tsconfig.json  ./tsconfig.json
+COPY --chown=node:node --from=builder /app/src/db        ./src/db
 
-# 环境变量
+# 权限设置（最小权限原则）
+RUN chmod 755 docker-entrypoint.sh && \
+    chmod -R 755 .next/static && \
+    chmod 644 .next/build-manifest.json .next/server/app/index.html 2>/dev/null || true
+
+# ─── 环境变量 ────────────────────────────────────────────
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV COZE_PROJECT_ENV=PROD
@@ -117,11 +147,14 @@ ENV PGUSER=postgres
 ENV PGPASSWORD=postgres
 ENV PGDATABASE=lionetrides
 
-# 权限设置
-RUN chmod -R 777 .next && \
-    chmod +x docker-entrypoint.sh
-
 EXPOSE 5000
 
+# ─── HEALTHCHECK 健康检查 ────────────────────────────────
+# 容器启动后，每 30 秒检查一次 /api/v1/products 接口
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -sf --max-time 5 http://localhost:5000/api/v1/products?limit=1 > /dev/null || exit 1
+
+# ─── 入口点 ──────────────────────────────────────────────
+# tini 确保信号正确处理（SIGTERM → 优雅关闭）
 ENTRYPOINT ["tini", "--"]
 CMD ["./docker-entrypoint.sh"]
