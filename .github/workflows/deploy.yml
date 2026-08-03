@@ -1,38 +1,21 @@
-# Mode A 部署 — 服务器本地构建
-# 触发：push 到 main 分支
-# 流程：SSH → git pull → docker build → 健康检查 → 失败自动回滚
-
-name: "Deploy (Mode A — Server Build)"
+name: Deploy (Mode A — Server Build)
 
 on:
   push:
     branches: [main]
-  workflow_dispatch:
-    inputs:
-      region:
-        description: '镜像源环境'
-        required: true
-        default: 'cn'
-        type: choice
-        options:
-          - cn
-          - global
-          - auto
 
-env:
-  DEPLOY_REGION: ${{ github.event.inputs.region || 'cn' }}
+concurrency:
+  group: deploy
+  cancel-in-progress: false
 
 jobs:
   deploy:
-    name: " 部署到生产服务器"
+    name: Deploy to Production
     runs-on: ubuntu-latest
-
+    if: github.ref == 'refs/heads/main'
     steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
-
-      - name: 部署到服务器
-        uses: appleboy/ssh-action@v1.2.0
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
@@ -40,113 +23,63 @@ jobs:
           script: |
             set -euo pipefail
 
-            PROJECT_DIR="/home/ubuntu/lionetrides"
+            APP_DIR="/data/lionetrides"
             CONTAINER_NAME="lionetrides-container"
-            IMAGE_NAME="lionetrides"
-            HEALTH_URL="http://localhost:5000"
-            MAX_WAIT=120
+            IMAGE_NAME="lionetrides:latest"
+            APP_PORT=5000
 
-            echo "=========================================="
-            echo "  部署开始 — $(date '+%Y-%m-%d %H:%M:%S')"
-            echo "=========================================="
+            echo "=== Lionet Rides Deploy (Mode A) ==="
 
-            cd "$PROJECT_DIR"
-
-            # ─── 1. 拉取最新代码 ───
-            echo ""
-            echo "=== 拉取最新代码 ==="
+            # 拉取最新代码
+            cd "${APP_DIR}"
             git pull origin main
 
-            # ─── 2. 记录当前镜像（用于回滚） ───
-            echo ""
-            echo "=== 记录当前镜像 ==="
-            OLD_IMAGE_ID=$(docker images "$IMAGE_NAME:latest" --format '{{.ID}}' 2>/dev/null || echo "")
-            if [ -n "$OLD_IMAGE_ID" ]; then
-              echo "当前镜像 ID: $OLD_IMAGE_ID"
-              # 创建回滚标签
-              docker tag "$IMAGE_NAME:latest" "$IMAGE_NAME:rollback" 2>/dev/null || true
+            # 记录旧镜像 SHA（用于回滚）
+            OLD_IMAGE_SHA=""
+            if docker image inspect "${IMAGE_NAME}" >/dev/null 2>&1; then
+              OLD_IMAGE_SHA=$(docker image inspect --format '{{.Id}}' "${IMAGE_NAME}")
+              echo "旧镜像 SHA: ${OLD_IMAGE_SHA}"
             fi
 
-            # ─── 3. 构建新镜像 ───
-            echo ""
-            echo "=== 构建新镜像 ==="
-            bash docker-build.sh --region="${{ env.DEPLOY_REGION }}"
+            # 构建新镜像
+            echo "构建 Docker 镜像..."
+            bash docker-build.sh --region cn
 
-            # ─── 4. 停止旧容器 ───
-            echo ""
-            echo "=== 停止旧容器 ==="
+            # 停止旧容器
             if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
-              docker stop "$CONTAINER_NAME"
-              docker rm "$CONTAINER_NAME"
-              echo "旧容器已移除"
+              echo "停止旧容器..."
+              docker stop "${CONTAINER_NAME}"
+              docker rm "${CONTAINER_NAME}"
             fi
 
-            # ─── 5. 启动新容器 ───
-            echo ""
-            echo "=== 启动新容器 ==="
-            bash docker-run.sh --skip-smoke
+            # 启动新容器
+            echo "启动新容器..."
+            bash docker-run.sh --port ${APP_PORT}
 
-            # ─── 6. 健康检查 ───
-            echo ""
-            echo "=== 健康检查 ==="
-            ELAPSED=0
-            HEALTHY=false
-
-            while [ $ELAPSED -lt $MAX_WAIT ]; do
-              if curl -sf --max-time 5 "$HEALTH_URL" > /dev/null 2>&1; then
-                HEALTHY=true
-                echo "  健康检查通过！(耗时: ${ELAPSED}s)"
+            # 健康检查（120 秒）
+            echo "等待服务就绪..."
+            for i in $(seq 1 24); do
+              if curl -sf "http://localhost:${APP_PORT}/en" > /dev/null 2>&1; then
+                echo "健康检查通过 (${i}×5s)"
                 break
               fi
-              echo "  等待服务就绪... ($ELAPSED/${MAX_WAIT}s)"
+              if [ $i -eq 24 ]; then
+                echo "健康检查失败，回滚..."
+                docker stop "${CONTAINER_NAME}"
+                docker rm "${CONTAINER_NAME}"
+                if [ -n "${OLD_IMAGE_SHA}" ]; then
+                  docker run -d --name "${CONTAINER_NAME}" --restart unless-stopped -p "${APP_PORT}:5000" "${OLD_IMAGE_SHA}"
+                  echo "已回滚到旧镜像"
+                fi
+                exit 1
+              fi
+              echo "等待... (${i}/24)"
               sleep 5
-              ELAPSED=$((ELAPSED + 5))
             done
 
-            if [ "$HEALTHY" = false ]; then
-              echo ""
-              echo "!!! 健康检查失败，执行回滚 !!!"
-
-              # 停止新容器
-              docker stop "$CONTAINER_NAME" 2>/dev/null || true
-              docker rm "$CONTAINER_NAME" 2>/dev/null || true
-
-              # 回滚到旧镜像
-              if [ -n "$OLD_IMAGE_ID" ]; then
-                docker tag "$IMAGE_NAME:rollback" "$IMAGE_NAME:latest"
-                docker run -d \
-                  --name "$CONTAINER_NAME" \
-                  --restart unless-stopped \
-                  -p 5000:5000 \
-                  --env-file /data/lionetrides/.env.production \
-                  "$IMAGE_NAME:latest"
-
-                echo "回滚完成！已恢复到旧版本"
-              else
-                echo "!!! 无旧镜像可回滚，请手动排查 !!!"
-              fi
-
-              # 输出日志帮助排查
-              echo ""
-              echo "=== 新容器日志（最后 50 行）==="
-              docker logs "$CONTAINER_NAME" --tail 50 2>/dev/null || true
-
-              exit 1
+            # 清理旧镜像
+            if [ -n "${OLD_IMAGE_SHA}" ]; then
+              docker image prune -f
             fi
 
-            # ─── 7. 清理 ──
-            echo ""
-            echo "=== 清理旧镜像 ==="
-            # 保留最近 3 个镜像，清理悬空镜像
-            docker image prune -f
-            # 移除回滚标签（部署成功后不再需要）
-            docker rmi "$IMAGE_NAME:rollback" 2>/dev/null || true
-
-            echo ""
-            echo "=========================================="
-            echo "  部署成功！— $(date '+%Y-%m-%d %H:%M:%S')"
-            echo "=========================================="
-            echo ""
-            echo "  访问: $HEALTH_URL"
-            echo "  日志: docker logs -f $CONTAINER_NAME"
-            echo ""
+            echo "部署完成"

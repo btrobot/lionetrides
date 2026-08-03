@@ -1,169 +1,93 @@
 #!/bin/bash
-# ============================================================
-# Docker 运行脚本 — LionetRides
-# 用法: ./docker-run.sh [--env-file .env] [--port 5000]
-# ============================================================
-set -e
+set -euo pipefail
 
-# ─── 配置 ───
-IMAGE_NAME="lionetrides"
-IMAGE_TAG="latest"
+# ============================================
+# Lionet Rides — Docker Run Script
+# 用法: ./docker-run.sh [--port 5000] [--env-file .env]
+# ============================================
+
+# ─── 默认值 ───
+APP_PORT=5000
+PG_PORT=5433
 CONTAINER_NAME="lionetrides-container"
-DEFAULT_PORT=5000
-NETWORK_NAME="auto-ingress_gateway-net"
-
-# ─── 颜色 ───
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
-
-log()  { echo -e "${BLUE}[INFO]${NC} $1"; }
-ok()   { echo -e "${GREEN}[OK]${NC} $1"; }
-warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
-fail() { echo -e "${RED}[FAIL]${NC} $1"; exit 1; }
-
-# ─── 参数解析 ───
+IMAGE_NAME="lionetrides:latest"
 ENV_FILE=""
-PORT="$DEFAULT_PORT"
-DETACH=true
-SKIP_SMOKE=false
+
+# ─── 参数解析（while 循环） ──
 while [ $# -gt 0 ]; do
   case $1 in
+    --port=*)     APP_PORT="${1#*=}"; shift ;;
+    --port)       APP_PORT="$2"; shift 2 ;;
     --env-file=*) ENV_FILE="${1#*=}"; shift ;;
     --env-file)   ENV_FILE="$2"; shift 2 ;;
-    --port=*)     PORT="${1#*=}"; shift ;;
-    --port)       PORT="$2"; shift 2 ;;
-    --foreground) DETACH=false; shift ;;
-    --skip-smoke) SKIP_SMOKE=true; shift ;;
-    -h|--help)
-      echo "用法: ./docker-run.sh [选项]"
-      echo ""
-      echo "选项:"
-      echo "  --env-file=FILE  指定环境变量文件（默认: .env）"
-      echo "  --port=PORT      指定端口（默认: 5000）"
-      echo "  --foreground     前台运行（不使用 -d）"
-      echo "  --skip-smoke     跳过部署后 Smoke 测试"
-      echo "  -h, --help       显示帮助"
+    --help)
+      echo "用法: $0 [--port 5000] [--env-file .env]"
       exit 0
       ;;
-    *)              echo "未知参数: $1"; exit 1 ;;
+    *)
+      echo "未知参数: $1" >&2
+      exit 1
+      ;;
   esac
 done
 
-cd "$(dirname "$0")"
+# ─── 预检 ───
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
-echo ""
-echo "=========================================="
-echo "  Docker 运行 — LionetRides"
-echo "  $(date '+%Y-%m-%d %H:%M:%S')"
-echo "=========================================="
-echo ""
-
-# ============================================================
-# 预检
-# ============================================================
-log "预检..."
-
-# 检查镜像是否存在
-if ! sudo docker images "${IMAGE_NAME}:${IMAGE_TAG}" --format '{{.Repository}}' | grep -q "${IMAGE_NAME}"; then
-  fail "镜像 ${IMAGE_NAME}:${IMAGE_TAG} 不存在，请先运行 ./docker-build.sh"
+# 镜像存在性
+if ! docker image inspect "${IMAGE_NAME}" >/dev/null 2>&1; then
+  echo "错误: 镜像 ${IMAGE_NAME} 不存在，请先运行 ./docker-build.sh" >&2
+  exit 1
 fi
-ok "镜像存在"
 
-# 检查环境变量文件
-if [ -z "$ENV_FILE" ]; then
-  if [ -f ".env.local" ]; then
-    ENV_FILE=".env.local"
-  elif [ -f ".env" ]; then
-    ENV_FILE=".env"
+# 环境变量文件查找
+if [ -n "${ENV_FILE}" ]; then
+  if [ ! -f "${ENV_FILE}" ]; then
+    echo "错误: 环境变量文件 ${ENV_FILE} 不存在" >&2
+    exit 1
   fi
+elif [ -f .env.local ]; then
+  ENV_FILE=".env.local"
+elif [ -f .env ]; then
+  ENV_FILE=".env"
 fi
 
-if [ -n "$ENV_FILE" ] && [ -f "$ENV_FILE" ]; then
-  ok "使用环境变量文件: $ENV_FILE"
-  ENV_ARGS="--env-file $ENV_FILE"
-else
-  warn "未找到环境变量文件，请确保通过 -e 传入必要的环境变量"
-  ENV_ARGS=""
+# ─── 停止旧容器（如存在） ───
+if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+  echo "停止旧容器..." >&2
+  docker stop "${CONTAINER_NAME}" >/dev/null 2>&1
+  docker rm "${CONTAINER_NAME}" >/dev/null 2>&1
 fi
 
-# 检查网络是否存在
-if ! sudo docker network ls --format '{{.Name}}' | grep -q "^${NETWORK_NAME}$"; then
-  warn "网络 $NETWORK_NAME 不存在，将使用默认网络"
-  NETWORK_ARGS=""
-else
-  ok "使用网络: $NETWORK_NAME"
-  NETWORK_ARGS="--network $NETWORK_NAME"
+# ── 启动 ───
+echo "========================================" >&2
+echo "Lionet Rides — Docker Run" >&2
+echo "========================================" >&2
+echo "Image:     ${IMAGE_NAME}" >&2
+echo "Container: ${CONTAINER_NAME}" >&2
+echo "App Port:  ${APP_PORT}" >&2
+echo "PG Port:   ${PG_PORT}" >&2
+echo "Env File:  ${ENV_FILE:-none}" >&2
+echo "========================================" >&2
+
+RUN_ARGS=(
+  -d
+  --name "${CONTAINER_NAME}"
+  --restart unless-stopped
+  -p "${APP_PORT}:5000"
+  -p "127.0.0.1:${PG_PORT}:${PG_PORT}"
+  -e "PORT=5000"
+  -e "PGPORT=${PG_PORT}"
+)
+
+if [ -n "${ENV_FILE}" ]; then
+  RUN_ARGS+=(--env-file "${ENV_FILE}")
 fi
 
-echo ""
+RUN_ARGS+=("${IMAGE_NAME}")
 
-# ============================================================
-# 停止旧容器
-# ============================================================
-log "检查旧容器..."
+docker run "${RUN_ARGS[@]}"
 
-if sudo docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
-  sudo docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
-  ok "旧容器已停止并移除"
-fi
-
-echo ""
-
-# ============================================================
-# 启动容器
-# ============================================================
-log "启动容器..."
-
-DOCKER_RUN_ARGS=""
-if [ "$DETACH" = true ]; then
-  DOCKER_RUN_ARGS="-d"
-fi
-
-# 运行容器
-sudo docker run $DOCKER_RUN_ARGS \
-  --name "$CONTAINER_NAME" \
-  -p "${PORT}:5000" \
-  --restart unless-stopped \
-  $NETWORK_ARGS \
-  $ENV_ARGS \
-  "${IMAGE_NAME}:${IMAGE_TAG}"
-
-if [ "$DETACH" = true ]; then
-  echo ""
-  ok "容器已启动"
-  echo ""
-  echo "  容器名: $CONTAINER_NAME"
-  echo "  端口:   $PORT"
-  echo ""
-  echo "  查看日志: sudo docker logs -f $CONTAINER_NAME"
-  echo "  访问应用: http://localhost:$PORT"
-  echo "  停止容器: ./docker-stop.sh"
-  echo ""
-
-  # ─── Smoke 测试 ───
-  if [ "$SKIP_SMOKE" = false ]; then
-    echo ""
-    echo "=========================================="
-    echo "  Smoke 测试"
-    echo "=========================================="
-    echo ""
-    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-    bash "$SCRIPT_DIR/docker-smoke-test.sh" --url="http://localhost:$PORT"
-    SMOKE_EXIT=$?
-    echo ""
-    if [ $SMOKE_EXIT -eq 0 ]; then
-      ok "Smoke 测试全部通过！"
-    else
-      warn "Smoke 测试未完全通过，但容器已启动。请查看日志排查。"
-      warn "   sudo docker logs $CONTAINER_NAME --tail 50"
-    fi
-  fi
-else
-  echo ""
-  ok "容器在前台运行中..."
-  echo "  按 Ctrl+C 停止"
-  echo ""
-fi
+echo "容器已启动: ${CONTAINER_NAME}" >&2
+echo "访问地址: http://localhost:${APP_PORT}" >&2

@@ -1,168 +1,82 @@
 #!/bin/bash
-# ============================================================
-# Docker 构建脚本 — LionetRides
-# 用法: ./docker-build.sh [--clean] [--no-cache] [--push]
-# ============================================================
-set -e
+set -euo pipefail
 
-# ─── 配置 ───
-IMAGE_NAME="lionetrides"
-IMAGE_TAG="latest"
-CONTAINER_NAME="lionetrides-container"
+# ============================================
+# Lionet Rides — Docker Build Script
+# 用法: ./docker-build.sh [--region cn|global|auto] [--no-cache]
+# ============================================
 
-# ─── 颜色 ───
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
-
-log()  { echo -e "${BLUE}[INFO]${NC} $1"; }
-ok()   { echo -e "${GREEN}[OK]${NC} $1"; }
-warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
-fail() { echo -e "${RED}[FAIL]${NC} $1"; exit 1; }
-
-# ─── 参数解析 ───
-CLEAN=false
-NO_CACHE=false
+# ─── 默认值 ───
 DEPLOY_REGION="auto"
+NO_CACHE=""
+PROJECT_NAME="lionetrides"
+PROJECT_VERSION="1.0.0"
+
+# ─── 参数解析（while 循环，禁止 for） ───
 while [ $# -gt 0 ]; do
   case $1 in
-    --clean)       CLEAN=true; shift ;;
-    --no-cache)    NO_CACHE=true; shift ;;
-    --region=*)    DEPLOY_REGION="${1#*=}"; shift ;;
-    --region)      DEPLOY_REGION="$2"; shift 2 ;;
-    -h|--help)
-      echo "用法: ./docker-build.sh [选项]"
-      echo ""
-      echo "选项:"
-      echo "  --clean        构建前清理 Docker 缓存和悬空镜像"
-      echo "  --no-cache     不使用 Docker 缓存（完全重新构建）"
-      echo "  --region=auto  自动检测镜像源（默认）"
-      echo "  --region=cn    强制使用国内镜像源"
-      echo "  --region=global 强制使用官方源"
-      echo "  -h, --help     显示帮助"
+    --region=*)  DEPLOY_REGION="${1#*=}"; shift ;;
+    --region)    DEPLOY_REGION="$2"; shift 2 ;;
+    --no-cache)  NO_CACHE="--no-cache"; shift ;;
+    --help)
+      echo "用法: $0 [--region cn|global|auto] [--no-cache]"
+      echo "  --region    镜像源环境: cn(国内) / global(国际) / auto(自动检测)"
+      echo "  --no-cache  禁用 Docker 缓存"
       exit 0
       ;;
-    *)           echo "未知参数: $1"; exit 1 ;;
+    *)
+      echo "未知参数: $1" >&2
+      exit 1
+      ;;
   esac
 done
 
-cd "$(dirname "$0")"
+# ── 预检 ───
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
-echo ""
-echo "=========================================="
-echo "  Docker 构建 — LionetRides"
-echo "  $(date '+%Y-%m-%d %H:%M:%S')"
-echo "=========================================="
-echo ""
-
-# ============================================================
-# 阶段 1：预检
-# ============================================================
-log "阶段 1/3：预检..."
-
-# 1.1 磁盘空间
-DISK_AVAIL=$(df / --output=avail -BM | tail -1 | tr -d ' M')
-if [ "$DISK_AVAIL" -lt 5120 ]; then
-  warn "磁盘剩余 ${DISK_AVAIL}MB < 5GB，建议先清理"
-  if [ "$CLEAN" = true ]; then
-    log "执行清理..."
-    sudo docker system prune -af --volumes 2>/dev/null || true
-    pnpm store prune 2>/dev/null || true
-    DISK_AVAIL=$(df / --output=avail -BM | tail -1 | tr -d ' M')
-    ok "清理完成，剩余 ${DISK_AVAIL}MB"
-  else
-    warn "加 --clean 参数可自动清理"
-  fi
-else
-  ok "磁盘空间充足: ${DISK_AVAIL}MB"
+# Dockerfile 存在性
+if [ ! -f Dockerfile ]; then
+  echo "错误: Dockerfile 不存在" >&2
+  exit 1
 fi
 
-# 1.2 Docker 服务
-if ! sudo docker info >/dev/null 2>&1; then
-  fail "Docker 服务未运行，执行: sudo systemctl start docker"
-fi
-ok "Docker 服务运行中"
-
-# 1.3 Dockerfile 存在
-if [ ! -f "Dockerfile" ]; then
-  fail "Dockerfile 不存在"
-fi
-ok "Dockerfile 存在"
-
-# 1.4 .dockerignore 存在
-if [ ! -f ".dockerignore" ]; then
-  warn ".dockerignore 不存在，构建上下文可能很大"
-else
-  ok ".dockerignore 存在"
+# Docker 服务状态
+if ! docker info >/dev/null 2>&1; then
+  echo "错误: Docker 服务未运行" >&2
+  exit 1
 fi
 
-# 1.5 node_modules 检查（仅用于宿主机开发环境，Docker 构建使用 deps 阶段安装）
-# Docker 构建不依赖宿主机 node_modules，但保留检查以确保开发环境可用
-if [ ! -d "node_modules" ]; then
-  warn "宿主机 node_modules 不存在（Docker 构建将使用 deps 阶段安装）"
-  log "如需宿主机开发环境，请执行: pnpm install"
-fi
-ok "准备就绪"
-
-echo ""
-
-# ============================================================
-# 阶段 2：构建
-# ============================================================
-log "阶段 2/3：构建镜像..."
-
-BUILD_ARGS=""
-if [ "$NO_CACHE" = true ]; then
-  BUILD_ARGS="--no-cache"
-  log "使用 --no-cache（忽略缓存）"
+# 磁盘空间（≥ 5GB）
+AVAILABLE_GB=$(df -BG . | awk 'NR==2 {gsub("G",""); print $4}')
+if [ "$AVAILABLE_GB" -lt 5 ]; then
+  echo "错误: 磁盘空间不足 (${AVAILABLE_GB}GB < 5GB)" >&2
+  exit 1
 fi
 
-# 计算构建上下文大小
-CONTEXT_SIZE=$(du -sh . --exclude=.git --exclude=.next 2>/dev/null | cut -f1)
-log "构建上下文: $CONTEXT_SIZE"
+# ─── 构建 ──
+GIT_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-# 构建
-BUILD_START=$SECONDS
-log "构建参数: DEPLOY_REGION=${DEPLOY_REGION}"
-sudo docker build --network=host \
-  --build-arg "DEPLOY_REGION=${DEPLOY_REGION}" \
-  --build-arg "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
-  $BUILD_ARGS -t "${IMAGE_NAME}:${IMAGE_TAG}" . 2>&1
-BUILD_ELAPSED=$((SECONDS - BUILD_START))
+echo "========================================" >&2
+echo "Lionet Rides — Docker Build" >&2
+echo "========================================" >&2
+echo "Region:      ${DEPLOY_REGION}" >&2
+echo "Version:     ${PROJECT_VERSION}" >&2
+echo "Git Commit:  ${GIT_COMMIT}" >&2
+echo "Build Date:  ${BUILD_DATE}" >&2
+echo "No Cache:    ${NO_CACHE:-no}" >&2
+echo "========================================" >&2
 
-echo ""
-ok "构建完成！耗时: ${BUILD_ELAPSED}s"
+docker build \
+  --build-arg PROJECT_NAME="${PROJECT_NAME}" \
+  --build-arg PROJECT_VERSION="${PROJECT_VERSION}" \
+  --build-arg BUILD_DATE="${BUILD_DATE}" \
+  --build-arg GIT_COMMIT="${GIT_COMMIT}" \
+  --build-arg DEPLOY_REGION="${DEPLOY_REGION}" \
+  ${NO_CACHE} \
+  -t "${PROJECT_NAME}:${PROJECT_VERSION}" \
+  -t "${PROJECT_NAME}:latest" \
+  .
 
-# 镜像大小
-IMAGE_SIZE=$(sudo docker images "${IMAGE_NAME}:${IMAGE_TAG}" --format "{{.Size}}" 2>/dev/null)
-log "镜像大小: $IMAGE_SIZE"
-
-echo ""
-
-# ============================================================
-# 阶段 3：验证
-# ============================================================
-log "阶段 3/3：验证..."
-
-# 检查镜像是否成功创建
-if sudo docker images "${IMAGE_NAME}:${IMAGE_TAG}" --format '{{.Repository}}' | grep -q "${IMAGE_NAME}"; then
-  ok "镜像创建成功"
-else
-  fail "镜像创建失败"
-fi
-
-echo ""
-echo "=========================================="
-echo "  构建完成"
-echo "=========================================="
-echo ""
-echo "  镜像: ${IMAGE_NAME}:${IMAGE_TAG}"
-echo "  大小: $IMAGE_SIZE"
-echo "  耗时: ${BUILD_ELAPSED}s"
-echo ""
-echo "  运行: ./docker-run.sh"
-echo "  日志: sudo docker logs -f ${CONTAINER_NAME}"
-echo "  访问: http://localhost:3000"
-echo ""
+echo "构建完成: ${PROJECT_NAME}:${PROJECT_VERSION}" >&2
