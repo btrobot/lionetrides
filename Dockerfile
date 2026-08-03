@@ -55,7 +55,12 @@ FROM node:24-bookworm-slim AS builder
 ARG DEPLOY_REGION
 
 COPY scripts/detect-mirror.sh /tmp/detect-mirror.sh
-RUN bash /tmp/detect-mirror.sh ${DEPLOY_REGION:+--force-${DEPLOY_REGION}}
+# 运行检测脚本：cn/global 强制指定，auto 自动检测
+RUN if [ "${DEPLOY_REGION}" = "cn" ] || [ "${DEPLOY_REGION}" = "global" ]; then \
+      bash /tmp/detect-mirror.sh --force-${DEPLOY_REGION}; \
+    else \
+      bash /tmp/detect-mirror.sh; \
+    fi
 
 # corepack 镜像源（根据 DEPLOY_REGION 自动选择）
 RUN if [ "${DEPLOY_REGION}" = "global" ]; then \
@@ -72,7 +77,7 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm run build
-RUN npx tsup src/server.ts --format cjs --platform node --target node20 --outDir dist --no-splitting --no-minify
+RUN pnpm exec tsup src/server.ts --format cjs --platform node --target node20 --outDir dist --no-splitting --no-minify
 
 # 保留完整 node_modules（种子脚本需要 tsx/drizzle-kit），仅清理缓存
 RUN rm -rf .next/cache node_modules/.cache && \
@@ -100,7 +105,12 @@ LABEL maintainer="dev@lionetrides.com"
 
 # ─── 镜像源自动检测 ──────────────────────────────────────
 COPY scripts/detect-mirror.sh /tmp/detect-mirror.sh
-RUN bash /tmp/detect-mirror.sh ${DEPLOY_REGION:+--force-${DEPLOY_REGION}}
+# 运行检测脚本：cn/global 强制指定，auto 自动检测
+RUN if [ "${DEPLOY_REGION}" = "cn" ] || [ "${DEPLOY_REGION}" = "global" ]; then \
+      bash /tmp/detect-mirror.sh --force-${DEPLOY_REGION}; \
+    else \
+      bash /tmp/detect-mirror.sh; \
+    fi
 
 # ─── 安装运行时依赖 ──────────────────────────────────────
 RUN apt-get update -qq && \
@@ -125,7 +135,7 @@ RUN PG_VER=$(pg_lsclusters -h 2>/dev/null | head -1 | awk '{print $1}') && \
     su - postgres -c "pg_ctlcluster ${PG_VER} main start" && \
     sleep 1 && \
     su - postgres -c "psql -c \"ALTER USER postgres PASSWORD 'postgres';\"" && \
-    su - postgres -c "createdb lionetrides" && \
+    su - postgres -c "createdb lionetrides" 2>/dev/null || true && \
     su - postgres -c "pg_ctlcluster ${PG_VER} main stop"
 
 # 启用 pnpm（运行时需要 pnpm exec 执行迁移和种子脚本）
@@ -158,7 +168,8 @@ COPY --chown=node:node --from=builder /app/src/db        ./src/db
 
 # ─── 权限设置（最小权限原则）─────────────────────────────
 RUN chmod 755 docker-entrypoint.sh && \
-    chmod -R 755 .next/static && \
+    find .next/static -type d -exec chmod 755 {} + && \
+    find .next/static -type f -exec chmod 644 {} + && \
     chown -R node:node /app && \
     if [ -f .next/build-manifest.json ]; then chmod 644 .next/build-manifest.json; fi && \
     if [ -f .next/server/app/index.html ]; then chmod 644 .next/server/app/index.html; fi
