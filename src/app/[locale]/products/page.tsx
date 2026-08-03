@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
 import ProductsPage from './page-client';
+import { generatePageSEO } from '@/lib/seo';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -10,10 +11,7 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'meta' });
-  return {
-    title: t('products_title'),
-    description: t('products_description'),
-  };
+  return generatePageSEO(locale, '/products', t('products_title'), t('products_description'));
 }
 
 export default async function Page() {

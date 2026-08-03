@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
 import CategoryDetailPage from './page-client';
+import { generateAlternates, generateCanonical, type Locale } from '@/lib/seo';
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
@@ -10,6 +11,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
   const t = await getTranslations({ locale, namespace: 'meta' });
   const baseUrl = process.env.COZE_PROJECT_DOMAIN_DEFAULT || '';
+  const pagePath = `/categories/${slug}`;
 
   // Try to fetch the category by slug for accurate metadata
   try {
@@ -23,6 +25,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       return {
         title: t('category_detail_title', { name: category.name }),
         description: t('category_detail_description', { name: category.name }),
+        alternates: {
+          canonical: generateCanonical(locale as Locale, pagePath),
+          languages: generateAlternates(pagePath),
+        },
       };
     }
   } catch {
@@ -32,6 +38,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: t('categories_title'),
     description: t('categories_description'),
+    alternates: {
+      canonical: generateCanonical(locale as Locale, pagePath),
+      languages: generateAlternates(pagePath),
+    },
   };
 }
 
