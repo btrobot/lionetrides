@@ -30,17 +30,18 @@ describe('AdminCategories', () => {
     vi.clearAllMocks();
   });
 
-  it('shows loading text while fetching', async () => {
+  it('shows loading skeleton while fetching', async () => {
     mockAuthFetch.mockReturnValueOnce(new Promise(() => {}));
-    render(<AdminCategories />);
-    expect(screen.getByText('加载中...')).toBeInTheDocument();
+    const { container } = render(<AdminCategories />);
+    // The new AdminLoadingSkeleton renders animated pulse divs
+    expect(container.querySelector('.animate-pulse')).toBeInTheDocument();
   });
 
   it('renders empty state when no categories', async () => {
     mockAuthFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { items: [] } }));
     render(<AdminCategories />);
     await waitFor(() => {
-      expect(screen.getByText('暂无分类。')).toBeInTheDocument();
+      expect(screen.getByText('暂无分类')).toBeInTheDocument();
     });
   });
 

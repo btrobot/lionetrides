@@ -47,3 +47,49 @@
 - 禁止使用过于花哨的渐变和装饰元素
 - 禁止使用 emoji 作为 UI 图标（使用 Lucide 图标）
 - 避免科技蓝+圆角卡片的万能模板感，加入工业制造场景的实感
+
+---
+
+## 管理后台设计规范（Admin Panel）
+
+### 设计定位
+内部管理工具，追求专业、高效、精致。灵感源：Linear / Notion / Vercel Dashboard 的极简高效风格，加入工业品牌的深蓝底色。
+
+### 布局
+- **侧边栏**：固定宽 240px，深色渐变背景（from-slate-900 via-blue-950 to-slate-900），白色文字，选中态蓝色高亮
+- **顶栏**：白色背景，移动端显示汉堡菜单 + 品牌名
+- **内容区**：浅灰背景 `#F1F5F9`，内边距 p-6~p-8
+- **卡片**：白色背景，圆角 `rounded-xl`，边框 `border border-gray-100`，阴影 `shadow-sm` hover 提升至 `shadow-md`
+
+### 色彩系统（管理后台）
+- **侧边栏背景**：深蓝渐变 `from-slate-900 via-blue-950 to-slate-900`
+- **侧边栏文字**：白色 `#FFFFFF`，不活跃态 `#94A3B8`
+- **侧边栏活跃**：蓝色 `#3B82F6` 背景，白色文字
+- **内容区背景**：`#F1F5F9` (slate-100)
+- **卡片背景**：纯白 `#FFFFFF`
+- **统计卡片渐变**：蓝 `from-blue-500 to-blue-700`、紫 `from-purple-500 to-purple-700`、青 `from-cyan-500 to-cyan-700`、橙 `from-orange-500 to-orange-700`
+- **表格行 hover**：`hover:bg-blue-50/50` 过渡
+- **状态标签**：pending → 琥珀色、processing → 蓝色、replied → 绿色、closed → 灰色
+
+### 组件规范
+- **统计卡片**：渐变背景 + 白色文字，大号数字 + 图标 + 趋势指示
+- **数据表格**：表头灰色背景 `bg-slate-50`，文字 `text-xs font-semibold text-slate-500 uppercase tracking-wider`，行圆角分隔，hover 蓝色极浅背景
+- **操作按钮**：圆角 `rounded-lg`，图标 + 文字，hover 阴影提升
+- **搜索框**：左侧图标，圆角 `rounded-lg`，边框 `border-slate-200`
+- **分页**：圆角按钮，当前页蓝色填充，hover 灰色背景
+- **弹窗**：去除默认 padding，卡片式内容，顶部品牌色条装饰
+- **空状态**：居中图标 + 灰色文字 + 操作按钮
+
+### 字体与排版
+- **页面标题**：`text-2xl font-bold text-slate-900`
+- **表格表头**：`text-xs font-semibold text-slate-500 uppercase tracking-wider`
+- **表格内容**：`text-sm text-slate-700`
+- **统计数字**：`text-3xl font-bold` 白色
+- **统计标签**：`text-sm font-medium` 白色/80% 透明度
+
+### 动效
+- 侧边栏切换：`duration-200` 平滑过渡
+- 卡片 hover：`shadow-sm` → `shadow-md`，`transition-shadow duration-200`
+- 表格行 hover：背景色 `transition-colors duration-150`
+- 按钮点击：`active:scale-95` 微反馈
+- 加载态：骨架屏或 pulse 动画

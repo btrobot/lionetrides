@@ -5,7 +5,6 @@ import { useAdminAuth } from '@/hooks/use-admin-auth';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
@@ -14,347 +13,150 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Search, RefreshCw, Edit3, Trash2, Eye, EyeOff, AlertTriangle, Calendar, User, FileText } from 'lucide-react';
+import { Plus, Pencil, Trash2, Calendar, User } from 'lucide-react';
+import { AdminPageHeader, AdminCard, AdminLoadingSkeleton } from '@/components/admin/admin-card';
+import { AdminTable, AdminBadge, AdminSearchBar } from '@/components/admin/admin-table';
+import type { Column } from '@/components/admin/admin-table';
 
 interface NewsItem {
-  id: number;
-  title: string;
-  slug: string;
-  summary: string | null;
-  content: string | null;
-  cover_image: string | null;
-  category: string | null;
-  author: string | null;
-  is_published: boolean;
-  published_at: string | null;
+  id: number; title: string; slug: string; summary: string | null;
+  content: string | null; cover_image: string | null; category: string | null;
+  author: string | null; is_published: boolean; published_at: string | null;
   created_at: string;
 }
 
-const CATEGORIES = [
-  { value: 'company', label: '公司新闻' },
-  { value: 'industry', label: '行业动态' },
-  { value: 'technology', label: '技术前沿' },
-];
+interface NewsForm {
+  title: string; slug: string; summary: string; content: string;
+  category: string; author: string; is_published: boolean;
+}
 
-const defaultForm = {
-  title: '',
-  slug: '',
-  summary: '',
-  content: '',
-  cover_image: '',
-  category: 'company',
-  author: '',
-  is_published: false,
-};
+const emptyForm: NewsForm = { title: '', slug: '', summary: '', content: '', category: '', author: '', is_published: false };
 
 export default function AdminNews() {
   const { authFetch } = useAdminAuth();
   const [items, setItems] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('all');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [editing, setEditing] = useState<NewsItem | null>(null);
-  const [form, setForm] = useState(defaultForm);
-  const [deleteConfirm, setDeleteConfirm] = useState<NewsItem | null>(null);
+  const [deleting, setDeleting] = useState<NewsItem | null>(null);
   const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState<NewsForm>(emptyForm);
+  const [search, setSearch] = useState('');
 
   const loadData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({ limit: '20' });
-      if (search) params.set('search', search);
-      if (categoryFilter !== 'all') params.set('category', categoryFilter);
-      const res = await authFetch(`/api/v1/news?${params}`);
-      if (!res) return;
-      const d = await res.json();
-      setItems(d.data?.items ?? d.data ?? []);
-    } catch (e) {
-      console.error('Failed to load news:', e);
-    } finally {
-      setLoading(false);
-    }
-  }, [authFetch, search, categoryFilter]);
-
+    const res = await authFetch('/api/v1/news?limit=50');
+    const d = await res?.json();
+    setItems(d?.data?.items ?? []);
+    setLoading(false);
+  }, [authFetch]);
   useEffect(() => { loadData(); }, [loadData]);
 
-  const openCreate = () => {
-    setEditing(null);
-    setForm({ ...defaultForm, slug: `news-${Date.now()}` });
-    setDialogOpen(true);
-  };
+  const filtered = items.filter((n) => !search || n.title.toLowerCase().includes(search.toLowerCase()));
 
-  const openEdit = (item: NewsItem) => {
+  function openAdd() { setEditing(null); setForm(emptyForm); setDialogOpen(true); }
+  function openEdit(item: NewsItem) {
     setEditing(item);
-    setForm({
-      title: item.title,
-      slug: item.slug,
-      summary: item.summary || '',
-      content: item.content || '',
-      cover_image: item.cover_image || '',
-      category: item.category || 'company',
-      author: item.author || '',
-      is_published: item.is_published,
-    });
+    setForm({ title: item.title, slug: item.slug, summary: item.summary ?? '', content: item.content ?? '', category: item.category ?? '', author: item.author ?? '', is_published: item.is_published });
     setDialogOpen(true);
-  };
+  }
+  function confirmDelete(item: NewsItem) { setDeleting(item); setDeleteOpen(true); }
 
-  const saveItem = async () => {
-    if (!form.title.trim() || !form.slug.trim()) return;
+  async function handleSave() {
+    if (!form.title.trim()) { toast.error('请输入新闻标题'); return; }
     setSaving(true);
     try {
+      const body = { ...form, slug: form.slug.trim() || form.title.trim().toLowerCase().replace(/\s+/g, '-') };
       if (editing) {
-        const res = await authFetch(`/api/v1/news/${editing.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(form),
-        });
-        if (!res) return;
-        await res.json();
+        const res = await authFetch(`/api/v1/news/${editing.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        if (!res?.ok) { const e = await res?.json(); throw new Error(e?.error || '保存失败'); }
         toast.success('新闻已更新');
       } else {
-        const res = await authFetch('/api/v1/news', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(form),
-        });
-        if (!res) return;
-        await res.json();
+        const res = await authFetch('/api/v1/news', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        if (!res?.ok) { const e = await res?.json(); throw new Error(e?.error || '创建失败'); }
         toast.success('新闻已创建');
       }
-      setDialogOpen(false);
-      loadData();
-    } catch (e) {
-      console.error('Failed to save news:', e);
-      toast.error('保存失败');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const deleteItem = async () => {
-    if (!deleteConfirm) return;
-    setSaving(true);
-    try {
-      await authFetch(`/api/v1/news/${deleteConfirm.id}`, { method: 'DELETE' });
-      setItems(prev => prev.filter(i => i.id !== deleteConfirm.id));
-      setDeleteConfirm(null);
-      toast.success('新闻已删除');
-    } catch (e) {
-      console.error('Failed to delete news:', e);
-      toast.error('删除失败');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const togglePublish = async (item: NewsItem) => {
-    try {
-      const res = await authFetch(`/api/v1/news/${item.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_published: !item.is_published }),
-      });
-      if (!res) return;
-      const d = await res.json();
-      if (d.success) {
-        setItems(prev => prev.map(i => i.id === item.id ? { ...i, is_published: !item.is_published } : i));
-        toast.success(item.is_published ? '新闻已下架' : '新闻已发布');
-      }
-    } catch (e) {
-      console.error('Failed to toggle publish:', e);
-      toast.error('发布状态切换失败');
-    }
-  };
-
-  const generateSlug = (title: string) => {
-    const slug = title.toLowerCase()
-      .replace(/[^a-z0-9\u4e00-\u9fa5]+/g, '-')
-      .replace(/^-|-$/g, '')
-      .slice(0, 100);
-    setForm(p => ({ ...p, slug }));
-  };
-
-  if (loading) {
-    return (
-      <div className="space-y-4 p-6">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-10 w-full" />
-        {[1,2,3,4,5].map(i => <Skeleton key={i} className="h-20 w-full" />)}
-      </div>
-    );
+      setDialogOpen(false); loadData();
+    } catch (err) { toast.error(err instanceof Error ? err.message : '操作失败'); } finally { setSaving(false); }
   }
 
+  async function handleDelete() {
+    if (!deleting) return;
+    setSaving(true);
+    try {
+      const res = await authFetch(`/api/v1/news/${deleting.id}`, { method: 'DELETE' });
+      if (!res?.ok) { const e = await res?.json(); throw new Error(e?.error || '删除失败'); }
+      toast.success('新闻已删除'); setDeleteOpen(false); setDeleting(null); loadData();
+    } catch (err) { toast.error(err instanceof Error ? err.message : '删除失败'); } finally { setSaving(false); }
+  }
+
+  const columns: Column<NewsItem>[] = [
+    { key: 'title', header: '标题', render: (n) => <span className="font-medium text-slate-900">{n.title}</span> },
+    { key: 'category', header: '分类', render: (n) => <span className="text-slate-500 text-xs">{n.category || '—'}</span> },
+    { key: 'author', header: '作者', render: (n) => <span className="text-slate-500 text-xs flex items-center gap-1"><User className="w-3 h-3" />{n.author || '—'}</span> },
+    { key: 'published', header: '状态', render: (n) => <AdminBadge status={n.is_published ? 'published' : 'draft'} label={n.is_published ? '已发布' : '草稿'} />, className: 'text-center' },
+    { key: 'date', header: '日期', render: (n) => <span className="text-slate-500 text-xs flex items-center gap-1"><Calendar className="w-3 h-3" />{new Date(n.created_at).toLocaleDateString('zh-CN')}</span> },
+    {
+      key: 'actions', header: '操作', className: 'text-center',
+      render: (n) => (
+        <div className="flex items-center justify-center gap-1">
+          <button onClick={() => openEdit(n)} className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"><Pencil className="w-4 h-4" /></button>
+          <button onClick={() => confirmDelete(n)} className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
+        </div>
+      ),
+    },
+  ];
+
+  if (loading) return <AdminLoadingSkeleton rows={5} />;
+
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">新闻管理</h1>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={loadData}>
-            <RefreshCw className="h-4 w-4 mr-1" /> 刷新
-          </Button>
-          <Button size="sm" onClick={openCreate}>
-            <Plus className="h-4 w-4 mr-1" /> 新建新闻
-          </Button>
-        </div>
-      </div>
+    <div>
+      <AdminPageHeader title="新闻管理" description="管理行业资讯与公司动态" actions={<Button onClick={openAdd} className="bg-blue-600 hover:bg-blue-700"><Plus className="w-4 h-4 mr-2" />新增新闻</Button>} />
+      <AdminCard padding={false}>
+        <div className="p-4 border-b border-slate-100"><AdminSearchBar value={search} onChange={setSearch} placeholder="搜索新闻标题..." className="max-w-xs" /></div>
+        <AdminTable columns={columns} data={filtered} keyField="id" emptyText="暂无新闻" />
+      </AdminCard>
 
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-10" placeholder="搜索新闻标题..." value={search} onChange={e => setSearch(e.target.value)} />
-        </div>
-        <select
-          className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-          value={categoryFilter}
-          onChange={e => setCategoryFilter(e.target.value)}
-        >
-          <option value="all">全部分类</option>
-          {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-        </select>
-      </div>
-
-      {items.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          <p>暂无新闻</p>
-          <Button variant="outline" size="sm" className="mt-4" onClick={openCreate}>创建第一篇新闻</Button>
-        </div>
-      ) : (
-        <div className="border rounded-lg overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-muted/50">
-              <tr className="text-left text-sm font-medium text-muted-foreground">
-                <th className="py-3 px-4">标题</th>
-                <th className="py-3 px-4 hidden md:table-cell">分类</th>
-                <th className="py-3 px-4 hidden lg:table-cell">作者</th>
-                <th className="py-3 px-4">状态</th>
-                <th className="py-3 px-4 hidden sm:table-cell">时间</th>
-                <th className="py-3 px-4 text-right">操作</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {items.map(item => (
-                <tr key={item.id} className="hover:bg-muted/30 transition-colors">
-                  <td className="py-3 px-4">
-                    <div className="font-medium">{item.title}</div>
-                    <div className="text-xs text-muted-foreground truncate max-w-[300px]">{item.slug}</div>
-                  </td>
-                  <td className="py-3 px-4 hidden md:table-cell">
-                    <Badge variant="outline">{CATEGORIES.find(c => c.value === item.category)?.label || item.category}</Badge>
-                  </td>
-                  <td className="py-3 px-4 hidden lg:table-cell text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1"><User className="h-3 w-3" /> {item.author || '-'}</div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <Badge variant={item.is_published ? 'default' : 'secondary'}>
-                      {item.is_published ? '已发布' : '草稿'}
-                    </Badge>
-                  </td>
-                  <td className="py-3 px-4 hidden sm:table-cell text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {new Date(item.created_at).toLocaleDateString('zh-CN')}</div>
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => togglePublish(item)}>
-                        {item.is_published ? <EyeOff className="h-4 w-4 text-orange-500" /> : <Eye className="h-4 w-4 text-green-500" />}
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => openEdit(item)}>
-                        <Edit3 className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(item)}>
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{editing ? '编辑新闻' : '新建新闻'}</DialogTitle>
-            <DialogDescription>{editing ? `ID: ${editing.id}` : '创建一篇新新闻文章'}</DialogDescription>
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-t-lg" />
+          <DialogHeader className="pt-2">
+            <DialogTitle>{editing ? '编辑新闻' : '新增新闻'}</DialogTitle>
+            <DialogDescription>{editing ? '修改新闻信息' : '填写新新闻信息'}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 max-h-[60vh] overflow-y-auto">
             <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
-                <label className="text-sm font-medium">标题 *</label>
-                <Input value={form.title} onChange={e => { setForm(p => ({ ...p, title: e.target.value })); generateSlug(e.target.value); }} placeholder="新闻标题" />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Slug *</label>
-                <Input value={form.slug} onChange={e => setForm(p => ({ ...p, slug: e.target.value }))} placeholder="news-slug" />
-              </div>
-              <div>
-                <label className="text-sm font-medium">分类</label>
-                <select
-                  className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-                  value={form.category}
-                  onChange={e => setForm(p => ({ ...p, category: e.target.value }))}
-                >
-                  {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-                </select>
-              </div>
-              <div className="col-span-2">
-                <label className="text-sm font-medium">摘要</label>
-                <Textarea value={form.summary} onChange={e => setForm(p => ({ ...p, summary: e.target.value }))} rows={2} placeholder="文章摘要..." />
-              </div>
-              <div className="col-span-2">
-                <label className="text-sm font-medium">内容</label>
-                <Textarea value={form.content} onChange={e => setForm(p => ({ ...p, content: e.target.value }))} rows={8} placeholder="文章内容..." />
-              </div>
-              <div>
-                <label className="text-sm font-medium">封面图片 URL</label>
-                <Input value={form.cover_image} onChange={e => setForm(p => ({ ...p, cover_image: e.target.value }))} placeholder="https://..." />
-              </div>
-              <div>
-                <label className="text-sm font-medium">作者</label>
-                <Input value={form.author} onChange={e => setForm(p => ({ ...p, author: e.target.value }))} placeholder="作者名" />
-              </div>
-              <div className="col-span-2 flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="is_published"
-                  checked={form.is_published}
-                  onChange={e => setForm(p => ({ ...p, is_published: e.target.checked }))}
-                  className="h-4 w-4 rounded border-gray-300"
-                />
-                <label htmlFor="is_published" className="text-sm">发布</label>
-              </div>
+              <div className="space-y-2"><label className="text-xs font-medium text-slate-700">标题 *</label><Input value={form.title} onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))} placeholder="新闻标题" /></div>
+              <div className="space-y-2"><label className="text-xs font-medium text-slate-700">Slug</label><Input value={form.slug} onChange={(e) => setForm(f => ({ ...f, slug: e.target.value }))} placeholder="自动生成" /></div>
             </div>
-            <div className="flex justify-end gap-2 pt-2 border-t">
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>取消</Button>
-              <Button onClick={saveItem} disabled={saving || !form.title.trim() || !form.slug.trim()}>
-                {saving ? '保存中...' : (editing ? '保存修改' : '创建')}
-              </Button>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2"><label className="text-xs font-medium text-slate-700">分类</label><Input value={form.category} onChange={(e) => setForm(f => ({ ...f, category: e.target.value }))} placeholder="行业动态" /></div>
+              <div className="space-y-2"><label className="text-xs font-medium text-slate-700">作者</label><Input value={form.author} onChange={(e) => setForm(f => ({ ...f, author: e.target.value }))} placeholder="作者名" /></div>
             </div>
+            <div className="space-y-2"><label className="text-xs font-medium text-slate-700">摘要</label><Textarea value={form.summary} onChange={(e) => setForm(f => ({ ...f, summary: e.target.value }))} placeholder="新闻摘要" rows={2} /></div>
+            <div className="space-y-2"><label className="text-xs font-medium text-slate-700">内容 (Markdown)</label><Textarea value={form.content} onChange={(e) => setForm(f => ({ ...f, content: e.target.value }))} placeholder="新闻内容..." rows={8} /></div>
+            <label className="flex items-center gap-2 text-sm text-slate-700">
+              <input type="checkbox" checked={form.is_published} onChange={(e) => setForm(f => ({ ...f, is_published: e.target.checked }))} className="rounded border-slate-300" />
+              发布
+            </label>
+          </div>
+          <div className="flex justify-end gap-3 mt-4">
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>取消</Button>
+            <Button onClick={handleSave} disabled={saving} className="bg-blue-600 hover:bg-blue-700">{saving ? '保存中...' : editing ? '保存修改' : '创建'}</Button>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation */}
-      <AlertDialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-red-500" /> 确认删除新闻
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              确定要删除「{deleteConfirm?.title}」吗？该操作不可恢复。
-            </AlertDialogDescription>
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 to-red-600 rounded-t-lg" />
+          <AlertDialogHeader className="pt-2">
+            <AlertDialogTitle>确认删除</AlertDialogTitle>
+            <AlertDialogDescription>确定要删除新闻「<span className="font-medium text-slate-900">{deleting?.title}</span>」吗？</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
-            <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={deleteItem} disabled={saving}>
-              {saving ? '删除中...' : '确认删除'}
-            </AlertDialogAction>
+            <AlertDialogCancel onClick={() => setDeleting(null)}>取消</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">删除</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

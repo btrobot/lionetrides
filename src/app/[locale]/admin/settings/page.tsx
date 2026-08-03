@@ -5,20 +5,19 @@ import { usePathname } from 'next/navigation';
 import { Loader2, Save, RefreshCw, Code } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAdminAuth } from '@/hooks/use-admin-auth';
+import { AdminPageHeader, AdminCard, AdminLoadingSkeleton } from '@/components/admin/admin-card';
 import type { Locale } from '@/i18n/routing';
 
 type FullSetting = {
-  id: number;
-  key: string;
-  value: string | null;
-  locale: string;
-  type: string;
-  section: string;
-  label: string | null;
-  sortOrder: number | null;
+  id: number; key: string; value: string | null; locale: string;
+  type: string; section: string; label: string | null; sortOrder: number | null;
 };
 
 const SECTION_ORDER = ['brand', 'contact', 'social', 'seo', 'home', 'about'];
+const SECTION_LABELS: Record<string, string> = {
+  brand: '品牌', contact: '联系方式', social: '社交媒体',
+  seo: 'SEO', home: '首页', about: '关于我们',
+};
 
 export default function AdminSettings() {
   const pathname = usePathname();
@@ -40,36 +39,24 @@ export default function AdminSettings() {
       const data = await res.json();
       if (data.success) {
         const items = data.data as FullSetting[];
-        // Reorder: ensure brand section comes first for the active tab
         const sorted = [...items].sort((a, b) => {
           const ai = SECTION_ORDER.indexOf(a.section);
           const bi = SECTION_ORDER.indexOf(b.section);
           return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi) || (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
         });
         setSettings(sorted);
-        if (sorted.length > 0) {
-          setActiveSection(sorted[0].section);
-        }
+        if (sorted.length > 0) setActiveSection(sorted[0].section);
       }
     } catch (err) {
       console.error('Failed to load settings:', err);
-      setError('Failed to load settings');
-    } finally {
-      setLoading(false);
-    }
+      setError('加载设置失败');
+    } finally { setLoading(false); }
   }, []);
 
-  useEffect(() => {
-    fetchSettings();
-  }, [fetchSettings]);
+  useEffect(() => { fetchSettings(); }, [fetchSettings]);
 
-  // Auto-detect sections from data
   const sections = Array.from(new Set(settings.map(s => s.section)))
-    .sort((a, b) => {
-      const ai = SECTION_ORDER.indexOf(a);
-      const bi = SECTION_ORDER.indexOf(b);
-      return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
-    });
+    .sort((a, b) => { const ai = SECTION_ORDER.indexOf(a); const bi = SECTION_ORDER.indexOf(b); return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi); });
 
   const handleChange = (key: string, value: string) => {
     setSettings(prev => prev.map(s => s.key === key ? { ...s, value } : s));
@@ -81,241 +68,122 @@ export default function AdminSettings() {
     setSaved(false);
     setError(null);
     try {
-      const filtered = activeSection
-        ? settings.filter(s => s.section === activeSection)
-        : settings;
-
+      const filtered = activeSection ? settings.filter(s => s.section === activeSection) : settings;
       for (const setting of filtered) {
         const res = await authFetch('/api/v1/site-settings/update', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            key: setting.key,
-            value: setting.value ?? '',
-            locale: currentLocale === 'zh' ? 'zh' : 'en',
-            type: setting.type,
-            section: setting.section,
-            label: setting.label,
-            sortOrder: setting.sortOrder,
-          }),
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: setting.key, value: setting.value ?? '', locale: currentLocale === 'zh' ? 'zh' : 'en', type: setting.type, section: setting.section, label: setting.label, sortOrder: setting.sortOrder }),
         });
         if (!res) continue;
         const data = await res.json();
-        if (!data.success) {
-          setError(`Failed to save ${setting.key}`);
-        }
+        if (!data.success) setError(`保存 ${setting.key} 失败`);
       }
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
       console.error('Failed to save settings:', err);
-      setError('Network error while saving');
-    } finally {
-      setSaving(false);
-    }
+      setError('网络错误');
+    } finally { setSaving(false); }
   };
 
   const handleJsonEdit = (key: string, currentValue: string | null) => {
-    try {
-      const parsed = JSON.parse(currentValue ?? '[]');
-      setJsonEditor(JSON.stringify(parsed, null, 2));
-    } catch {
-      setJsonEditor(currentValue ?? '[]');
-    }
+    try { const parsed = JSON.parse(currentValue ?? '[]'); setJsonEditor(JSON.stringify(parsed, null, 2)); }
+    catch { setJsonEditor(currentValue ?? '[]'); }
   };
 
   const handleJsonSave = (key: string) => {
     if (jsonEditor === null) return;
-    try {
-      // Validate JSON
-      JSON.parse(jsonEditor);
-      handleChange(key, jsonEditor);
-      setJsonEditor(null);
-    } catch {
-      // Invalid JSON, keep editor open
-      alert('Invalid JSON format. Please check your syntax.');
-    }
+    try { JSON.parse(jsonEditor); handleChange(key, jsonEditor); setJsonEditor(null); }
+    catch { alert('JSON 格式无效，请检查语法'); }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-      </div>
-    );
-  }
+  if (loading) return <AdminLoadingSkeleton rows={6} />;
 
   const filteredSettings = settings.filter(s => s.section === activeSection);
 
   const renderField = (setting: FullSetting) => {
-    const isJson = setting.type === 'json' || (
-      typeof setting.value === 'string' &&
-      (setting.value.startsWith('[') || setting.value.startsWith('{'))
-    );
-
+    const isJson = setting.type === 'json' || (typeof setting.value === 'string' && (setting.value.startsWith('[') || setting.value.startsWith('{')));
     if (isJson) {
       const isEditing = jsonEditor !== null;
-      return (
+      return isEditing ? (
         <div className="space-y-2">
-          {isEditing ? (
-            <div className="space-y-2">
-              <textarea
-                value={jsonEditor}
-                onChange={(e) => setJsonEditor(e.target.value)}
-                rows={10}
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-xs font-mono focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-              />
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleJsonSave(setting.key)}
-                >
-                  Save JSON
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setJsonEditor(null)}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-start gap-2">
-              <div className="flex-1">
-                <div className="bg-gray-50 rounded-lg p-3 text-xs font-mono text-gray-600 whitespace-pre-wrap max-h-32 overflow-y-auto">
-                  {setting.value ?? '[]'}
-                </div>
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleJsonEdit(setting.key, setting.value)}
-                className="shrink-0"
-              >
-                <Code className="h-3.5 w-3.5 mr-1" />
-                Edit JSON
-              </Button>
-            </div>
-          )}
+          <textarea value={jsonEditor} onChange={(e) => setJsonEditor(e.target.value)} rows={10}
+            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-mono focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100" />
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => handleJsonSave(setting.key)}>保存 JSON</Button>
+            <Button size="sm" variant="ghost" onClick={() => setJsonEditor(null)}>取消</Button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-start gap-2">
+          <div className="flex-1 bg-slate-50 rounded-lg p-3 text-xs font-mono text-slate-600 whitespace-pre-wrap max-h-32 overflow-y-auto">{setting.value ?? '[]'}</div>
+          <Button size="sm" variant="outline" onClick={() => handleJsonEdit(setting.key, setting.value)} className="shrink-0"><Code className="h-3.5 w-3.5 mr-1" />编辑 JSON</Button>
         </div>
       );
     }
-
     if (setting.type === 'image' || (setting.value && (setting.value.startsWith('http') && (setting.value.endsWith('.png') || setting.value.endsWith('.jpg') || setting.value.endsWith('.svg'))))) {
       return (
         <div className="space-y-2">
-          <input
-            type="text"
-            value={setting.value ?? ''}
-            onChange={(e) => handleChange(setting.key, e.target.value)}
-            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-            placeholder="https://..."
-          />
-          {setting.value && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={setting.value}
-              alt={setting.label ?? setting.key}
-              className="h-10 w-auto object-contain"
-            />
-          )}
+          <input type="text" value={setting.value ?? ''} onChange={(e) => handleChange(setting.key, e.target.value)}
+            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100" placeholder="https://..." />
+          {setting.value && <img src={setting.value} alt={setting.label ?? setting.key} className="h-10 w-auto object-contain" />}
         </div>
       );
     }
-
     const isLongText = (setting.value?.length ?? 0) > 80;
-    if (isLongText) {
-      return (
-        <textarea
-          value={setting.value ?? ''}
-          onChange={(e) => handleChange(setting.key, e.target.value)}
-          rows={3}
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-        />
-      );
-    }
-
-    return (
-      <input
-        type="text"
-        value={setting.value ?? ''}
-        onChange={(e) => handleChange(setting.key, e.target.value)}
-        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-      />
+    return isLongText ? (
+      <textarea value={setting.value ?? ''} onChange={(e) => handleChange(setting.key, e.target.value)} rows={3}
+        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100" />
+    ) : (
+      <input type="text" value={setting.value ?? ''} onChange={(e) => handleChange(setting.key, e.target.value)}
+        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100" />
     );
   };
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">站点设置</h1>
-        <div className="flex items-center gap-3">
-          {error && (
-            <span className="text-sm text-red-600 font-medium">{error}</span>
-          )}
-          {saved && (
-            <span className="text-sm text-green-600 font-medium">✓ 已保存</span>
-          )}
-          <Button variant="outline" size="sm" onClick={fetchSettings}>
-            <RefreshCw className="h-4 w-4 mr-1" />
-            Refresh
-          </Button>
-          <Button size="sm" onClick={handleSave} disabled={saving}>
-            {saving ? (
-              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-            ) : (
-              <Save className="h-4 w-4 mr-1" />
-            )}
-            {'保存'}
+      <AdminPageHeader title="系统设置" description="管理站点配置、品牌信息和 SEO 设置">
+        <div className="flex items-center gap-2">
+          {error && <span className="text-xs text-red-500 font-medium">{error}</span>}
+          {saved && <span className="text-xs text-emerald-600 font-medium">✓ 已保存</span>}
+          <Button variant="outline" size="sm" onClick={fetchSettings}><RefreshCw className="h-3.5 w-3.5 mr-1" />刷新</Button>
+          <Button size="sm" onClick={handleSave} disabled={saving} className="bg-blue-600 hover:bg-blue-700">
+            {saving ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Save className="h-3.5 w-3.5 mr-1" />}
+            保存
           </Button>
         </div>
-      </div>
+      </AdminPageHeader>
 
       {/* Section Tabs */}
-      <div className="flex gap-1 mb-6 border-b border-gray-200 overflow-x-auto">
+      <div className="flex gap-1 mb-6 border-b border-slate-200 overflow-x-auto">
         {sections.map(section => (
-          <button
-            key={section}
-            onClick={() => { setActiveSection(section); setJsonEditor(null); }}
+          <button key={section} onClick={() => { setActiveSection(section); setJsonEditor(null); }}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-              activeSection === section
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {section === 'brand' ? '品牌'
-              : section === 'contact' ? '联系方式'
-              : section === 'social' ? '社交媒体'
-              : section === 'seo' ? 'SEO'
-              : section === 'home' ? '首页'
-              : section === 'about' ? '关于我们'
-              : section}
-            <span className="ml-1.5 text-xs text-gray-400">
-              ({filteredSettings.length})
-            </span>
+              activeSection === section ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}>
+            {SECTION_LABELS[section] || section}
+            <span className="ml-1.5 text-xs text-slate-400">({settings.filter(s => s.section === section).length})</span>
           </button>
         ))}
       </div>
 
-      {/* Settings Form */}
-      <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-6">
+      <AdminCard>
         {filteredSettings.length === 0 ? (
-          <p className="text-gray-400 text-center py-8">此部分暂无设置项</p>
+          <p className="text-slate-400 text-center py-8">此部分暂无设置项</p>
         ) : (
-          filteredSettings.map(setting => (
-            <div key={setting.key}>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                {setting.label ?? setting.key}
-                <span className="ml-2 text-xs text-gray-400 font-mono">{setting.key}</span>
-              </label>
-              {renderField(setting)}
-            </div>
-          ))
+          <div className="space-y-6">
+            {filteredSettings.map(setting => (
+              <div key={setting.key}>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                  {setting.label ?? setting.key}
+                  <span className="ml-2 text-xs text-slate-400 font-mono">{setting.key}</span>
+                </label>
+                {renderField(setting)}
+              </div>
+            ))}
+          </div>
         )}
-      </div>
+      </AdminCard>
     </div>
   );
 }

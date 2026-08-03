@@ -5,27 +5,16 @@ import { useAdminAuth } from '@/hooks/use-admin-auth';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Search, RefreshCw, UserCheck, UserX, AlertTriangle, Edit3, Mail, Phone, Building2, Calendar } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { AdminPageHeader, AdminCard, AdminLoadingSkeleton } from '@/components/admin/admin-card';
+import { AdminTable, AdminBadge, AdminSearchBar, AdminPagination } from '@/components/admin/admin-table';
+import type { Column } from '@/components/admin/admin-table';
 
 interface Customer {
-  id: number;
-  name: string | null;
-  email: string;
-  phone: string | null;
-  company: string | null;
-  role: string;
-  isActive: boolean;
-  createdAt: string;
-  lastLoginAt: string | null;
+  id: number; name: string | null; email: string; phone: string | null;
+  company: string | null; role: string; isActive: boolean;
+  createdAt: string; lastLoginAt: string | null;
 }
 
 export default function AdminCustomers() {
@@ -36,7 +25,6 @@ export default function AdminCustomers() {
   const [selected, setSelected] = useState<Customer | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [editForm, setEditForm] = useState({ name: '', phone: '', company: '' });
-  const [deleteConfirm, setDeleteConfirm] = useState<Customer | null>(null);
   const [saving, setSaving] = useState(false);
 
   const loadData = useCallback(async () => {
@@ -48,13 +36,9 @@ export default function AdminCustomers() {
       if (!res) return;
       const d = await res.json();
       setCustomers(d.data?.items ?? []);
-    } catch (e) {
-      console.error('Failed to load customers:', e);
-    } finally {
-      setLoading(false);
-    }
+    } catch (e) { console.error('Failed to load customers:', e);
+    } finally { setLoading(false); }
   }, [authFetch, search]);
-
   useEffect(() => { loadData(); }, [loadData]);
 
   const openEdit = (customer: Customer) => {
@@ -68,9 +52,7 @@ export default function AdminCustomers() {
     setSaving(true);
     try {
       const res = await authFetch(`/api/v1/customers/${selected.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editForm),
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(editForm),
       });
       if (!res) return;
       const d = await res.json();
@@ -79,21 +61,15 @@ export default function AdminCustomers() {
         setEditOpen(false);
         toast.success('客户信息已更新');
       }
-    } catch (e) {
-      console.error('Failed to update customer:', e);
-      toast.error('更新失败');
-    } finally {
-      setSaving(false);
-    }
+    } catch (e) { toast.error('更新失败');
+    } finally { setSaving(false); }
   };
 
   const toggleActive = async (customer: Customer) => {
     setSaving(true);
     try {
       const res = await authFetch(`/api/v1/customers/${customer.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isActive: !customer.isActive }),
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ isActive: !customer.isActive }),
       });
       if (!res) return;
       const d = await res.json();
@@ -101,120 +77,54 @@ export default function AdminCustomers() {
         setCustomers(prev => prev.map(c => c.id === customer.id ? { ...c, isActive: !customer.isActive } : c));
         toast.success(customer.isActive ? '客户已禁用' : '客户已启用');
       }
-    } catch (e) {
-      console.error('Failed to toggle customer status:', e);
-      toast.error('状态切换失败');
-    } finally {
-      setSaving(false);
-    }
+    } catch (e) { toast.error('状态切换失败');
+    } finally { setSaving(false); }
   };
 
-  if (loading) {
-    return (
-      <div className="space-y-4 p-6">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-10 w-full" />
-        {[1,2,3,4,5].map(i => <Skeleton key={i} className="h-16 w-full" />)}
-      </div>
-    );
-  }
+  const columns: Column<Customer>[] = [
+    { key: 'name', header: '姓名', render: (c) => <span className="font-medium text-slate-900">{c.name || '—'}</span> },
+    { key: 'email', header: '邮箱', render: (c) => <span className="text-slate-600 text-xs">{c.email}</span> },
+    { key: 'company', header: '公司', render: (c) => <span className="text-slate-500 text-xs">{c.company || '—'}</span> },
+    { key: 'status', header: '状态', render: (c) => <AdminBadge status={c.isActive ? 'active' : 'inactive'} label={c.isActive ? '活跃' : '禁用'} />, className: 'text-center' },
+    { key: 'date', header: '注册时间', render: (c) => <span className="text-slate-500 text-xs">{new Date(c.createdAt).toLocaleDateString('zh-CN')}</span> },
+    {
+      key: 'actions', header: '操作', className: 'text-center',
+      render: (c) => (
+        <div className="flex items-center justify-center gap-1">
+          <button onClick={() => openEdit(c)} className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors text-xs">编辑</button>
+          <button onClick={() => toggleActive(c)} className={`p-1.5 rounded-lg text-xs transition-colors ${c.isActive ? 'hover:bg-red-50 text-red-500' : 'hover:bg-emerald-50 text-emerald-600'}`}>
+            {c.isActive ? '禁用' : '启用'}
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  if (loading) return <AdminLoadingSkeleton rows={8} />;
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">客户管理</h1>
-        <Button variant="outline" size="sm" onClick={loadData}>
-          <RefreshCw className="h-4 w-4 mr-1" /> 刷新
-        </Button>
-      </div>
+    <div>
+      <AdminPageHeader title="客户管理" description="管理注册客户信息" />
+      <div className="mb-4"><AdminSearchBar value={search} onChange={setSearch} placeholder="搜索客户姓名/邮箱/公司..." className="max-w-xs" /></div>
+      <AdminCard padding={false}>
+        <AdminTable columns={columns} data={customers} keyField="id" emptyText="暂无客户" />
+      </AdminCard>
 
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          className="pl-10"
-          placeholder="搜索客户姓名或邮箱..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
-      </div>
-
-      {customers.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          <UserCheck className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          <p>暂无客户</p>
-        </div>
-      ) : (
-        <div className="border rounded-lg overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-muted/50">
-              <tr className="text-left text-sm font-medium text-muted-foreground">
-                <th className="py-3 px-4">客户</th>
-                <th className="py-3 px-4 hidden md:table-cell">联系方式</th>
-                <th className="py-3 px-4">状态</th>
-                <th className="py-3 px-4 hidden sm:table-cell">注册时间</th>
-                <th className="py-3 px-4 text-right">操作</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {customers.map(customer => (
-                <tr key={customer.id} className="hover:bg-muted/30 transition-colors">
-                  <td className="py-3 px-4">
-                    <div className="font-medium">{customer.name || '未填写'}</div>
-                    <div className="text-xs text-muted-foreground">{customer.email}</div>
-                  </td>
-                  <td className="py-3 px-4 hidden md:table-cell">
-                    {customer.phone && <div className="flex items-center gap-1 text-sm"><Phone className="h-3 w-3" /> {customer.phone}</div>}
-                    {customer.company && <div className="flex items-center gap-1 text-sm text-muted-foreground"><Building2 className="h-3 w-3" /> {customer.company}</div>}
-                  </td>
-                  <td className="py-3 px-4">
-                    <Badge variant={customer.isActive ? 'default' : 'secondary'}>
-                      {customer.isActive ? '正常' : '禁用'}
-                    </Badge>
-                  </td>
-                  <td className="py-3 px-4 hidden sm:table-cell text-sm text-muted-foreground">
-                    {customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('zh-CN') : '-'}
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => openEdit(customer)}>
-                        <Edit3 className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => toggleActive(customer)} disabled={saving}>
-                        {customer.isActive ? <UserX className="h-4 w-4 text-orange-500" /> : <UserCheck className="h-4 w-4 text-green-500" />}
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Edit Dialog */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent>
-          <DialogHeader>
+        <DialogContent className="max-w-md">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-t-lg" />
+          <DialogHeader className="pt-2">
             <DialogTitle>编辑客户信息</DialogTitle>
-            <DialogDescription>{selected?.email}</DialogDescription>
+            <DialogDescription>修改客户基本资料</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">姓名</label>
-              <Input value={editForm.name} onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))} />
-            </div>
-            <div>
-              <label className="text-sm font-medium">电话</label>
-              <Input value={editForm.phone} onChange={e => setEditForm(p => ({ ...p, phone: e.target.value }))} />
-            </div>
-            <div>
-              <label className="text-sm font-medium">公司</label>
-              <Input value={editForm.company} onChange={e => setEditForm(p => ({ ...p, company: e.target.value }))} />
-            </div>
-            <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" onClick={() => setEditOpen(false)}>取消</Button>
-              <Button onClick={saveEdit} disabled={saving}>{saving ? '保存中...' : '保存'}</Button>
-            </div>
+            <div className="space-y-2"><Label className="text-xs font-medium text-slate-700">姓名</Label><Input value={editForm.name} onChange={(e) => setEditForm(f => ({ ...f, name: e.target.value }))} /></div>
+            <div className="space-y-2"><Label className="text-xs font-medium text-slate-700">电话</Label><Input value={editForm.phone} onChange={(e) => setEditForm(f => ({ ...f, phone: e.target.value }))} /></div>
+            <div className="space-y-2"><Label className="text-xs font-medium text-slate-700">公司</Label><Input value={editForm.company} onChange={(e) => setEditForm(f => ({ ...f, company: e.target.value }))} /></div>
+          </div>
+          <div className="flex justify-end gap-3 mt-4">
+            <Button variant="outline" onClick={() => setEditOpen(false)}>取消</Button>
+            <Button onClick={saveEdit} disabled={saving} className="bg-blue-600 hover:bg-blue-700">保存</Button>
           </div>
         </DialogContent>
       </Dialog>
