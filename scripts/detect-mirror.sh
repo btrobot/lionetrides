@@ -23,9 +23,9 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
-info()  { echo -e "${BLUE}[detect]${NC} $1"; }
-ok()    { echo -e "${GREEN}[detect]${NC} $1"; }
-warn()  { echo -e "${YELLOW}[detect]${NC} $1"; }
+info()  { echo -e "${BLUE}[detect]${NC} $1" >&2; }
+ok()    { echo -e "${GREEN}[detect]${NC} $1" >&2; }
+warn()  { echo -e "${YELLOW}[detect]${NC} $1" >&2; }
 
 # ─── 检测网络环境 ───
 detect_region() {
@@ -122,7 +122,7 @@ main() {
   local region
   region=$(detect_region "${1:-}")
 
-  echo ""
+  echo "" >&2
   info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   if [ "$region" = "cn" ]; then
     info "  🌏 环境: 国内 (China)"
@@ -134,13 +134,13 @@ main() {
     info "  📦 apt:   ${APT_MIRROR_GLOBAL} (官方)"
   fi
   info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  echo ""
+  echo "" >&2
 
   setup_npm "$region"
   setup_apt "$region"
 
   ok "镜像源配置完成"
-  echo ""
+  echo "" >&2
 }
 
 main "$@"
