@@ -34,15 +34,19 @@ TIMEOUT=10
 # ─── 等待服务就绪（最多 120 秒） ───
 log "等待服务就绪（最多 120 秒）..."
 for i in $(seq 1 40); do
-  CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "$HOST" 2>/dev/null || echo "000")
-  if [ "$CODE" != "000" ]; then
-    pass "服务已就绪（第 $((i*3)) 秒，HTTP $CODE）"
-    break
-  fi
-  if [ "$i" -eq 40 ]; then
-    fail "服务未就绪（等待 120 秒超时）"
-  fi
-  sleep 3
+  CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "$HOST" 2>/dev/null || echo "")
+  case "$CODE" in
+    200|301|302|307|308)
+      pass "服务已就绪（第 $((i*3)) 秒，HTTP $CODE）"
+      break
+      ;;
+    *)
+      if [ "$i" -eq 40 ]; then
+        fail "服务未就绪（等待 120 秒超时，最后响应 $CODE）"
+      fi
+      sleep 3
+      ;;
+  esac
 done
 
 echo ""
