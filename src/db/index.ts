@@ -9,7 +9,7 @@ function createDb() {
     port: parseInt(process.env.PGPORT || '5432'),
     user: process.env.PGUSER || 'ridex',
     password: process.env.PGPASSWORD || 'ridex123',
-    database: 'ridex_db',
+    database: process.env.PGDATABASE || 'ridex_db',
     ssl: process.env.PGSSLMODE === 'require' ? { rejectUnauthorized: false } : false,
   });
   return drizzle({ client: pool, schema });

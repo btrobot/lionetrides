@@ -94,6 +94,7 @@ ENV PGHOST=localhost
 ENV PGPORT=5433
 ENV PGUSER=postgres
 ENV PGPASSWORD=postgres
+ENV PGDATABASE=lionetrides
 
 # 权限设置
 RUN chmod -R 777 .next && \
