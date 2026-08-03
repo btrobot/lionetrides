@@ -1,18 +1,31 @@
 # ============================================================
 # Lion E-Trides — Next.js 16 + PostgreSQL 多阶段构建
 # 优化目标：最小化最终镜像体积，分离构建环境与运行环境
+# 镜像源：自动检测国内/国际环境，也可通过构建参数指定
 # ============================================================
+# 构建参数
+#   DEPLOY_REGION=auto   自动检测（默认）
+#   DEPLOY_REGION=cn     强制国内镜像
+#   DEPLOY_REGION=global 强制官方源
+# 用法:
+#   国内: docker build -t lionetrides .
+#   国外: docker build --build-arg DEPLOY_REGION=global -t lionetrides .
+# ============================================================
+ARG DEPLOY_REGION=auto
 
 # ─── Stage 1: 依赖安装 ────────────────────────────────────
 FROM node:24-bookworm-slim AS deps
 
-# 国内镜像源加速（npm/pnpm registry + Debian apt）
-ENV COREPACK_REGISTRY=https://mirrors.cloud.tencent.com/npm
-RUN npm config set registry https://mirrors.cloud.tencent.com/npm && \
-    corepack enable && corepack prepare pnpm@9.15.0 --activate
+ARG DEPLOY_REGION
 
-RUN sed -i 's|deb.debian.org|mirrors.ustc.edu.cn|g' /etc/apt/sources.list.d/debian.sources && \
-    sed -i 's|security.debian.org|mirrors.ustc.edu.cn|g' /etc/apt/sources.list.d/debian.sources
+# 镜像源自动检测脚本
+COPY scripts/detect-mirror.sh /tmp/detect-mirror.sh
+RUN bash /tmp/detect-mirror.sh ${DEPLOY_REGION:+--force-${DEPLOY_REGION}}
+
+# corepack 镜像源（仅国内环境有效，global 环境自动使用官方源）
+# 注：npm config 已由检测脚本持久化写入，这里只作为 corepack 下载 pnpm 的加速
+ENV COREPACK_REGISTRY=https://mirrors.cloud.tencent.com/npm
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
@@ -21,10 +34,14 @@ RUN pnpm install --frozen-lockfile --prefer-offline
 # ─── Stage 2: 构建 ────────────────────────────────────────
 FROM node:24-bookworm-slim AS builder
 
-# 国内镜像源加速（构建阶段也需要）
+ARG DEPLOY_REGION
+
+# 镜像源自动检测
+COPY scripts/detect-mirror.sh /tmp/detect-mirror.sh
+RUN bash /tmp/detect-mirror.sh ${DEPLOY_REGION:+--force-${DEPLOY_REGION}}
+
 ENV COREPACK_REGISTRY=https://mirrors.cloud.tencent.com/npm
-RUN npm config set registry https://mirrors.cloud.tencent.com/npm && \
-    corepack enable && corepack prepare pnpm@9.15.0 --activate
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -39,9 +56,11 @@ RUN rm -rf .next/cache node_modules/.cache && \
 # ─── Stage 3: 运行时 ──────────────────────────────────────
 FROM node:24-bookworm-slim AS runner
 
-# 国内镜像源加速
-RUN sed -i 's|deb.debian.org|mirrors.ustc.edu.cn|g' /etc/apt/sources.list.d/debian.sources && \
-    sed -i 's|security.debian.org|mirrors.ustc.edu.cn|g' /etc/apt/sources.list.d/debian.sources
+ARG DEPLOY_REGION
+
+# 镜像源自动检测
+COPY scripts/detect-mirror.sh /tmp/detect-mirror.sh
+RUN bash /tmp/detect-mirror.sh ${DEPLOY_REGION:+--force-${DEPLOY_REGION}}
 
 # 安装 PostgreSQL + 运行时工具
 # 不使用 --no-install-recommends 确保 tini 等工具完整安装
