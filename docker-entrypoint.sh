@@ -45,5 +45,6 @@ pnpm exec tsx scripts/seed-data.ts
 echo "👤 Creating admin..."
 pnpm exec tsx scripts/seed-admin.ts
 
-echo "🌐 Starting application..."
-exec node dist/server.js
+echo "🌐 Starting application (as node user)..."
+# 切换到 node 用户运行应用（最小权限原则）
+exec su -s /bin/bash node -c "exec node dist/server.js"

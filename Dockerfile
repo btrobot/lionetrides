@@ -151,18 +151,25 @@ COPY --chown=node:node --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 COPY --chown=node:node --from=builder /app/tsconfig.json  ./tsconfig.json
 COPY --chown=node:node --from=builder /app/src/db        ./src/db
 
-# 权限设置（最小权限原则）
+# ─── 权限设置（最小权限原则）─────────────────────────────
 RUN chmod 755 docker-entrypoint.sh && \
     chmod -R 755 .next/static && \
-    (test -f .next/build-manifest.json && chmod 644 .next/build-manifest.json || true) && \
-    (test -f .next/server/app/index.html && chmod 644 .next/server/app/index.html || true)
+    chown -R node:node /app && \
+    if [ -f .next/build-manifest.json ]; then chmod 644 .next/build-manifest.json; fi && \
+    if [ -f .next/server/app/index.html ]; then chmod 644 .next/server/app/index.html; fi
+
+# 注意：容器以 root 运行（entrypoint 需要 root 启动 PostgreSQL）
+# entrypoint 内部会切换到 node 用户运行 Next.js 应用
 
 # ─── 环境变量 ────────────────────────────────────────────
+# 注意：以下密码仅为默认值，生产环境必须通过 --env-file 或 -e 覆盖
+# 例如：docker run --env-file /data/lionetrides/.env.production ...
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV COZE_PROJECT_ENV=PROD
 ENV PORT=5000
 ENV HOSTNAME="0.0.0.0"
+# 数据库连接（生产环境通过 .env.production 覆盖）
 ENV DATABASE_URL=postgresql://postgres:postgres@localhost:5433/lionetrides
 ENV PGHOST=localhost
 ENV PGPORT=5433
