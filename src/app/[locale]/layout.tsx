@@ -8,7 +8,7 @@ import Footer from '@/components/shared/footer';
 import { InquiryProvider } from '@/components/shared/inquiry-dialog';
 import { SiteConfigProvider } from '@/providers/site-config-provider';
 
-const BASE_URL = process.env.COZE_PROJECT_DOMAIN_DEFAULT || 'https://ridecraft.dev';
+const BASE_URL = process.env.COZE_PROJECT_DOMAIN_DEFAULT || 'https://lionetrides.com';
 
 type Props = {
   children: React.ReactNode;

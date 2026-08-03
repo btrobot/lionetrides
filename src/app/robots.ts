@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 
-const BASE_URL = process.env.COZE_PROJECT_DOMAIN_DEFAULT || 'https://ridecraft.dev';
+const BASE_URL = process.env.COZE_PROJECT_DOMAIN_DEFAULT || 'https://lionetrides.com';
 
 export default function robots(): MetadataRoute.Robots {
   return {

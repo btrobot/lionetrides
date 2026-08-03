@@ -1,7 +1,7 @@
 import { routing, locales, type Locale } from '@/i18n/routing';
 export type { Locale } from '@/i18n/routing';
 
-const BASE_URL = process.env.COZE_PROJECT_DOMAIN_DEFAULT || 'https://ridecraft.dev';
+const BASE_URL = process.env.COZE_PROJECT_DOMAIN_DEFAULT || 'https://lionetrides.com';
 
 /**
  * Generate hreflang alternate links for a given path.

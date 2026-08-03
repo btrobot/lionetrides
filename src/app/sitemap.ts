@@ -3,7 +3,7 @@ import { news } from '@/db/schema';
 import { eq, and, isNull } from 'drizzle-orm';
 import { locales } from '@/i18n/routing';
 
-const BASE_URL = process.env.COZE_PROJECT_DOMAIN_DEFAULT || 'https://ridecraft.dev';
+const BASE_URL = process.env.COZE_PROJECT_DOMAIN_DEFAULT || 'https://lionetrides.com';
 
 const STATIC_PAGES = ['', 'products', 'categories', 'brands', 'news', 'about', 'contact', 'search'];
 

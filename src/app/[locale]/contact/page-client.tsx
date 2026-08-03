@@ -50,7 +50,7 @@ export default function ContactPage() {
   const contactInfo = [
     { icon: MapPin, label: t('address'), value: config.contact_address || 'No. 88, Industrial Avenue, Guangzhou, China' },
     { icon: Phone, label: t('phone'), value: config.contact_phone || '+86 20-8888-8888' },
-    { icon: Mail, label: t('email'), value: config.contact_email || 'info@ridecraft.com' },
+    { icon: Mail, label: t('email'), value: config.contact_email || 'info@lionetrides.com' },
     { icon: Clock, label: t('working_hours'), value: t('working_hours_value') },
   ];
 

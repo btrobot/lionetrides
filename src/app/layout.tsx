@@ -24,8 +24,8 @@ const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'RideCraft Industries',
-  url: process.env.COZE_PROJECT_DOMAIN_DEFAULT || 'https://ridecraft.com',
-  logo: 'https://ridecraft.com/logo.png',
+  url: process.env.COZE_PROJECT_DOMAIN_DEFAULT || 'https://lionetrides.com',
+  logo: 'https://lionetrides.com/logo.png',
   description:
     'Leading manufacturer of amusement rides since 1995. Roller coasters, Ferris wheels, carousels, water park rides and more.',
   foundingDate: '1995',
