@@ -27,7 +27,11 @@
     "category_detail_title": "%s - Category",
     "category_detail_description": "Browse all products in the %s category. High-quality amusement rides for theme parks and entertainment venues.",
     "brand_detail_title": "%s - Brand",
-    "brand_detail_description": "Explore all products from %s. Leading amusement ride manufacturer with quality and innovation."
+    "brand_detail_description": "Explore all products from %s. Leading amusement ride manufacturer with quality and innovation.",
+    "not_found_title": "404 - Page Not Found",
+    "not_found_description": "The page you are looking for does not exist or has been moved. Let us help you find what you need.",
+    "error_title": "500 - Server Error",
+    "error_description": "Something went wrong on our end. Please try again or contact us for assistance."
   },
   "nav": {
     "home": "Home",
@@ -211,7 +215,12 @@
   "common": {
     "loading": "Loading...",
     "error": "Something went wrong",
+    "error_title": "Oops! Something Went Wrong",
+    "error_description": "An unexpected error occurred. Please try again or return to the home page.",
+    "error_try_again": "Try Again",
     "not_found": "Page not found",
+    "not_found_title": "Page Not Found",
+    "not_found_description": "The page you are looking for doesn't exist or has been moved.",
     "back_home": "Back to Home",
     "learn_more": "Learn More",
     "send_message": "Send Message",
