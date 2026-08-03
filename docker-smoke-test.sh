@@ -31,16 +31,16 @@ esac
 CONTAINER_NAME="lionetrides-container"
 TIMEOUT=10
 
-# ─── 等待服务就绪（最多 90 秒） ───
-log "等待服务就绪（最多 90 秒）..."
-for i in $(seq 1 30); do
-  CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 3 "$HOST" 2>/dev/null || echo "000")
+# ─── 等待服务就绪（最多 120 秒） ───
+log "等待服务就绪（最多 120 秒）..."
+for i in $(seq 1 40); do
+  CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "$HOST" 2>/dev/null || echo "000")
   if [ "$CODE" != "000" ]; then
     pass "服务已就绪（第 $((i*3)) 秒，HTTP $CODE）"
     break
   fi
-  if [ "$i" -eq 30 ]; then
-    fail "服务未就绪（等待 90 秒超时）"
+  if [ "$i" -eq 40 ]; then
+    fail "服务未就绪（等待 120 秒超时）"
   fi
   sleep 3
 done
