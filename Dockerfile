@@ -90,6 +90,10 @@ ENV COZE_PROJECT_ENV=PROD
 ENV PORT=5000
 ENV HOSTNAME="0.0.0.0"
 ENV DATABASE_URL=postgresql://postgres:postgres@localhost:5433/lionetrides
+ENV PGHOST=localhost
+ENV PGPORT=5433
+ENV PGUSER=postgres
+ENV PGPASSWORD=postgres
 
 # 权限设置
 RUN chmod -R 777 .next && \
