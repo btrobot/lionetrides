@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { Search, FileText, Package, Loader2, ChevronRight, Calendar, Tag } from 'lucide-react';
 
@@ -38,6 +39,8 @@ interface SearchData {
 }
 
 export default function SearchPage() {
+  const t = useTranslations('search');
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const router = useRouter();
   const query = searchParams.get('q') || '';
@@ -60,10 +63,10 @@ export default function SearchPage() {
       if (json.success) {
         setResults(json.data);
       } else {
-        setError(json.error || '搜索失败');
+        setError(json.error || t('search_failed'));
       }
     } catch {
-      setError('搜索请求失败，请稍后重试');
+      setError(t('search_error'));
     } finally {
       setLoading(false);
     }
@@ -95,7 +98,7 @@ export default function SearchPage() {
             <Input
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder={'搜索产品、新闻...'}
+              placeholder={t('search_placeholder')}
               className="w-full rounded-xl border-gray-200 pl-12 py-6 text-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
             <Button
@@ -103,7 +106,7 @@ export default function SearchPage() {
               size="sm"
               className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 hover:bg-blue-700"
             >
-              {/* {t('search') || '搜索'} */}搜索
+              {t('search')}
             </Button>
           </form>
         </div>
@@ -249,13 +252,13 @@ export default function SearchPage() {
                             {article.published_at && (
                               <span className="flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />
-                                {new Date(article.published_at).toLocaleDateString('zh-CN')}
+                                {new Date(article.published_at).toLocaleDateString(locale === 'zh' ? 'zh-CN' : locale === 'ja' ? 'ja-JP' : 'en-US')}
                               </span>
                             )}
                             {article.category && (
                               <span className="flex items-center gap-1">
                                 <Tag className="h-3 w-3" />
-                                {article.category === 'company' ? '公司新闻' : article.category === 'industry' ? '行业动态' : '技术文章'}
+                                {article.category === 'company' ? t('category_company') : article.category === 'industry' ? t('category_industry') : t('category_tech')}
                               </span>
                             )}
                           </div>
@@ -273,8 +276,8 @@ export default function SearchPage() {
         {!loading && !query && (
           <div className="text-center py-20">
             <Search className="mx-auto h-16 w-16 text-gray-200 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">搜索产品与新闻</h3>
-            <p className="text-gray-500">输入关键词，查找你感兴趣的产品或资讯</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">{t('search_title')}</h3>
+            <p className="text-gray-500">{t('search_subtitle')}</p>
           </div>
         )}
       </div>

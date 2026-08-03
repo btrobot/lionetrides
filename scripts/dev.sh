@@ -31,4 +31,8 @@ echo "Clearing port ${DEPLOY_RUN_PORT} before start."
 kill_port_if_listening
 echo "Starting HTTP service on port ${DEPLOY_RUN_PORT} for dev..."
 
+# Unset system-level PGHOST/PGPORT/PGUSER/PGPASSWORD to prevent
+# node-postgres from using them instead of the explicit connection string.
+unset PGHOST PGPORT PGUSER PGPASSWORD PGDATABASE PGSSLMODE PGCHANNELBINDING PGDATABASE_URL
+
 PORT=${DEPLOY_RUN_PORT} pnpm tsx watch src/server.ts

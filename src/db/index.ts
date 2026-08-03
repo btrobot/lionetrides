@@ -2,12 +2,15 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import * as schema from './schema';
 
-const connectionString = process.env.DATABASE_URL || 'postgresql://ridex:ridex123@localhost:5432/ridex_db';
-
 function createDb() {
+  // Use system env vars for remote PostgreSQL, fall back to local dev
   const pool = new Pool({
-    connectionString,
-    ssl: { rejectUnauthorized: false },
+    host: process.env.PGHOST || 'localhost',
+    port: parseInt(process.env.PGPORT || '5432'),
+    user: process.env.PGUSER || 'ridex',
+    password: process.env.PGPASSWORD || 'ridex123',
+    database: 'ridex_db',
+    ssl: process.env.PGSSLMODE === 'require' ? { rejectUnauthorized: false } : false,
   });
   return drizzle({ client: pool, schema });
 }

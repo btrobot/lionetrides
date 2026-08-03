@@ -375,6 +375,25 @@
     "warranty": "Garantie",
     "weight": "Poids"
   },
+  "search": {
+    "browse_news": "Parcourir les actualités",
+    "browse_products": "Parcourir les produits",
+    "button": "Rechercher",
+    "category_company": "Actualités de l'entreprise",
+    "category_industry": "Actualités du secteur",
+    "category_tech": "Articles techniques",
+    "error": "Échec de la recherche",
+    "error_desc": "La demande de recherche a échoué, veuillez réessayer ultérieurement",
+    "loading": "Recherche en cours...",
+    "news": "Actualités",
+    "no_results": "Aucun résultat trouvé",
+    "no_results_desc": "Essayez d'autres mots-clés ou parcourez nos produits et nos actualités",
+    "placeholder": "Rechercher des produits, des actualités...",
+    "products": "Produits",
+    "search_products_news": "Rechercher des produits et actualités",
+    "search_products_news_desc": "Entrez des mots-clés pour trouver les produits et actualités qui vous intéressent",
+    "title": "Recherche"
+  },
   "site": {
     "description": "Fabricant leader de manèges d'attraction depuis 1995",
     "name": "RideCraft Industries",

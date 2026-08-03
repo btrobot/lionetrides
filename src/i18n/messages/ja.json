@@ -375,6 +375,25 @@
     "warranty": "保証",
     "weight": "重量"
   },
+  "search": {
+    "browse_news": "ニュースを閲覧",
+    "browse_products": "製品を閲覧",
+    "button": "検索",
+    "category_company": "企業ニュース",
+    "category_industry": "業界ニュース",
+    "category_tech": "技術記事",
+    "error": "検索に失敗しました",
+    "error_desc": "検索リクエストが失敗しました。後でもう一度お試しください",
+    "loading": "検索中...",
+    "news": "ニュース",
+    "no_results": "結果が見つかりませんでした",
+    "no_results_desc": "別のキーワードを試すか、製品とニュースを閲覧してください",
+    "placeholder": "製品、ニュースを検索...",
+    "products": "製品",
+    "search_products_news": "製品とニュースを検索",
+    "search_products_news_desc": "興味のある製品やニュースを探すためにキーワードを入力してください",
+    "title": "検索"
+  },
   "site": {
     "description": "1995年創業の遊園地アトラクション大手メーカー",
     "name": "RideCraft Industries",

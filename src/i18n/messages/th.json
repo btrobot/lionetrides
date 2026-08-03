@@ -375,6 +375,25 @@
     "warranty": "การรับประกัน",
     "weight": "น้ำหนัก"
   },
+  "search": {
+    "browse_news": "เรียกดูข่าว",
+    "browse_products": "เรียกดูผลิตภัณฑ์",
+    "button": "ค้นหา",
+    "category_company": "ข่าวบริษัท",
+    "category_industry": "ข่าวอุตสาหกรรม",
+    "category_tech": "บทความเทคโนโลยี",
+    "error": "การค้นหาล้มเหลว",
+    "error_desc": "คำขอค้นหาล้มเหลว โปรดลองอีกครั้งในภายหลัง",
+    "loading": "กำลังค้นหา...",
+    "news": "ข่าว",
+    "no_results": "ไม่พบผลลัพธ์",
+    "no_results_desc": "ลองใช้คีย์เวิร์ดอื่น หรือเรียกดูผลิตภัณฑ์และข่าวของเรา",
+    "placeholder": "ค้นหาผลิตภัณฑ์ ข่าว...",
+    "products": "ผลิตภัณฑ์",
+    "search_products_news": "ค้นหาผลิตภัณฑ์และข่าว",
+    "search_products_news_desc": "ป้อนคีย์เวิร์ดเพื่อค้นหาผลิตภัณฑ์และข่าวที่คุณสนใจ",
+    "title": "ค้นหา"
+  },
   "site": {
     "description": "ผู้ผลิตเครื่องเล่นสวนสนุกชั้นนำตั้งแต่ปี 1995",
     "name": "RideCraft Industries",

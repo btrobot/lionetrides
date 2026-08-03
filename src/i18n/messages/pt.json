@@ -375,6 +375,25 @@
     "warranty": "Garantia",
     "weight": "Peso"
   },
+  "search": {
+    "browse_news": "Navegar por Notícias",
+    "browse_products": "Navegar por Produtos",
+    "button": "Pesquisar",
+    "category_company": "Notícias da Empresa",
+    "category_industry": "Notícias do Setor",
+    "category_tech": "Artigos Técnicos",
+    "error": "Pesquisa falhou",
+    "error_desc": "A solicitação de pesquisa falhou, tente novamente mais tarde",
+    "loading": "Pesquisando...",
+    "news": "Notícias",
+    "no_results": "Nenhum resultado encontrado",
+    "no_results_desc": "Tente palavras-chave diferentes ou navegue por nossos produtos e notícias",
+    "placeholder": "Pesquise produtos, notícias...",
+    "products": "Produtos",
+    "search_products_news": "Pesquisar Produtos e Notícias",
+    "search_products_news_desc": "Digite palavras-chave para encontrar produtos e notícias que você tem interesse",
+    "title": "Pesquisa"
+  },
   "site": {
     "description": "Fabricante líder de brinquedos para parques de diversões desde 1995",
     "name": "RideCraft Industries",

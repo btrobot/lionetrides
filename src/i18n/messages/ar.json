@@ -375,6 +375,25 @@
     "warranty": "الضمان",
     "weight": "الوزن"
   },
+  "search": {
+    "browse_news": "تصفح الأخبار",
+    "browse_products": "تصفح المنتجات",
+    "button": "بحث",
+    "category_company": "أخبار الشركة",
+    "category_industry": "أخبار الصناعة",
+    "category_tech": "مقالات تقنية",
+    "error": "فشل البحث",
+    "error_desc": "طلب البحث فشل، يرجى المحاولة مرة أخرى لاحقًا",
+    "loading": "جاري البحث...",
+    "news": "الأخبار",
+    "no_results": "لم يتم العثور على نتائج",
+    "no_results_desc": "جرب كلمات مفتاحية مختلفة أو تصفح منتجاتنا وأخبارنا",
+    "placeholder": "ابحث عن منتجات، أخبار...",
+    "products": "المنتجات",
+    "search_products_news": "ابحث عن المنتجات والأخبار",
+    "search_products_news_desc": "أدخل الكلمات المفتاحية للعثور على المنتجات والأخبار التي تهتم بها",
+    "title": "بحث"
+  },
   "site": {
     "description": "شركة رائدة في تصنيع الألعاب الترفيهية منذ عام 1995",
     "name": "RideCraft Industries",

@@ -375,6 +375,25 @@
     "warranty": "Garantía",
     "weight": "Peso"
   },
+  "search": {
+    "browse_news": "Explorar Noticias",
+    "browse_products": "Explorar Productos",
+    "button": "Buscar",
+    "category_company": "Noticias de la Empresa",
+    "category_industry": "Noticias del Sector",
+    "category_tech": "Artículos Técnicos",
+    "error": "Búsqueda fallida",
+    "error_desc": "La solicitud de búsqueda falló, por favor intente nuevamente más tarde",
+    "loading": "Buscando...",
+    "news": "Noticias",
+    "no_results": "No se encontraron resultados",
+    "no_results_desc": "Pruebe con otras palabras clave o explore nuestros productos y noticias",
+    "placeholder": "Buscar productos, noticias...",
+    "products": "Productos",
+    "search_products_news": "Buscar Productos y Noticias",
+    "search_products_news_desc": "Ingrese palabras clave para encontrar productos y noticias que le interesen",
+    "title": "Búsqueda"
+  },
   "site": {
     "description": "Fabricante líder de atracciones de feria desde 1995",
     "name": "RideCraft Industries",

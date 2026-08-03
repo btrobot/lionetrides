@@ -27,6 +27,25 @@
     "working_hours_value": "周一至周五：9:00 - 18:00",
     "follow_us": "关注我们"
   },
+  "search": {
+    "title": "搜索",
+    "placeholder": "搜索产品、新闻...",
+    "button": "搜索",
+    "products": "产品",
+    "news": "新闻",
+    "no_results": "未找到相关结果",
+    "no_results_desc": "尝试其他关键词，或浏览我们的产品和新闻",
+    "browse_products": "浏览产品",
+    "browse_news": "浏览新闻",
+    "error": "搜索失败",
+    "error_desc": "搜索请求失败，请稍后重试",
+    "loading": "搜索中...",
+    "search_products_news": "搜索产品与新闻",
+    "search_products_news_desc": "输入关键词，查找你感兴趣的产品或资讯",
+    "category_company": "公司新闻",
+    "category_industry": "行业动态",
+    "category_tech": "技术文章"
+  },
   "admin": {
     "brands": {
       "actions": "操作",

@@ -375,6 +375,25 @@
     "warranty": "Garantie",
     "weight": "Gewicht"
   },
+  "search": {
+    "browse_news": "News durchsuchen",
+    "browse_products": "Produkte durchsuchen",
+    "button": "Suchen",
+    "category_company": "Unternehmensnachrichten",
+    "category_industry": "Branchennachrichten",
+    "category_tech": "Technikartikel",
+    "error": "Suche fehlgeschlagen",
+    "error_desc": "Die Suchanfrage ist fehlgeschlagen, bitte versuchen Sie es später erneut",
+    "loading": "Suchen...",
+    "news": "News",
+    "no_results": "Keine Ergebnisse gefunden",
+    "no_results_desc": "Probieren Sie andere Schlüsselwörter aus oder durchsuchen Sie unsere Produkte und News",
+    "placeholder": "Produkte, News suchen...",
+    "products": "Produkte",
+    "search_products_news": "Produkte & News suchen",
+    "search_products_news_desc": "Geben Sie Schlüsselwörter ein, um Produkte und News zu finden, die Sie interessieren",
+    "title": "Suche"
+  },
   "site": {
     "description": "Führender Hersteller von Fahrgeschäften seit 1995",
     "name": "RideCraft Industries",

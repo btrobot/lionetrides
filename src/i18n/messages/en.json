@@ -283,6 +283,25 @@
     "working_hours_value": "Monday - Friday: 9:00 AM - 6:00 PM",
     "follow_us": "Follow Us"
   },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search products, news...",
+    "button": "Search",
+    "products": "Products",
+    "news": "News",
+    "no_results": "No results found",
+    "no_results_desc": "Try different keywords or browse our products and news",
+    "browse_products": "Browse Products",
+    "browse_news": "Browse News",
+    "error": "Search failed",
+    "error_desc": "Search request failed, please try again later",
+    "loading": "Searching...",
+    "search_products_news": "Search Products & News",
+    "search_products_news_desc": "Enter keywords to find products and news you're interested in",
+    "category_company": "Company News",
+    "category_industry": "Industry News",
+    "category_tech": "Tech Articles"
+  },
   "admin": {
     "sidebar": {
       "dashboard": "Dashboard",
