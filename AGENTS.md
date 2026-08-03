@@ -189,3 +189,31 @@ Deploy
 - `./docker-build.sh --no-cache` — 完全重新构建
 - `./docker-build.sh --clean` — 构建前清理缓存
 - `./docker-smoke-test.sh` — 独立运行 smoke 测试（容器健康 + 页面可达 + API 响应 + 日志检查）
+
+## 部署治理原则（硬性规则）
+
+### 原则一：GitHub 是唯一部署权威来源
+**所有生产环境的代码变更，必须经由 GitHub 仓库流转，严禁从开发环境（沙箱/本地）直接向生产服务器传输代码。**
+
+```
+开发环境 (Sandbox)  ──push──→  GitHub  ──pull/build──→  生产服务器
+     ✗ 不允许直传                    ↑ 权威来源              仅从 GitHub 拉取
+```
+
+### 原则二：部署流程
+1. 在沙箱开发并验证（`pnpm validate`、`pnpm test` 全部通过）
+2. `git push` 到 GitHub（需通过门禁：lint + ts-check + test）
+3. 生产服务器 `git pull` 拉取最新代码
+4. 生产服务器执行 `docker-build.sh` 构建镜像
+5. 生产服务器执行 `docker-run.sh` 部署运行
+
+### 原则三：禁止行为（红线）
+- ❌ 禁止通过 scp/rsync/直接编辑 等方式将沙箱代码传输到生产服务器
+- ❌ 禁止直接在生产服务器上修改业务代码
+- ❌ 禁止将未经过 GitHub 的代码直接部署
+- ❌ 禁止跨 worktree 操作生产服务器文件
+
+### 原则四：生产服务器只读
+- 生产服务器 `git pull` 仅拉取已推送到 GitHub 的代码
+- 生产服务器上的 `.env.local` 等配置文件的变更应记录到文档
+- 生产服务器上的 Docker 配置变更应先提交到 GitHub 再部署
