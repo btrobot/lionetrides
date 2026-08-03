@@ -84,9 +84,9 @@ jobs:
           script: |
             set -euo pipefail
 
-            CONTAINER_NAME="lionetrides"
+            CONTAINER_NAME="lionetrides-container"
             IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
-            HEALTH_URL="http://localhost:3000"
+            HEALTH_URL="http://localhost:5000"
             MAX_WAIT=120
 
             echo "=========================================="
@@ -123,7 +123,7 @@ jobs:
             docker run -d \
               --name "$CONTAINER_NAME" \
               --restart unless-stopped \
-              -p 3000:3000 \
+              -p 5000:5000 \
               -v /data/lionetrides:/app/data \
               --env-file /data/lionetrides/.env.production \
               "$IMAGE"
@@ -160,7 +160,7 @@ jobs:
                 docker run -d \
                   --name "$CONTAINER_NAME" \
                   --restart unless-stopped \
-                  -p 3000:3000 \
+                  -p 5000:5000 \
                   -v /data/lionetrides:/app/data \
                   --env-file /data/lionetrides/.env.production \
                   "$OLD_IMAGE"
