@@ -136,7 +136,7 @@
       "title": "Configuración"
     },
     "sidebar": {
-      "brand": "RideCraft Admin",
+      "brand": "Lionet Rides Admin",
       "brands": "Marcas",
       "categories": "Categorías",
       "customers": "Clientes",
@@ -322,7 +322,7 @@
     "title": "Enviar Consulta"
   },
   "meta": {
-    "about_description": "Con más de 30 años de experiencia, RideCraft Industries es un fabricante líder de atracciones de feria. Conoce nuestra historia, misión y presencia global.",
+    "about_description": "Con más de 30 años de experiencia, Lionet Rides es un fabricante líder de atracciones de feria. Conoce nuestra historia, misión y presencia global.",
     "about_title": "Sobre Nosotros - %s",
     "brand_detail_description": "Explora todos los productos de %s. Fabricante líder de atracciones de feria con calidad e innovación.",
     "brand_detail_title": "%s - Marca",
@@ -332,14 +332,14 @@
     "categories_title": "Categorías - %s",
     "category_detail_description": "Consulta todos los productos de la categoría %s. Atracciones de feria de alta calidad para parques temáticos y locales de entretenimiento.",
     "category_detail_title": "%s - Categoría",
-    "contact_description": "Contacta a RideCraft Industries. Comunícate con nuestro equipo de ventas para cotizaciones, consultas y oportunidades de asociación.",
+    "contact_description": "Contacta a Lionet Rides. Comunícate con nuestro equipo de ventas para cotizaciones, consultas y oportunidades de asociación.",
     "contact_title": "Contáctanos - %s",
     "description": "Fabricante líder de atracciones de entretenimiento desde 1995",
     "error_description": "Algo salió mal de nuestra parte. Por favor, inténtelo de nuevo o contáctenos para obtener asistencia.",
     "error_title": "500 - Error de Servidor",
     "keywords": "atracciones de entretenimiento, fabricante de montañas rusas, noria, carrusel, equipo para parques acuáticos, atracciones para parques temáticos, B2B, fabricante de atracciones",
     "news_description": "Últimas noticias, actualizaciones y perspectivas de la industria de atracciones de feria. Anuncios de la empresa, ferias comerciales y presentación de proyectos.",
-    "news_detail_description": "%s - Lee las últimas noticias y actualizaciones de RideCraft Industries.",
+    "news_detail_description": "%s - Lee las últimas noticias y actualizaciones de Lionet Rides.",
     "news_detail_title": "%s - Noticias",
     "news_title": "Noticias - %s",
     "not_found_description": "La página que buscas no existe o ha sido movida. Permítenos ayudarte a encontrar lo que necesitas.",
@@ -348,7 +348,7 @@
     "product_detail_title": "%s - Detalles del Producto",
     "products_description": "Explora nuestra gama completa de atracciones de feria: montañas rusas, norias, carruseles, coches de choque, equipamiento para parques acuáticos y más. Fabricación B2B para parques temáticos de todo el mundo.",
     "products_title": "Productos - %s",
-    "title": "RideCraft Industries"
+    "title": "Lionet Rides"
   },
   "nav": {
     "about": "Sobre Nosotros",
@@ -473,7 +473,7 @@
   },
   "site": {
     "description": "Fabricante líder de atracciones de feria desde 1995",
-    "name": "RideCraft Industries",
+    "name": "Lionet Rides",
     "tagline": "Ingeniería de emociones, construcción de confianza"
   },
   "stats": {

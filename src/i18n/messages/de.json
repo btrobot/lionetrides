@@ -136,7 +136,7 @@
       "title": "Einstellungen"
     },
     "sidebar": {
-      "brand": "RideCraft Admin",
+      "brand": "Lionet Rides Admin",
       "brands": "Marken",
       "categories": "Kategorien",
       "customers": "Kunden",
@@ -322,7 +322,7 @@
     "title": "Anfrage senden"
   },
   "meta": {
-    "about_description": "Mit über 30 Jahren Erfahrung ist RideCraft Industries ein führender Hersteller von Fahrgeschäften. Erfahren Sie mehr über unsere Geschichte, Mission und globale Präsenz.",
+    "about_description": "Mit über 30 Jahren Erfahrung ist Lionet Rides ein führender Hersteller von Fahrgeschäften. Erfahren Sie mehr über unsere Geschichte, Mission und globale Präsenz.",
     "about_title": "Über uns - %s",
     "brand_detail_description": "Entdecken Sie alle Produkte von %s. Führender Hersteller von Fahrgeschäften mit Fokus auf Qualität und Innovation.",
     "brand_detail_title": "%s - Marke",
@@ -332,14 +332,14 @@
     "categories_title": "Kategorien - %s",
     "category_detail_description": "Durchsuchen Sie alle Produkte der Kategorie %s. Hochwertige Fahrgeschäfte für Freizeitparks und Unterhaltungsstätten.",
     "category_detail_title": "%s - Kategorie",
-    "contact_description": "Kontaktieren Sie RideCraft Industries. Nehmen Sie Kontakt zu unserem Vertriebsteam für Angebote, Anfragen und Partnerschaftsmöglichkeiten auf.",
+    "contact_description": "Kontaktieren Sie Lionet Rides. Nehmen Sie Kontakt zu unserem Vertriebsteam für Angebote, Anfragen und Partnerschaftsmöglichkeiten auf.",
     "contact_title": "Kontakt - %s",
     "description": "Führender Hersteller von Fahrgeschäften seit 1995",
     "error_description": "Auf unserer Seite ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut oder kontaktieren Sie uns für Unterstützung.",
     "error_title": "500 - Serverfehler",
     "keywords": "Fahrgeschäfte, Achterbahnhersteller, Riesenrad, Karussell, Wasserparkausrüstung, Freizeitparkfahrgeschäfte, B2B, Fahrgeschäfthersteller",
     "news_description": "Aktuelle Neuigkeiten, Updates und Einblicke aus der Fahrgeschäft-Industrie. Unternehmensankündigungen, Messen und Projektvorstellungen.",
-    "news_detail_description": "%s - Lesen Sie die neuesten Neuigkeiten und Updates von RideCraft Industries.",
+    "news_detail_description": "%s - Lesen Sie die neuesten Neuigkeiten und Updates von Lionet Rides.",
     "news_detail_title": "%s - Neuigkeiten",
     "news_title": "Neuigkeiten - %s",
     "not_found_description": "Die Seite, die Sie suchen, existiert nicht oder wurde verschoben. Wir helfen Ihnen gerne, das Gesuchte zu finden.",
@@ -348,7 +348,7 @@
     "product_detail_title": "%s - Produktdetails",
     "products_description": "Entdecken Sie unser komplettes Sortiment an Fahrgeschäften: Achterbahnen, Riesenräder, Karussels, Autoscooter, Wasserpark-Ausstattung und mehr. B2B-Herstellung für Freizeitparks weltweit.",
     "products_title": "Produkte - %s",
-    "title": "RideCraft Industries"
+    "title": "Lionet Rides"
   },
   "nav": {
     "about": "Über uns",
@@ -473,7 +473,7 @@
   },
   "site": {
     "description": "Führender Hersteller von Fahrgeschäften seit 1995",
-    "name": "RideCraft Industries",
+    "name": "Lionet Rides",
     "tagline": "Nervenkitzel durch Technik, Vertrauen durch Qualität"
   },
   "stats": {

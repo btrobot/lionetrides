@@ -136,7 +136,7 @@
       "title": "설정"
     },
     "sidebar": {
-      "brand": "RideCraft Admin",
+      "brand": "Lionet Rides Admin",
       "brands": "브랜드",
       "categories": "카테고리",
       "customers": "고객",
@@ -322,7 +322,7 @@
     "title": "문의 보내기"
   },
   "meta": {
-    "about_description": "30년 이상의 경험을 바탕으로, RideCraft Industries는 놀이기구 제조 분야의 선도 기업입니다. 저희의 역사, 미션, 글로벌 네트워크에 대해 알아보세요.",
+    "about_description": "30년 이상의 경험을 바탕으로, Lionet Rides는 놀이기구 제조 분야의 선도 기업입니다. 저희의 역사, 미션, 글로벌 네트워크에 대해 알아보세요.",
     "about_title": "회사 소개 - %s",
     "brand_detail_description": "%s의 모든 제품을 둘러보세요. 품질과 혁신을 추구하는 선도적인 어트랙션 제조업체입니다.",
     "brand_detail_title": "%s - 브랜드",
@@ -332,14 +332,14 @@
     "categories_title": "카테고리 - %s",
     "category_detail_description": "%s 카테고리의 모든 제품을 둘러보세요. 테마파크 및 엔터테인먼트 시설을 위한 고품질 어트랙션입니다.",
     "category_detail_title": "%s - 카테고리",
-    "contact_description": "RideCraft Industries에 문의하세요. 견적, 문의, 파트너십 기회에 대해 영업팀과 연락하세요.",
+    "contact_description": "Lionet Rides에 문의하세요. 견적, 문의, 파트너십 기회에 대해 영업팀과 연락하세요.",
     "contact_title": "문의하기 - %s",
     "description": "1995년부터 이어온 선도적인 놀이기구 제조업체",
     "error_description": "당사 측에서 문제가 발생했습니다. 다시 시도하거나 문의하여 도움을 받으세요.",
     "error_title": "500 - 서버 오류",
     "keywords": "놀이기구, 롤러코스터 제조업체, 대관람차, 회전목마, 워터파크 장비, 테마파크 놀이기구, B2B, 놀이기구 제조업체",
     "news_description": "놀이기구 산업의 최신 뉴스, 업데이트, 인사이트를 확인하세요. 회사 공지, 전시회, 프로젝트 소개 등을 제공합니다.",
-    "news_detail_description": "%s - RideCraft Industries의 최신 뉴스와 업데이트를 확인하세요.",
+    "news_detail_description": "%s - Lionet Rides의 최신 뉴스와 업데이트를 확인하세요.",
     "news_detail_title": "%s - 뉴스",
     "news_title": "뉴스 - %s",
     "not_found_description": "요청하신 페이지가 존재하지 않거나 이동되었습니다. 필요한 정보를 찾는 데 도움을 드리겠습니다.",
@@ -348,7 +348,7 @@
     "product_detail_title": "%s - 제품 상세 정보",
     "products_description": "전체 놀이기구 라인업을 둘러보세요: 롤러코스터, 대관람차, 회전목마, 범퍼카, 워터파크 장비 등 전 세계 테마파크를 위한 B2B 제조를 제공합니다.",
     "products_title": "제품 - %s",
-    "title": "RideCraft Industries"
+    "title": "Lionet Rides"
   },
   "nav": {
     "about": "회사 소개",
@@ -473,7 +473,7 @@
   },
   "site": {
     "description": "1995년부터 이어온 세계적인 어트랙션 제조 기업",
-    "name": "RideCraft Industries",
+    "name": "Lionet Rides",
     "tagline": "엔지니어링 스릴, 신뢰 구축"
   },
   "stats": {

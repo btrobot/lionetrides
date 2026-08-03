@@ -3,8 +3,8 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: {
-    default: 'RideCraft Industries | Amusement Ride Manufacturer',
-    template: '%s | RideCraft Industries',
+    default: 'Lionet Rides | Amusement Ride Manufacturer',
+    template: '%s | Lionet Rides',
   },
   description:
     'Leading manufacturer of amusement rides since 1995. Roller coasters, Ferris wheels, carousels, water park rides and more. B2B manufacturing for theme parks worldwide.',
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'RideCraft Industries',
+  name: 'Lionet Rides',
   url: process.env.COZE_PROJECT_DOMAIN_DEFAULT || 'https://lionetrides.com',
   logo: 'https://lionetrides.com/logo.png',
   description:

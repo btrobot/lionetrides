@@ -136,7 +136,7 @@
       "title": "Paramètres"
     },
     "sidebar": {
-      "brand": "RideCraft Admin",
+      "brand": "Lionet Rides Admin",
       "brands": "Marques",
       "categories": "Catégories",
       "customers": "Clients",
@@ -322,7 +322,7 @@
     "title": "Envoyer une demande"
   },
   "meta": {
-    "about_description": "Forte de plus de 30 ans d'expérience, RideCraft Industries est un fabricant leader d'attractions foraines. Découvrez notre histoire, notre mission et notre présence mondiale.",
+    "about_description": "Forte de plus de 30 ans d'expérience, Lionet Rides est un fabricant leader d'attractions foraines. Découvrez notre histoire, notre mission et notre présence mondiale.",
     "about_title": "À propos de nous - %s",
     "brand_detail_description": "Découvrez tous les produits de %s. Fabricant leader d'attractions foraines, alliant qualité et innovation.",
     "brand_detail_title": "%s - Marque",
@@ -332,14 +332,14 @@
     "categories_title": "Catégories - %s",
     "category_detail_description": "Parcourez tous les produits de la catégorie %s. Attractions foraines de haute qualité pour parcs d'attractions et lieux de divertissement.",
     "category_detail_title": "%s - Catégorie",
-    "contact_description": "Contactez RideCraft Industries. Contactez notre équipe commerciale pour obtenir des devis, des renseignements et des opportunités de partenariat.",
+    "contact_description": "Contactez Lionet Rides. Contactez notre équipe commerciale pour obtenir des devis, des renseignements et des opportunités de partenariat.",
     "contact_title": "Contactez-nous - %s",
     "description": "Fabricant leader d'attractions foraines depuis 1995",
     "error_description": "Un problème est survenu de notre côté. Veuillez réessayer ou nous contacter pour obtenir de l'aide.",
     "error_title": "500 - Erreur de serveur",
     "keywords": "attractions foraines, fabricant de montagnes russes, grande roue, carrousel, équipement de parc aquatique, attractions de parc d'attractions, B2B, fabricant d'attractions",
     "news_description": "Dernières actualités, mises à jour et perspectives de l'industrie des attractions foraines. Annonces d'entreprise, salons professionnels et présentations de projets.",
-    "news_detail_description": "%s - Lisez les dernières actualités et mises à jour de RideCraft Industries.",
+    "news_detail_description": "%s - Lisez les dernières actualités et mises à jour de Lionet Rides.",
     "news_detail_title": "%s - Actualités",
     "news_title": "Actualités - %s",
     "not_found_description": "La page que vous recherchez n'existe pas ou a été déplacée. Laissez-nous vous aider à trouver ce dont vous avez besoin.",
@@ -348,7 +348,7 @@
     "product_detail_title": "%s - Détails du produit",
     "products_description": "Explorez notre gamme complète d'attractions foraines : montagnes russes, grandes roues, carrousels, autos tamponneuses, équipements de parcs aquatiques et plus encore. Fabrication B2B pour les parcs à thème du monde entier.",
     "products_title": "Produits - %s",
-    "title": "RideCraft Industries"
+    "title": "Lionet Rides"
   },
   "nav": {
     "about": "À Propos",
@@ -473,7 +473,7 @@
   },
   "site": {
     "description": "Fabricant leader de manèges d'attraction depuis 1995",
-    "name": "RideCraft Industries",
+    "name": "Lionet Rides",
     "tagline": "Concevoir des sensations, bâtir la confiance"
   },
   "stats": {

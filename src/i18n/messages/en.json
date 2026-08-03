@@ -1,11 +1,11 @@
 {
   "site": {
-    "name": "RideCraft Industries",
+    "name": "Lionet Rides",
     "tagline": "Engineering Thrills, Building Trust",
     "description": "Leading manufacturer of amusement rides since 1995"
   },
   "meta": {
-    "title": "RideCraft Industries",
+    "title": "Lionet Rides",
     "description": "Leading manufacturer of amusement rides since 1995",
     "keywords": "amusement rides, roller coaster manufacturer, ferris wheel, carousel, water park equipment, theme park rides, B2B, ride manufacturer",
     "products_title": "Products - %s",
@@ -19,11 +19,11 @@
     "news_title": "News - %s",
     "news_description": "Latest news, updates, and insights from the amusement ride industry. Company announcements, trade shows, and project showcases.",
     "news_detail_title": "%s - News",
-    "news_detail_description": "%s - Read the latest news and updates from RideCraft Industries.",
+    "news_detail_description": "%s - Read the latest news and updates from Lionet Rides.",
     "about_title": "About Us - %s",
-    "about_description": "With 30+ years of experience, RideCraft Industries is a leading manufacturer of amusement rides. Learn about our history, mission, and global presence.",
+    "about_description": "With 30+ years of experience, Lionet Rides is a leading manufacturer of amusement rides. Learn about our history, mission, and global presence.",
     "contact_title": "Contact Us - %s",
-    "contact_description": "Get in touch with RideCraft Industries. Contact our sales team for quotes, inquiries, and partnership opportunities.",
+    "contact_description": "Get in touch with Lionet Rides. Contact our sales team for quotes, inquiries, and partnership opportunities.",
     "category_detail_title": "%s - Category",
     "category_detail_description": "Browse all products in the %s category. High-quality amusement rides for theme parks and entertainment venues.",
     "brand_detail_title": "%s - Brand",
@@ -366,7 +366,7 @@
       "customers": "Customers",
       "reviews": "Reviews",
       "settings": "Settings",
-      "brand": "RideCraft Admin"
+      "brand": "Lionet Rides Admin"
     },
     "dashboard": {
       "title": "Dashboard",

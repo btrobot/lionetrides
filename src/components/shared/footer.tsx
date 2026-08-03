@@ -13,8 +13,8 @@ export default function Footer() {
   const currentLocale = pathname.split('/')[1] as Locale;
   const { config } = useSiteConfig();
 
-  const siteName = config.site_name || 'RideCraft';
-  const logoSrc = config.site_logo_url || '';
+  const siteName = config.site_name || 'Lionet Rides';
+  const logoSrc = config.site_logo_url || '/logo.png';
   const socialLinkedin = config.social_linkedin || '#';
   const socialYoutube = config.social_youtube || '#';
   const socialTwitter = config.social_twitter || '#';

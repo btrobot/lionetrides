@@ -136,7 +136,7 @@
       "title": "Configurações"
     },
     "sidebar": {
-      "brand": "RideCraft Admin",
+      "brand": "Lionet Rides Admin",
       "brands": "Marcas",
       "categories": "Categorias",
       "customers": "Clientes",
@@ -322,7 +322,7 @@
     "title": "Enviar Consulta"
   },
   "meta": {
-    "about_description": "Com mais de 30 anos de experiência, a RideCraft Industries é uma fabricante líder de brinquedos de parques de diversão. Conheça nossa história, missão e presença global.",
+    "about_description": "Com mais de 30 anos de experiência, a Lionet Rides é uma fabricante líder de brinquedos de parques de diversão. Conheça nossa história, missão e presença global.",
     "about_title": "Sobre Nós - %s",
     "brand_detail_description": "Explore todos os produtos da %s. Fabricante líder de brinquedos para parques de diversão com qualidade e inovação.",
     "brand_detail_title": "%s - Marca",
@@ -332,14 +332,14 @@
     "categories_title": "Categorias - %s",
     "category_detail_description": "Navegue por todos os produtos na categoria %s. Brinquedos para parques de diversão de alta qualidade para parques temáticos e espaços de entretenimento.",
     "category_detail_title": "%s - Categoria",
-    "contact_description": "Entre em contato com a RideCraft Industries. Contate nossa equipe de vendas para orçamentos, consultas e oportunidades de parceria.",
+    "contact_description": "Entre em contato com a Lionet Rides. Contate nossa equipe de vendas para orçamentos, consultas e oportunidades de parceria.",
     "contact_title": "Fale Conosco - %s",
     "description": "Fabricante líder de atrações para parques de diversão desde 1995",
     "error_description": "Algo deu errado do nosso lado. Por favor, tente novamente ou entre em contato conosco para obter assistência.",
     "error_title": "500 - Erro de Servidor",
     "keywords": "atrações de parques de diversão, fabricante de montanha-russa, roda gigante, carrossel, equipamento para parque aquático, atrações para parque temático, B2B, fabricante de atrações",
     "news_description": "Últimas notícias, atualizações e insights da indústria de brinquedos de parques de diversão. Anúncios da empresa, feiras comerciais e demonstrações de projetos.",
-    "news_detail_description": "%s - Leia as últimas notícias e atualizações da RideCraft Industries.",
+    "news_detail_description": "%s - Leia as últimas notícias e atualizações da Lionet Rides.",
     "news_detail_title": "%s - Notícias",
     "news_title": "Notícias - %s",
     "not_found_description": "A página que você está procurando não existe ou foi movida. Deixe-nos ajudar você a encontrar o que precisa.",
@@ -348,7 +348,7 @@
     "product_detail_title": "%s - Detalhes do Produto",
     "products_description": "Explore nossa linha completa de brinquedos de parques de diversão: montanhas-russas, rodas gigantes, carrosséis, bate-bate, equipamentos para parques aquáticos e muito mais. Fabricação B2B para parques temáticos em todo o mundo.",
     "products_title": "Produtos - %s",
-    "title": "RideCraft Industries"
+    "title": "Lionet Rides"
   },
   "nav": {
     "about": "Sobre Nós",
@@ -473,7 +473,7 @@
   },
   "site": {
     "description": "Fabricante líder de brinquedos para parques de diversões desde 1995",
-    "name": "RideCraft Industries",
+    "name": "Lionet Rides",
     "tagline": "Projetando Emoções, Construindo Confiança"
   },
   "stats": {

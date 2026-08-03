@@ -136,7 +136,7 @@
       "title": "設定"
     },
     "sidebar": {
-      "brand": "RideCraft Admin",
+      "brand": "Lionet Rides Admin",
       "brands": "ブランド",
       "categories": "カテゴリー",
       "customers": "顧客",
@@ -322,7 +322,7 @@
     "title": "お問い合わせを送信"
   },
   "meta": {
-    "about_description": "30年以上の経験を持つRideCraft Industriesは、遊園地機器の大手メーカーです。私たちの歴史、ミッション、グローバルな事業展開についてご紹介します。",
+    "about_description": "30年以上の経験を持つLionet Ridesは、遊園地機器の大手メーカーです。私たちの歴史、ミッション、グローバルな事業展開についてご紹介します。",
     "about_title": "会社概要 - %s",
     "brand_detail_description": "%s の全商品をご覧ください。品質と革新を追求する、遊園地アトラクションの大手メーカーです。",
     "brand_detail_title": "%s - ブランド",
@@ -332,14 +332,14 @@
     "categories_title": "商品カテゴリ - %s",
     "category_detail_description": "%s カテゴリーの全商品をご覧ください。テーマパークや娯楽施設向けの高品質な遊園地アトラクションを提供しています。",
     "category_detail_title": "%s - カテゴリー",
-    "contact_description": "RideCraft Industriesへお問い合わせください。見積もり、ご質問、提携のご相談は営業チームまでお寄せください。",
+    "contact_description": "Lionet Ridesへお問い合わせください。見積もり、ご質問、提携のご相談は営業チームまでお寄せください。",
     "contact_title": "お問い合わせ - %s",
     "description": "1995年創業の大手遊園地用乗り物メーカー",
     "error_description": "サーバー側で問題が発生しました。もう一度お試しいただくか、お問い合わせください。",
     "error_title": "500 - サーバーエラー",
     "keywords": "遊園地アトラクション、ジェットコースターメーカー、観覧車、回転木馬、ウォーターパーク設備、テーマパークアトラクション、B2B、アトラクションメーカー",
     "news_description": "遊園地機器業界の最新ニュース、更新情報、インサイト。会社からのお知らせ、展示会、プロジェクト紹介などをお届けします。",
-    "news_detail_description": "%s - RideCraft Industriesからの最新ニュースと更新情報を読む",
+    "news_detail_description": "%s - Lionet Ridesからの最新ニュースと更新情報を読む",
     "news_detail_title": "%s - ニュース",
     "news_title": "ニュース - %s",
     "not_found_description": "お探しのページは存在しないか、移動されました。必要な情報を探すお手伝いをさせていただきます。",
@@ -348,7 +348,7 @@
     "product_detail_title": "%s - 製品詳細",
     "products_description": "ジェットコースター、観覧車、回転木馬、バンパーカー、ウォーターパーク設備など、全製品ラインナップをご覧ください。世界中のテーマパーク向けB2B製造を行っています。",
     "products_title": "製品一覧 - %s",
-    "title": "RideCraft Industries"
+    "title": "Lionet Rides"
   },
   "nav": {
     "about": "私たちについて",
@@ -473,7 +473,7 @@
   },
   "site": {
     "description": "1995年創業の遊園地アトラクション大手メーカー",
-    "name": "RideCraft Industries",
+    "name": "Lionet Rides",
     "tagline": "スリルを設計し、信頼を築く"
   },
   "stats": {

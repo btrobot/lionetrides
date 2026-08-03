@@ -87,7 +87,7 @@ export default function ProductDetailPage() {
         const prod = await prodRes.json();
         if (prod.success) {
           setProduct(prod.data);
-          document.title = `${prod.data.name} | RideCraft Industries`;
+          document.title = `${prod.data.name} | Lionet Rides`;
         }
         const rev = await revRes.json();
         if (rev.success) {

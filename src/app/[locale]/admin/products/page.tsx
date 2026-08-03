@@ -222,7 +222,7 @@ export default function AdminProducts() {
   // ─── Download CSV Template ───────────────────────────
   function downloadTemplate() {
     const headers = 'SKU,产品名称/Name,Slug,描述/Description,简短描述/Short Description,分类/Category,品牌/Brand,价格/Price,重量/Weight,尺寸/Dimensions,材质/Material,容量/Capacity,功率/Power,保修/Warranty,认证/Certification,最小起订量/MOQ,主图URL/Main Image,状态/Status (draft/published/archived),推荐/Featured (true/false),SEO标题/Meta Title,SEO描述/Meta Description';
-    const example = 'RC-001,Double Loop Coaster,double-loop-coaster,Exciting double loop roller coaster...,High-thrill coaster,过山车,ThrillRides,150000,5000kg,120x30x40m,Steel,40 riders,200kW,2 years,CE/ISO,1,https://example.com/img.jpg,published,true,Double Loop Coaster | RideCraft,Buy double loop coaster from RideCraft';
+    const example = 'RC-001,Double Loop Coaster,double-loop-coaster,Exciting double loop roller coaster...,High-thrill coaster,过山车,ThrillRides,150000,5000kg,120x30x40m,Steel,40 riders,200kW,2 years,CE/ISO,1,https://example.com/img.jpg,published,true,Double Loop Coaster | Lionet Rides,Buy double loop coaster from Lionet Rides';
     const csv = `${headers}\n${example}`;
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);

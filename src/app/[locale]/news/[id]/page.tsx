@@ -67,7 +67,7 @@ export default function NewsDetailPage() {
 
         if (current) {
           setNews(current);
-          document.title = `${current.title} | RideCraft Industries`;
+          document.title = `${current.title} | Lionet Rides`;
         }
       } catch (err) {
         console.error('Failed to load news:', err);

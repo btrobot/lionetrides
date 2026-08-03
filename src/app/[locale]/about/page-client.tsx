@@ -52,7 +52,7 @@ export default function AboutPage() {
       <section className="bg-gradient-to-br from-blue-900 via-blue-700 to-indigo-900 py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl sm:text-5xl font-bold text-white mb-6">
-            {config.about_hero_title || 'About RideCraft Industries'}
+            {config.about_hero_title || 'About Lionet Rides'}
           </h1>
           <p className="text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
             {config.about_hero_desc || 'For over 25 years, we have been designing and manufacturing world-class amusement rides.'}

@@ -136,7 +136,7 @@
       "title": "系统设置"
     },
     "sidebar": {
-      "brand": "RideCraft 管理后台",
+      "brand": "Lionet Rides 管理后台",
       "brands": "品牌管理",
       "categories": "分类管理",
       "customers": "客户管理",
@@ -473,7 +473,7 @@
   },
   "site": {
     "description": "自1995年以来的领先游乐设施制造商",
-    "name": "瑞德凯特工业",
+    "name": "Lionet Rides",
     "tagline": "工程惊险，铸就信赖"
   },
   "stats": {

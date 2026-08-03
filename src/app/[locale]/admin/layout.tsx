@@ -74,11 +74,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {/* Brand */}
           <div className="flex items-center justify-between px-5 py-5 border-b border-white/10">
             <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500 text-white text-sm font-bold shadow-lg shadow-blue-500/30">
-                L
-              </div>
+              <img src="/logo.png" alt="Lionet Rides" className="h-8 w-auto" />
               <div>
-                <span className="text-base font-bold text-white tracking-tight">LionetRides</span>
+                <span className="text-base font-bold text-white tracking-tight">Lionet Rides</span>
                 <p className="text-[10px] text-blue-300/60 font-medium tracking-wider uppercase">管理后台</p>
               </div>
             </div>
