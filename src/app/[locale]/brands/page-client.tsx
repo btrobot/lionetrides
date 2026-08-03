@@ -67,7 +67,7 @@ export default function BrandsPage() {
                 )}
                 <div className="mt-6 text-center">
                   <Link
-                    href={`/products?brand=${brand.id}`}
+                    href={`/brands/${brand.slug}`}
                     className="inline-flex items-center text-blue-600 font-medium text-sm hover:gap-2 transition-all"
                   >
                     {t('view_products')} <ArrowRight className="w-4 h-4 ml-1" />

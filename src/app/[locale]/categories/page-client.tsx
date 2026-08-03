@@ -57,7 +57,7 @@ export default function CategoriesPage() {
             {categories.map((cat, i) => (
               <Link
                 key={cat.id}
-                href={`/products?category=${cat.id}`}
+                href={`/categories/${cat.slug}`}
                 className="group relative overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-xl transition-all duration-300"
               >
                 <div className={`h-48 bg-gradient-to-br ${gradientColors[i % gradientColors.length]} flex items-center justify-center`}>

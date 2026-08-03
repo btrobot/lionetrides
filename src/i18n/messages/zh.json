@@ -189,7 +189,11 @@
     "no_results": "暂无品牌。",
     "subtitle": "全球领先的游乐设施制造商",
     "title": "品牌",
-    "view_products": "查看产品"
+    "view_products": "查看产品",
+    "detail_title": "品牌: {name}",
+    "products_count": "{count} 个产品",
+    "no_products": "该品牌暂无产品。",
+    "all_brands": "全部品牌"
   },
   "categories": {
     "bumper_cars": "碰碰车",
@@ -201,7 +205,11 @@
     "subtitle": "适用于各类场所的全系列游乐设施",
     "title": "产品分类",
     "view_all": "查看全部",
-    "water_rides": "水上乐园设备"
+    "water_rides": "水上乐园设备",
+    "detail_title": "分类: {name}",
+    "products_count": "{count} 个产品在此分类中",
+    "no_products": "该分类暂无产品。",
+    "all_categories": "全部分类"
   },
   "certifications": {
     "subtitle": "国际质量与安全认证",
@@ -302,7 +310,11 @@
     "about_title": "关于我们 - %s",
     "about_description": "拥有30+年经验，瑞德凯特工业是领先的游乐设施制造商。了解我们的历史、使命和全球布局。",
     "contact_title": "联系我们 - %s",
-    "contact_description": "联系瑞德凯特工业。向我们的销售团队咨询报价、询盘和合作机会。"
+    "contact_description": "联系瑞德凯特工业。向我们的销售团队咨询报价、询盘和合作机会。",
+    "category_detail_title": "%s - 分类",
+    "category_detail_description": "浏览 %s 分类下的所有产品。适用于主题乐园和娱乐场所的高品质游乐设施。",
+    "brand_detail_title": "%s - 品牌",
+    "brand_detail_description": "探索 %s 的所有产品。品质与创新兼具的领先游乐设施制造商。"
   },
   "nav": {
     "about": "关于我们",
