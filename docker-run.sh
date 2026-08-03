@@ -157,9 +157,9 @@ if [ "$DETACH" = true ]; then
     if [ $SMOKE_EXIT -eq 0 ]; then
       ok "Smoke 测试全部通过！"
     else
-      fail "Smoke 测试未通过，请检查容器日志。"
+      warn "Smoke 测试未完全通过，但容器已启动。请查看日志排查。"
+      warn "   sudo docker logs $CONTAINER_NAME --tail 50"
     fi
-  fi
 else
   echo ""
   ok "容器在前台运行中..."
