@@ -154,3 +154,36 @@ psql -h localhost -U postgres -c "SELECT 1;"
 - YAML 文件：`yamllint` 验证
 - Dockerfile：`docker build --check`（如有）
 - 推送前必须运行验证脚本
+
+## 坑 11：Node.js 作为 PID 1 无法正确处理 SIGTERM
+
+**现象**：`docker stop` 后容器不优雅关闭，数据库连接未释放
+
+**原因**：Node.js 不处理 PID 1 收到的 SIGTERM 信号（PID 1 有特殊语义）。
+
+**解决**：使用 tini 作为 init 进程：
+```dockerfile
+RUN apt-get install -y --no-install-recommends tini && rm -rf /var/lib/apt/lists/*
+ENTRYPOINT ["tini", "--", "docker-entrypoint.sh"]
+```
+
+## 坑 12：entrypoint 等待数据库无超时退出
+
+**现象**：PostgreSQL 启动失败，容器卡在等待循环后继续执行，后续操作全部报错
+
+**原因**：等待循环结束后没有检查是否成功，直接继续执行。
+
+**解决**：
+```bash
+PG_READY=false
+for i in {1..30}; do
+  if su - postgres -c "pg_isready -p ${PGPORT:-5433}" >/dev/null 2>&1; then
+    PG_READY=true; break
+  fi
+  sleep 1
+done
+if [ "$PG_READY" = false ]; then
+  echo "ERROR: PostgreSQL failed to start within 30 seconds" >&2
+  exit 1
+fi
+```

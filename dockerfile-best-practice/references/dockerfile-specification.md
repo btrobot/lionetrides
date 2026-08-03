@@ -92,6 +92,18 @@ CMD ["node", "dist/server.js"]
 exec su -s /bin/bash node -c "exec node dist/server.js"
 ```
 
+### 信号处理（tini）
+
+Node.js 作为 PID 1 无法正确处理 SIGTERM。使用 tini 作为 init 进程转发信号：
+
+```dockerfile
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends tini && \
+    rm -rf /var/lib/apt/lists/*
+
+ENTRYPOINT ["tini", "--", "docker-entrypoint.sh"]
+```
+
 ### 文件权限
 
 ```dockerfile
@@ -150,6 +162,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 - 超时：5s-15s
 - 启动期：30s-120s
 - 重试：3-5 次
+- **必须使用专用 `/health` 端点**，不要用业务端点（如 `/api/v1/products`）
 - 健康检查端点应轻量级，可检查数据库连接
 
 ## 七、端口一致性

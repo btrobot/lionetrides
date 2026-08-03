@@ -60,12 +60,18 @@ RUN tar cf /tmp/dist.tar .next
 FROM node:24-bookworm-slim AS runner
 WORKDIR /app
 
+# 安装 tini（信号转发）和 curl（健康检查）
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      tini \
+      curl && \
+    rm -rf /var/lib/apt/lists/*
+
 # 安装 PostgreSQL（内嵌数据库）
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       postgresql-17 \
-      postgresql-client-17 \
-      curl && \
+      postgresql-client-17 && \
     rm -rf /var/lib/apt/lists/*
 
 # 配置 PostgreSQL 端口（避免与宿主机冲突）
@@ -91,10 +97,11 @@ COPY --from=builder /app/package*.json ./
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN if [ -f /usr/local/bin/docker-entrypoint.sh ]; then chmod +x /usr/local/bin/docker-entrypoint.sh; fi
 
-# 健康检查
+# 健康检查（使用轻量级端点，非业务端点）
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD curl -f http://localhost:3000/api/v1/products || exit 1
+  CMD curl -f http://localhost:3000/health || exit 1
 
 EXPOSE 3000
 
-ENTRYPOINT ["docker-entrypoint.sh"]
+# 使用 tini 作为 init 进程，正确转发信号给 Node.js
+ENTRYPOINT ["tini", "--", "docker-entrypoint.sh"]

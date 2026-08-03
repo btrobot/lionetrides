@@ -11,18 +11,26 @@ su - postgres -c "pg_ctlcluster ${PG_VER} main start"
 
 # ─── 等待 PostgreSQL 就绪 ───
 echo "Waiting for PostgreSQL..."
+PG_READY=false
 for i in {1..30}; do
   if su - postgres -c "pg_isready -p ${PGPORT:-5433}" >/dev/null 2>&1; then
     echo "PostgreSQL is ready"
+    PG_READY=true
     break
   fi
   echo "Waiting... ($i/30)"
   sleep 1
 done
 
+if [ "$PG_READY" = false ]; then
+  echo "ERROR: PostgreSQL failed to start within 30 seconds" >&2
+  exit 1
+fi
+
 # ─── 初始化数据库 ───
 echo "Initializing database..."
 # 使用 Unix socket peer 认证，避免 TCP 密码认证问题
+# || true: ALTER USER 在首次初始化时可能失败（用户已存在），属于预期行为
 su - postgres -c "psql -c \"ALTER USER postgres PASSWORD 'postgres';\"" 2>/dev/null || true
 su - postgres -c "createdb {{DB_NAME}}" 2>/dev/null || echo "Database already exists"
 

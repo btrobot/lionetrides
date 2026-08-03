@@ -27,7 +27,7 @@ jobs:
           script: |
             cd /path/to/project
             git pull origin main
-            ./docker-build.sh --region cn --no-cache
+            ./docker-build.sh --region cn
             ./docker-run.sh --env-file .env.local
 ```
 
@@ -90,8 +90,8 @@ jobs:
           script: |
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            docker stop ${{ secrets.CONTAINER_NAME }} || true
-            docker rm ${{ secrets.CONTAINER_NAME }} || true
+            docker stop ${{ secrets.CONTAINER_NAME }} || true  # 容器可能不存在，忽略错误
+            docker rm ${{ secrets.CONTAINER_NAME }} || true    # 同上
             docker run -d \
               --name ${{ secrets.CONTAINER_NAME }} \
               --env-file /path/to/.env.local \

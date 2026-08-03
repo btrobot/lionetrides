@@ -3,8 +3,6 @@
 ## 基本结构
 
 ```yaml
-version: "3.8"
-
 services:
   app:
     build:
@@ -12,13 +10,13 @@ services:
       dockerfile: Dockerfile
       args:
         DEPLOY_REGION: auto
-    image: ${IMAGE_NAME:-lionetrides}:latest
-    container_name: ${CONTAINER_NAME:-lionetrides}
+    image: ${IMAGE_NAME:-myapp}:latest
+    container_name: ${CONTAINER_NAME:-myapp}
     ports:
       - "${APP_PORT:-5000}:3000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:postgres@localhost:5433/lionetrides
+      - DATABASE_URL=postgresql://postgres:postgres@localhost:5433/myapp
     env_file:
       - .env.local
     healthcheck:

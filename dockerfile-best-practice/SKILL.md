@@ -162,7 +162,7 @@ GitHub Actions 双模式：
 
 ## 已知坑点（必读）
 
-详见 `references/pitfalls.md`。以下是最常见的 5 个：
+详见 `references/pitfalls.md`。以下是最常见的 7 个：
 
 1. **Shell 参数解析用 while 不用 for** — `for` 循环中 `shift` 无效
 2. **日志输出到 stderr** — stdout 被 `$()` 捕获会污染变量
@@ -179,8 +179,20 @@ GitHub Actions 双模式：
 - `references/validation-checklist.md`: 验证检查清单（13+ 项检查）— 生成验证脚本时必读
 - `references/docker-compose-specification.md`: docker-compose 编排规范 — 生成 compose 文件时必读
 - `references/ci-cd-patterns.md`: CI/CD 双模式部署模板（GitHub Actions）— 生成 workflow 时必读
-- `scripts/detect-mirror.sh`: 镜像源自动检测脚本模板 — 需要国内/国际适配时直接复制
-- `scripts/validate-docker.sh`: 验证脚本模板 — 交付前运行，确保无遗漏
-- `assets/Dockerfile.template`: Dockerfile 模板（Next.js + PostgreSQL）— 基础模板
-- `assets/docker-entrypoint.template`: entrypoint 脚本模板 — 含数据库的项目使用
+- `scripts/detect-mirror.sh`: 镜像源自动检测脚本模板 — 需要国内/国际适配时，复制到项目的 `scripts/` 目录中使用
+- `scripts/validate-docker.sh`: 验证脚本模板 — 交付前复制到项目 `scripts/` 目录并运行，确保无遗漏
+- `assets/Dockerfile.template`: Dockerfile 模板（Next.js + PostgreSQL）— 基础模板，将 `{{占位符}}` 替换为实际值后使用
+- `assets/docker-entrypoint.template`: entrypoint 脚本模板 — 含数据库的项目使用，将 `{{DB_NAME}}` 替换为实际数据库名
 - `assets/.dockerignore.template`: .dockerignore 模板
+
+## 占位符说明
+
+模板中使用 `{{占位符}}` 标记需要替换的内容：
+
+| 占位符 | 说明 | 示例 |
+|--------|------|------|
+| `{{PROJECT_NAME}}` | 项目名称 | `lionetrides` |
+| `{{PROJECT_DESCRIPTION}}` | 项目描述 | `Amusement ride manufacturing` |
+| `{{DB_NAME}}` | 数据库名称 | `lionetrides` |
+
+替换规则：从项目 `package.json` 的 `name` / `description` 字段读取，数据库名默认与项目名一致。
