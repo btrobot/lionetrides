@@ -1,26 +1,30 @@
----
-name: "🚀 Mode B — Docker Build & Deploy (GitHub Actions)"
+# Mode B 部署 — GitHub Actions 构建 + 推送 → 服务器拉取运行
+# 触发：手动触发（workflow_dispatch）
+# 流程：GHA 构建镜像 → 推送 ghcr.io → SSH 拉取 → 健康检查 → 失败回滚
+
+name: "Deploy (Mode B — GHA Build + Push)"
 
 on:
   workflow_dispatch:
     inputs:
       region:
-        description: '部署环境（镜像源）'
+        description: '镜像源环境'
         required: true
-        default: 'auto'
+        default: 'global'
         type: choice
         options:
-          - auto       # 自动检测
           - global     # 官方源（GitHub Actions 默认）
           - cn         # 国内镜像源
+          - auto       # 自动检测
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  DEPLOY_REGION: ${{ github.event.inputs.region || 'global' }}
 
 jobs:
   build-and-push:
-    name: "🐳 构建 & 推送镜像"
+    name: " 构建 & 推送镜像"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -58,7 +62,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            DEPLOY_REGION=${{ github.event.inputs.region }}
+            DEPLOY_REGION=${{ env.DEPLOY_REGION }}
             BUILD_DATE=${{ github.event.repository.updated_at }}
             BUILD_VERSION=${{ github.ref_name }}
             GIT_COMMIT=${{ github.sha }}
@@ -66,9 +70,10 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy:
-    name: "🚀 部署到服务器"
+    name: " 部署到服务器"
     needs: build-and-push
     runs-on: ubuntu-latest
+
     steps:
       - name: SSH 部署
         uses: appleboy/ssh-action@v1.2.0
@@ -77,27 +82,112 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            set -e
+            set -euo pipefail
 
+            CONTAINER_NAME="lionetrides"
+            IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+            HEALTH_URL="http://localhost:3000"
+            MAX_WAIT=120
+
+            echo "=========================================="
+            echo "  部署开始 — $(date '+%Y-%m-%d %H:%M:%S')"
+            echo "=========================================="
+
+            # ─── 1. 记录旧镜像（用于回滚） ───
+            echo ""
+            echo "=== 记录旧镜像 ==="
+            OLD_IMAGE=$(docker inspect --format '{{.Image}}' "$CONTAINER_NAME" 2>/dev/null || echo "")
+            if [ -n "$OLD_IMAGE" ]; then
+              echo "旧镜像 SHA: $OLD_IMAGE"
+            fi
+
+            # ─── 2. 拉取最新镜像 ───
+            echo ""
             echo "=== 拉取最新镜像 ==="
-            docker pull ghcr.io/${{ github.repository }}:latest
+            docker pull "$IMAGE"
 
+            # ─── 3. 停止并移除旧容器 ──
+            echo ""
             echo "=== 停止旧容器 ==="
-            docker stop lionetrides 2>/dev/null || true
-            docker rm lionetrides 2>/dev/null || true
+            if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+              docker stop "$CONTAINER_NAME"
+              docker rm "$CONTAINER_NAME"
+              echo "旧容器已移除"
+            else
+              echo "无旧容器"
+            fi
 
+            # ─── 4. 启动新容器 ───
+            echo ""
             echo "=== 启动新容器 ==="
             docker run -d \
-              --name lionetrides \
+              --name "$CONTAINER_NAME" \
               --restart unless-stopped \
               -p 3000:3000 \
               -v /data/lionetrides:/app/data \
               --env-file /data/lionetrides/.env.production \
-              ghcr.io/${{ github.repository }}:latest
+              "$IMAGE"
 
+            echo "容器已启动"
+
+            # ── 5. 健康检查 ───
+            echo ""
+            echo "=== 健康检查 ==="
+            ELAPSED=0
+            HEALTHY=false
+
+            while [ $ELAPSED -lt $MAX_WAIT ]; do
+              if curl -sf --max-time 5 "$HEALTH_URL" > /dev/null 2>&1; then
+                HEALTHY=true
+                echo "  健康检查通过！(耗时: ${ELAPSED}s)"
+                break
+              fi
+              echo "  等待服务就绪... ($ELAPSED/${MAX_WAIT}s)"
+              sleep 5
+              ELAPSED=$((ELAPSED + 5))
+            done
+
+            if [ "$HEALTHY" = false ]; then
+              echo ""
+              echo "!!! 健康检查失败，执行回滚 !!!"
+
+              # 停止新容器
+              docker stop "$CONTAINER_NAME"
+              docker rm "$CONTAINER_NAME"
+
+              # 回滚到旧镜像
+              if [ -n "$OLD_IMAGE" ]; then
+                docker run -d \
+                  --name "$CONTAINER_NAME" \
+                  --restart unless-stopped \
+                  -p 3000:3000 \
+                  -v /data/lionetrides:/app/data \
+                  --env-file /data/lionetrides/.env.production \
+                  "$OLD_IMAGE"
+
+                echo "回滚完成！已恢复到旧版本"
+              else
+                echo "!!! 无旧镜像可回滚，请手动排查 !!!"
+              fi
+
+              # 输出日志帮助排查
+              echo ""
+              echo "=== 新容器日志（最后 50 行）==="
+              docker logs "$CONTAINER_NAME" --tail 50 2>/dev/null || true
+
+              exit 1
+            fi
+
+            # ─── 6. 清理 ───
+            echo ""
             echo "=== 清理旧镜像 ==="
-            docker system prune -f
+            docker image prune -f
 
-            echo "=== 验证部署 ==="
-            sleep 3
-            curl -s -o /dev/null -w "HTTP %{http_code}\n" http://localhost:3000 || echo "⚠️ 服务暂未就绪，请稍后检查"
+            echo ""
+            echo "=========================================="
+            echo "  部署成功！— $(date '+%Y-%m-%d %H:%M:%S')"
+            echo "=========================================="
+            echo ""
+            echo "  访问: $HEALTH_URL"
+            echo "  日志: docker logs -f $CONTAINER_NAME"
+            echo ""

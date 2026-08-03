@@ -1,0 +1,74 @@
+# CI 工作流 — 每次 push/PR 自动验证
+# 门禁：lint + ts-check + test + build
+# 不通过则阻挡合并到 main
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: " 代码验证"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+          run_install: false
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+
+      - name: ESLint 检查
+        run: pnpm lint
+
+      - name: TypeScript 类型检查
+        run: pnpm ts-check
+
+      - name: 运行测试
+        run: pnpm test
+
+      - name: 构建生产版本
+        run: pnpm build
+
+  docker-build:
+    name: " Docker 构建检查"
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 构建镜像（不推送）
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          build-args: |
+            DEPLOY_REGION=global
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: lionetrides:ci-check
