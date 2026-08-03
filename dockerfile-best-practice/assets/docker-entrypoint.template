@@ -1,0 +1,37 @@
+#!/bin/bash
+# ============================================
+# Docker Entrypoint 模板 — Next.js + PostgreSQL
+# ============================================
+set -euo pipefail
+
+# ─── 启动 PostgreSQL ───
+echo "Starting PostgreSQL..."
+PG_VER=$(ls /etc/postgresql/ | head -1)
+su - postgres -c "pg_ctlcluster ${PG_VER} main start"
+
+# ─── 等待 PostgreSQL 就绪 ───
+echo "Waiting for PostgreSQL..."
+for i in {1..30}; do
+  if su - postgres -c "pg_isready -p ${PGPORT:-5433}" >/dev/null 2>&1; then
+    echo "PostgreSQL is ready"
+    break
+  fi
+  echo "Waiting... ($i/30)"
+  sleep 1
+done
+
+# ─── 初始化数据库 ───
+echo "Initializing database..."
+# 使用 Unix socket peer 认证，避免 TCP 密码认证问题
+su - postgres -c "psql -c \"ALTER USER postgres PASSWORD 'postgres';\"" 2>/dev/null || true
+su - postgres -c "createdb {{DB_NAME}}" 2>/dev/null || echo "Database already exists"
+
+# ─── 运行数据库迁移 ───
+if [ -f "dist/server.js" ]; then
+  echo "Running migrations..."
+  su -s /bin/bash node -c "node dist/server.js --migrate-only" 2>/dev/null || echo "Migrations skipped or already applied"
+fi
+
+# ─── 启动应用（非 root 用户）───
+echo "Starting application..."
+exec su -s /bin/bash node -c "exec node dist/server.js"
