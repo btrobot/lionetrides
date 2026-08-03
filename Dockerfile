@@ -81,6 +81,7 @@ COPY --from=builder /app/scripts        ./scripts
 COPY --from=builder /app/docker-entrypoint.sh ./docker-entrypoint.sh
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder /app/tsconfig.json  ./tsconfig.json
+COPY --from=builder /app/src/db        ./src/db
 
 # 环境变量
 ENV NEXT_TELEMETRY_DISABLED=1
