@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# Docker 构建脚本 — Lion E-Trides
+# Docker 构建脚本 — LionetRides
 # 用法: ./docker-build.sh [--clean] [--no-cache] [--push]
 # ============================================================
 set -e
@@ -52,7 +52,7 @@ cd "$(dirname "$0")"
 
 echo ""
 echo "=========================================="
-echo "  Docker 构建 — Lion E-Trides"
+echo "  Docker 构建 — LionetRides"
 echo "  $(date '+%Y-%m-%d %H:%M:%S')"
 echo "=========================================="
 echo ""

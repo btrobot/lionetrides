@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# Docker 运行脚本 — Lion E-Trides
+# Docker 运行脚本 — LionetRides
 # 用法: ./docker-run.sh [--env-file .env] [--port 5000]
 # ============================================================
 set -e
@@ -56,7 +56,7 @@ cd "$(dirname "$0")"
 
 echo ""
 echo "=========================================="
-echo "  Docker 运行 — Lion E-Trides"
+echo "  Docker 运行 — LionetRides"
 echo "  $(date '+%Y-%m-%d %H:%M:%S')"
 echo "=========================================="
 echo ""
