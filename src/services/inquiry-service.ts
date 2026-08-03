@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import { inquiries, inquiry_history } from '@/db/schema';
-import { eq, and, isNull, desc, count } from 'drizzle-orm';
+import { eq, and, isNull, desc, asc, count, gte, lte } from 'drizzle-orm';
 import { NotFoundError, paginatedResponse } from '@/lib/errors';
 
 type InquiryStatus = 'pending' | 'processing' | 'replied' | 'closed';
@@ -37,12 +37,14 @@ export const inquiryService = {
     return inquiry;
   },
 
-  async list(params: { page?: number; pageSize?: number; userId?: number; status?: string }) {
-    const { page = 1, pageSize = 10, userId, status } = params;
+  async list(params: { page?: number; pageSize?: number; userId?: number; status?: string; startDate?: string; endDate?: string }) {
+    const { page = 1, pageSize = 10, userId, status, startDate, endDate } = params;
 
     const conditions = [isNull(inquiries.deleted_at)];
     if (userId) conditions.push(eq(inquiries.user_id, userId));
     if (status) conditions.push(eq(inquiries.status, status as InquiryStatus));
+    if (startDate) conditions.push(gte(inquiries.created_at, new Date(startDate)));
+    if (endDate) conditions.push(lte(inquiries.created_at, new Date(endDate)));
 
     const where = and(...conditions);
 
@@ -69,6 +71,16 @@ export const inquiryService = {
 
     if (!inquiry) throw new NotFoundError('Inquiry');
     return inquiry;
+  },
+
+  async getHistory(id: number) {
+    const history = await db
+      .select()
+      .from(inquiry_history)
+      .where(eq(inquiry_history.inquiry_id, id))
+      .orderBy(asc(inquiry_history.created_at));
+
+    return history;
   },
 
   async updateStatus(id: number, status: string, changedBy?: number, note?: string, reply?: string) {

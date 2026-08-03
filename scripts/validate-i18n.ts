@@ -64,6 +64,9 @@ const SKIP_UNTRANSLATED_CHECK = new Set([
   'admin.categories.actions',    // 操作标签
   'admin.brands.actions',       // 操作标签
   'admin.inquiries.date',       // 字段名
+  'admin.inquiries.email',      // 字段名
+  'admin.inquiries.message',    // 字段名
+  'admin.inquiries.reply_placeholder', // 占位文本
   'admin.inquiries.actions',    // 操作标签
   'admin.reviews.date',         // 字段名
   'admin.reviews.actions',      // 操作标签

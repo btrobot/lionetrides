@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { Search, SlidersHorizontal, Grid3X3, List, Star, X } from 'lucide-react';
+import { Search, SlidersHorizontal, Grid3X3, List, Star, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -64,7 +64,14 @@ export default function ProductsPage() {
   const search = searchParams.get('q') || '';
   const selectedCategory = searchParams.get('category') || '';
   const selectedBrand = searchParams.get('brand') || '';
+  const minPrice = searchParams.get('minPrice') || '';
+  const maxPrice = searchParams.get('maxPrice') || '';
+  const selectedMaterial = searchParams.get('material') || '';
+  const selectedCapacity = searchParams.get('capacity') || '';
+  const selectedPower = searchParams.get('power') || '';
+  const selectedCertification = searchParams.get('certification') || '';
   const sortBy = searchParams.get('sort') || 'newest';
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -73,6 +80,12 @@ export default function ProductsPage() {
       if (search) params.set('search', search);
       if (selectedCategory) params.set('categoryId', selectedCategory);
       if (selectedBrand) params.set('brandId', selectedBrand);
+      if (minPrice) params.set('minPrice', minPrice);
+      if (maxPrice) params.set('maxPrice', maxPrice);
+      if (selectedMaterial) params.set('material', selectedMaterial);
+      if (selectedCapacity) params.set('capacity', selectedCapacity);
+      if (selectedPower) params.set('power', selectedPower);
+      if (selectedCertification) params.set('certification', selectedCertification);
       if (sortBy === 'price-asc') { params.set('sortBy', 'price'); params.set('sortOrder', 'asc'); }
       else if (sortBy === 'price-desc') { params.set('sortBy', 'price'); params.set('sortOrder', 'desc'); }
       else if (sortBy === 'name') { params.set('sortBy', 'name'); params.set('sortOrder', 'asc'); }
@@ -97,14 +110,14 @@ export default function ProductsPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, search, selectedCategory, selectedBrand, sortBy]);
+  }, [currentPage, search, selectedCategory, selectedBrand, minPrice, maxPrice, selectedMaterial, selectedCapacity, selectedPower, selectedCertification, sortBy]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
   const updateParams = (updates: Record<string, string | null>) => {
     const params = new URLSearchParams();
     // carry over existing params
-    const keys = ['q', 'category', 'brand', 'sort', 'page'];
+    const keys = ['q', 'category', 'brand', 'sort', 'page', 'minPrice', 'maxPrice', 'material', 'capacity', 'power', 'certification'];
     for (const key of keys) {
       const val = searchParams.get(key);
       if (val) params.set(key, val);
@@ -123,7 +136,7 @@ export default function ProductsPage() {
     router.push('?');
   };
 
-  const hasActiveFilters = search || selectedCategory || selectedBrand;
+  const hasActiveFilters = search || selectedCategory || selectedBrand || minPrice || maxPrice || selectedMaterial || selectedCapacity || selectedPower || selectedCertification;
 
   function ProductCardItem({ product }: { product: Product }) {
     return (
@@ -286,6 +299,95 @@ export default function ProductsPage() {
             </div>
           </div>
 
+          {/* Advanced Filters Toggle */}
+          <div className="mt-3 pt-3 border-t border-gray-100">
+            <button
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 transition-colors"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              {t('advanced_filters')}
+              {showAdvanced ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+
+            {showAdvanced && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-3">
+                <div className="space-y-1">
+                  <label className="text-xs text-gray-500">{t('price_range')}</label>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder={t('min_price')}
+                      defaultValue={minPrice}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        updateParams({ minPrice: val || null });
+                      }}
+                      className="h-8 text-sm"
+                    />
+                    <Input
+                      placeholder={t('max_price')}
+                      defaultValue={maxPrice}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        updateParams({ maxPrice: val || null });
+                      }}
+                      className="h-8 text-sm"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs text-gray-500">{t('filter_material')}</label>
+                  <Select value={selectedMaterial || 'all'} onValueChange={(val) => updateParams({ material: val === 'all' ? null : val })}>
+                    <SelectTrigger className="h-8 text-sm">
+                      <SelectValue placeholder={t('all_materials')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t('all_materials')}</SelectItem>
+                      <SelectItem value="Steel">Steel</SelectItem>
+                      <SelectItem value="Fiberglass">Fiberglass</SelectItem>
+                      <SelectItem value="Stainless Steel">Stainless Steel</SelectItem>
+                      <SelectItem value="Aluminum">Aluminum</SelectItem>
+                      <SelectItem value="Composite">Composite</SelectItem>
+                      <SelectItem value="Wood">Wood</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs text-gray-500">{t('filter_capacity')}</label>
+                  <Select value={selectedCapacity || 'all'} onValueChange={(val) => updateParams({ capacity: val === 'all' ? null : val })}>
+                    <SelectTrigger className="h-8 text-sm">
+                      <SelectValue placeholder={t('all_capacities')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t('all_capacities')}</SelectItem>
+                      <SelectItem value="2-4 persons">2-4 persons</SelectItem>
+                      <SelectItem value="4-8 persons">4-8 persons</SelectItem>
+                      <SelectItem value="8-16 persons">8-16 persons</SelectItem>
+                      <SelectItem value="16-32 persons">16-32 persons</SelectItem>
+                      <SelectItem value="32+ persons">32+ persons</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs text-gray-500">{t('filter_power')}</label>
+                  <Select value={selectedPower || 'all'} onValueChange={(val) => updateParams({ power: val === 'all' ? null : val })}>
+                    <SelectTrigger className="h-8 text-sm">
+                      <SelectValue placeholder={t('all_power')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t('all_power')}</SelectItem>
+                      <SelectItem value="Electric">Electric</SelectItem>
+                      <SelectItem value="Hydraulic">Hydraulic</SelectItem>
+                      <SelectItem value="Pneumatic">Pneumatic</SelectItem>
+                      <SelectItem value="Manual">Manual</SelectItem>
+                      <SelectItem value="Solar">Solar</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Active filters */}
           {hasActiveFilters && (
             <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
@@ -305,6 +407,31 @@ export default function ProductsPage() {
                 <Badge variant="secondary" className="gap-1 cursor-pointer" onClick={() => updateParams({ brand: null })}>
                   {brands.find(b => String(b.id) === selectedBrand)?.name || `Brand #${selectedBrand}`}
                   <X className="w-3 h-3" />
+                </Badge>
+              )}
+              {minPrice && (
+                <Badge variant="secondary" className="gap-1 cursor-pointer" onClick={() => updateParams({ minPrice: null })}>
+                  Min: ${minPrice} <X className="w-3 h-3" />
+                </Badge>
+              )}
+              {maxPrice && (
+                <Badge variant="secondary" className="gap-1 cursor-pointer" onClick={() => updateParams({ maxPrice: null })}>
+                  Max: ${maxPrice} <X className="w-3 h-3" />
+                </Badge>
+              )}
+              {selectedMaterial && (
+                <Badge variant="secondary" className="gap-1 cursor-pointer" onClick={() => updateParams({ material: null })}>
+                  {selectedMaterial} <X className="w-3 h-3" />
+                </Badge>
+              )}
+              {selectedCapacity && (
+                <Badge variant="secondary" className="gap-1 cursor-pointer" onClick={() => updateParams({ capacity: null })}>
+                  {selectedCapacity} <X className="w-3 h-3" />
+                </Badge>
+              )}
+              {selectedPower && (
+                <Badge variant="secondary" className="gap-1 cursor-pointer" onClick={() => updateParams({ power: null })}>
+                  {selectedPower} <X className="w-3 h-3" />
                 </Badge>
               )}
               <Button variant="ghost" size="sm" className="text-xs text-gray-500" onClick={clearFilters}>

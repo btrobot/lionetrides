@@ -2,7 +2,7 @@
 
 import { useState, createContext, useContext, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { Loader2, CheckCircle } from 'lucide-react';
+import { Loader2, CheckCircle, FileText } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -42,6 +42,7 @@ export function InquiryProvider({ children }: { children: React.ReactNode }) {
   const [productName, setProductName] = useState<string | undefined>();
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submittedInquiryNo, setSubmittedInquiryNo] = useState<string | null>(null);
   const [formData, setFormData] = useState<InquiryFormData>({
     name: '', email: '', phone: '', company: '', quantity: 1, message: '',
   });
@@ -51,6 +52,7 @@ export function InquiryProvider({ children }: { children: React.ReactNode }) {
     setProductId(pid);
     setProductName(pname);
     setSubmitted(false);
+    setSubmittedInquiryNo(null);
     setFormData({ name: '', email: '', phone: '', company: '', quantity: 1, message: '' });
     setErrors({});
     setOpen(true);
@@ -76,11 +78,15 @@ export function InquiryProvider({ children }: { children: React.ReactNode }) {
     if (!validate()) return;
     setSubmitting(true);
     try {
-      await fetch('/api/v1/inquiries', {
+      const res = await fetch('/api/v1/inquiries', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formData, productId }),
       });
+      const data = await res.json();
+      if (data.success) {
+        setSubmittedInquiryNo(data.data?.inquiry_no || null);
+      }
       setSubmitted(true);
     } catch {
       // error handled silently
@@ -102,7 +108,14 @@ export function InquiryProvider({ children }: { children: React.ReactNode }) {
                 <CheckCircle className="h-8 w-8 text-green-600" />
               </div>
               <DialogTitle className="text-xl mb-2">{t('success')}</DialogTitle>
-              <Button onClick={() => setOpen(false)} variant="outline" className="mt-4">Close</Button>
+              {submittedInquiryNo && (
+                <div className="flex items-center gap-2 mt-2 px-4 py-2 bg-blue-50 rounded-lg">
+                  <FileText className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm font-mono text-blue-700 font-medium">{submittedInquiryNo}</span>
+                </div>
+              )}
+              <p className="text-sm text-gray-500 mt-3">{t('success_message')}</p>
+              <Button onClick={() => setOpen(false)} variant="outline" className="mt-4">{t('close')}</Button>
             </div>
           ) : (
             <>

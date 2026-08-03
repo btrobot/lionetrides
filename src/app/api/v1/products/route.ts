@@ -30,6 +30,16 @@ async function listHandler(request: NextRequest, _context: { params: Promise<Rec
     const brandId = searchParams.get('brandId')
       ? parseInt(searchParams.get('brandId')!)
       : undefined;
+    const minPrice = searchParams.get('minPrice')
+      ? parseFloat(searchParams.get('minPrice')!)
+      : undefined;
+    const maxPrice = searchParams.get('maxPrice')
+      ? parseFloat(searchParams.get('maxPrice')!)
+      : undefined;
+    const material = searchParams.get('material') || undefined;
+    const capacity = searchParams.get('capacity') || undefined;
+    const power = searchParams.get('power') || undefined;
+    const certification = searchParams.get('certification') || undefined;
     const sortBy = (searchParams.get('sortBy') || 'sort_order') as string;
     const sortOrder = (searchParams.get('sortOrder') || 'asc') as 'asc' | 'desc';
 
@@ -39,7 +49,12 @@ async function listHandler(request: NextRequest, _context: { params: Promise<Rec
       search,
       categoryId,
       brandId,
-      
+      minPrice,
+      maxPrice,
+      material,
+      capacity,
+      power,
+      certification,
       sortBy,
       sortOrder,
     });

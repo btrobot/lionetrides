@@ -57,6 +57,8 @@ async function listHandler(request: NextRequest, _context: { params: Promise<Rec
     const page = parseInt(searchParams.get('page') || '1');
     const pageSize = parseInt(searchParams.get('pageSize') || '10');
     const status = searchParams.get('status') || undefined;
+    const startDate = searchParams.get('startDate') || undefined;
+    const endDate = searchParams.get('endDate') || undefined;
 
     const user = (request as AuthenticatedRequest).user;
     const result = await inquiryService.list({
@@ -64,6 +66,8 @@ async function listHandler(request: NextRequest, _context: { params: Promise<Rec
       pageSize,
       userId: user?.userId,
       status,
+      startDate,
+      endDate,
     });
 
     return NextResponse.json(

@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import { products, reviews } from '@/db/schema';
-import { eq, and, ne, isNull, desc, asc, count, sql } from 'drizzle-orm';
+import { eq, and, ne, isNull, desc, asc, count, sql, gte, lte, or } from 'drizzle-orm';
 import { NotFoundError, paginatedResponse } from '@/lib/errors';
 
 export const productService = {
@@ -10,20 +10,35 @@ export const productService = {
     search?: string;
     categoryId?: number;
     brandId?: number;
+    minPrice?: number;
+    maxPrice?: number;
+    material?: string;
+    capacity?: string;
+    power?: string;
+    certification?: string;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
   }) {
-    const { page = 1, pageSize = 12, search, categoryId, brandId, sortBy = 'created_at', sortOrder = 'desc' } = params;
+    const { page = 1, pageSize = 12, search, categoryId, brandId, minPrice, maxPrice, material, capacity, power, certification, sortBy = 'created_at', sortOrder = 'desc' } = params;
 
     const conditions = [isNull(products.deleted_at), eq(products.status, 'published')];
 
     if (search) {
-      conditions.push(
-        sql`(${products.name} ILIKE ${'%' + search + '%'} OR ${products.description} ILIKE ${'%' + search + '%'} OR ${products.sku} ILIKE ${'%' + search + '%'})`
+      const searchCondition = or(
+        sql`to_tsvector('simple', coalesce(${products.name}, '') || ' ' || coalesce(${products.description}, '')) @@ plainto_tsquery('simple', ${search})`,
+        sql`${products.name} ILIKE ${'%' + search + '%'}`,
+        sql`${products.sku} ILIKE ${'%' + search + '%'}`
       );
+      if (searchCondition) conditions.push(searchCondition);
     }
     if (categoryId) conditions.push(eq(products.category_id, categoryId));
     if (brandId) conditions.push(eq(products.brand_id, brandId));
+    if (minPrice !== undefined) conditions.push(gte(products.price, String(minPrice)));
+    if (maxPrice !== undefined) conditions.push(lte(products.price, String(maxPrice)));
+    if (material) conditions.push(eq(products.material, material));
+    if (capacity) conditions.push(eq(products.capacity, capacity));
+    if (power) conditions.push(eq(products.power, power));
+    if (certification) conditions.push(sql`${products.certification} ILIKE ${'%' + certification + '%'}`);
 
     const where = and(...conditions);
 

@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { Search, Filter, ChevronRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Search, Filter, ChevronRight, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -15,19 +16,21 @@ interface Inquiry {
   customer_name: string;
   email: string;
   quantity: number;
-  status: 'pending' | 'replied' | 'closed';
+  status: 'pending' | 'processing' | 'replied' | 'closed';
   message: string | null;
   created_at: string;
 }
 
 const statusStyles: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-700',
-  replied: 'bg-blue-100 text-blue-700',
+  processing: 'bg-blue-100 text-blue-700',
+  replied: 'bg-green-100 text-green-700',
   closed: 'bg-gray-100 text-gray-600',
 };
 
 export default function AccountInquiriesPage() {
   const t = useTranslations('account');
+  const router = useRouter();
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -72,7 +75,11 @@ export default function AccountInquiriesPage() {
         ) : (
           <div className="space-y-4">
             {inquiries.map((inq) => (
-              <Card key={inq.id} className="border-0 p-6 hover:shadow-md transition-all duration-200">
+              <Card
+                key={inq.id}
+                className="border-0 p-6 hover:shadow-md transition-all duration-200 cursor-pointer"
+                onClick={() => router.push(`/account/inquiries/${inq.id}`)}
+              >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
@@ -87,8 +94,8 @@ export default function AccountInquiriesPage() {
                     </p>
                     {inq.message && <p className="text-sm text-gray-600 mt-2 line-clamp-1">{inq.message}</p>}
                   </div>
-                  <Button variant="ghost" size="sm" className="text-blue-600 shrink-0">
-                    {t('view_details')} <ChevronRight className="ml-1 h-4 w-4" />
+                  <Button variant="ghost" size="sm" className="text-blue-600 shrink-0" onClick={(e) => { e.stopPropagation(); router.push(`/account/inquiries/${inq.id}`); }}>
+                    {t('view_details')} <ExternalLink className="ml-1 h-4 w-4" />
                   </Button>
                 </div>
               </Card>

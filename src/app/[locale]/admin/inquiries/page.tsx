@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Pagination } from '@/components/shared/pagination';
-import { Search, Mail, Phone, Building2, Calendar, MoreHorizontal, CheckCircle2, XCircle, MessageSquare, RefreshCw } from 'lucide-react';
+import { Search, Mail, Phone, Building2, Calendar, MoreHorizontal, CheckCircle2, XCircle, MessageSquare, RefreshCw, Clock, History } from 'lucide-react';
 
 interface Inquiry {
   id: number;
@@ -47,6 +47,8 @@ export default function AdminInquiries() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selected, setSelected] = useState<Inquiry | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [history, setHistory] = useState<Array<{ id: number; previous_status: string | null; new_status: string; note: string | null; created_at: string }>>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const [replyOpen, setReplyOpen] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [saving, setSaving] = useState(false);
@@ -111,6 +113,20 @@ export default function AdminInquiries() {
       toast.error('回复发送失败');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const loadHistory = async (id: number) => {
+    setHistoryLoading(true);
+    try {
+      const res = await authFetch(`/api/v1/inquiries/${id}/history`);
+      if (!res) return;
+      const d = await res.json();
+      if (d.success) setHistory(d.data);
+    } catch (e) {
+      console.error('Failed to load history:', e);
+    } finally {
+      setHistoryLoading(false);
     }
   };
 
@@ -200,7 +216,7 @@ export default function AdminInquiries() {
                     {new Date(inquiry.created_at).toLocaleDateString('zh-CN')}
                   </td>
                   <td className="py-3 px-4 text-right">
-                    <Button variant="ghost" size="sm" onClick={() => { setSelected(inquiry); setDetailOpen(true); }}>
+                    <Button variant="ghost" size="sm" onClick={() => { setSelected(inquiry); setDetailOpen(true); loadHistory(inquiry.id); }}>
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </td>
@@ -260,6 +276,41 @@ export default function AdminInquiries() {
                   <p className="mt-1 p-3 bg-blue-50 rounded-lg text-sm whitespace-pre-wrap">{selected.admin_notes}</p>
                 </div>
               )}
+              {/* Status History Timeline */}
+              <div>
+                <label className="text-xs text-muted-foreground flex items-center gap-1">
+                  <History className="h-3 w-3" /> 状态变更历史
+                </label>
+                {historyLoading ? (
+                  <div className="mt-2 text-center py-4">
+                    <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
+                  </div>
+                ) : history.length === 0 ? (
+                  <p className="mt-2 text-sm text-gray-400">暂无记录</p>
+                ) : (
+                  <div className="mt-2 relative">
+                    <div className="absolute left-3 top-0 bottom-0 w-0.5 bg-gray-200" />
+                    <div className="space-y-4">
+                      {history.map((item) => {
+                        const statusLabels: Record<string, string> = { pending: '待处理', processing: '处理中', replied: '已回复', closed: '已关闭' };
+                        return (
+                          <div key={item.id} className="relative pl-8">
+                            <div className="absolute left-1.5 top-1.5 w-3 h-3 rounded-full bg-white border-2 border-blue-500" />
+                            <div className="text-xs">
+                              <span className="font-medium text-gray-900">
+                                {item.previous_status && <span className="text-gray-400">{statusLabels[item.previous_status] || item.previous_status} → </span>}
+                                {statusLabels[item.new_status] || item.new_status}
+                              </span>
+                              <span className="text-gray-400 ml-2">{new Date(item.created_at).toLocaleString('zh-CN')}</span>
+                            </div>
+                            {item.note && <p className="text-xs text-gray-500 mt-0.5">{item.note}</p>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
               <div className="flex items-center justify-between pt-4 border-t">
                 <div className="flex items-center gap-2">
                   <label className="text-sm text-muted-foreground">更新状态:</label>
