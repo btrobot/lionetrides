@@ -1,5 +1,5 @@
 # ============================================================
-# Lion E-Trides — Next.js 16 + PostgreSQL 多阶段构建
+# LionetRides — Next.js 16 + PostgreSQL 多阶段构建
 # 优化目标：最小化最终镜像体积，分离构建环境与运行环境
 # 遵循 GitHub CI/CD 最佳实践：
 #   - 多阶段构建
@@ -28,11 +28,17 @@ ARG DEPLOY_REGION
 COPY scripts/detect-mirror.sh /tmp/detect-mirror.sh
 RUN bash /tmp/detect-mirror.sh ${DEPLOY_REGION:+--force-${DEPLOY_REGION}}
 
-# corepack 镜像源
-# 国内环境: 使用腾讯云镜像加速 corepack 下载 pnpm
-# 国际环境: 腾讯云镜像仍可达，仅一次下载，影响可忽略
-ENV COREPACK_REGISTRY=https://mirrors.cloud.tencent.com/npm
-RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+# corepack 镜像源（根据 DEPLOY_REGION 自动选择）
+# auto: 检测网络环境，国内用腾讯云，国外用官方
+# cn: 强制腾讯云镜像
+# global: 使用官方 registry（GitHub Actions 构建时推荐）
+RUN if [ "${DEPLOY_REGION}" = "global" ]; then \
+      echo "Using official npm registry for corepack"; \
+    elif [ "${DEPLOY_REGION}" = "cn" ] || { [ "${DEPLOY_REGION}" = "auto" ] && curl -s --max-time 3 https://mirrors.cloud.tencent.com/npm/-/ping > /dev/null 2>&1; }; then \
+      echo "Using Tencent mirror for corepack"; \
+      export COREPACK_REGISTRY=https://mirrors.cloud.tencent.com/npm; \
+    fi && \
+    corepack enable && corepack prepare pnpm@9.15.0 --activate
 
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
@@ -46,20 +52,26 @@ ARG DEPLOY_REGION
 COPY scripts/detect-mirror.sh /tmp/detect-mirror.sh
 RUN bash /tmp/detect-mirror.sh ${DEPLOY_REGION:+--force-${DEPLOY_REGION}}
 
-ENV COREPACK_REGISTRY=https://mirrors.cloud.tencent.com/npm
-RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+# corepack 镜像源（根据 DEPLOY_REGION 自动选择）
+RUN if [ "${DEPLOY_REGION}" = "global" ]; then \
+      echo "Using official npm registry for corepack"; \
+    elif [ "${DEPLOY_REGION}" = "cn" ] || { [ "${DEPLOY_REGION}" = "auto" ] && curl -s --max-time 3 https://mirrors.cloud.tencent.com/npm/-/ping > /dev/null 2>&1; }; then \
+      echo "Using Tencent mirror for corepack"; \
+      export COREPACK_REGISTRY=https://mirrors.cloud.tencent.com/npm; \
+    fi && \
+    corepack enable && corepack prepare pnpm@9.15.0 --activate
 
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN pnpm next build
-RUN pnpm tsup src/server.ts --format cjs --platform node --target node20 --outDir dist --no-splitting --no-minify
+RUN pnpm run build
+RUN npx tsup src/server.ts --format cjs --platform node --target node20 --outDir dist --no-splitting --no-minify
 
 # 保留完整 node_modules（种子脚本需要 tsx/drizzle-kit），仅清理缓存
 RUN rm -rf .next/cache node_modules/.cache && \
-    tar cf /tmp/node_modules.tar node_modules --dereference --hard-links
+    tar cf /tmp/node_modules.tar node_modules --dereference
 
 # ─── Stage 3: 运行时 ──────────────────────────────────────
 FROM node:24-bookworm-slim AS runner
@@ -70,7 +82,7 @@ ARG BUILD_VERSION
 ARG GIT_COMMIT
 
 # ─── LABEL 元数据（OCI 标准） ───────────────────────────────
-LABEL org.opencontainers.image.title="Lion E-Trides"
+LABEL org.opencontainers.image.title="LionetRides"
 LABEL org.opencontainers.image.description="B2B 游乐设施制造企业官网"
 LABEL org.opencontainers.image.url="https://lionetrides.com"
 LABEL org.opencontainers.image.source="https://github.com/lionetrides/lionetrides"
@@ -78,7 +90,7 @@ LABEL org.opencontainers.image.version="${BUILD_VERSION:-latest}"
 LABEL org.opencontainers.image.revision="${GIT_COMMIT:-unknown}"
 LABEL org.opencontainers.image.created="${BUILD_DATE:-unknown}"
 LABEL org.opencontainers.image.licenses="MIT"
-LABEL org.opencontainers.image.vendor="Lion E-Trides"
+LABEL org.opencontainers.image.vendor="LionetRides"
 LABEL maintainer="dev@lionetrides.com"
 
 # ─── 镜像源自动检测 ──────────────────────────────────────
@@ -86,20 +98,25 @@ COPY scripts/detect-mirror.sh /tmp/detect-mirror.sh
 RUN bash /tmp/detect-mirror.sh ${DEPLOY_REGION:+--force-${DEPLOY_REGION}}
 
 # ─── 安装运行时依赖 ──────────────────────────────────────
-# 不使用 --no-install-recommends 确保 tini 等工具完整安装
 RUN apt-get update -qq && \
     apt-get install -y -qq --no-install-recommends \
       postgresql postgresql-client \
       curl tini ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
-# 自动检测 PostgreSQL 主版本并初始化
+# 自动检测 PostgreSQL 主版本并初始化（配置为端口 5433）
 RUN PG_VER=$(pg_lsclusters -h 2>/dev/null | head -1 | awk '{print $1}') && \
     if [ -z "$PG_VER" ]; then \
       PG_VER=$(dpkg -l | grep 'postgresql-[0-9]' | head -1 | sed 's/.*postgresql-\([0-9]*\)[^0-9]*.*/\1/'); \
     fi && \
     if [ -z "$PG_VER" ]; then PG_VER=15; fi && \
     echo "Detected PostgreSQL version: $PG_VER" && \
+    # 修改 PostgreSQL 配置为端口 5433
+    PG_CONF="/etc/postgresql/${PG_VER}/main/postgresql.conf" && \
+    if [ -f "$PG_CONF" ]; then \
+      sed -i "s/^#port = 5432/port = 5433/" "$PG_CONF" && \
+      sed -i "s/^port = 5432/port = 5433/" "$PG_CONF"; \
+    fi && \
     su - postgres -c "pg_ctlcluster ${PG_VER} main start" && \
     sleep 1 && \
     su - postgres -c "psql -c \"ALTER USER postgres PASSWORD 'postgres';\"" && \
@@ -107,8 +124,14 @@ RUN PG_VER=$(pg_lsclusters -h 2>/dev/null | head -1 | awk '{print $1}') && \
     su - postgres -c "pg_ctlcluster ${PG_VER} main stop"
 
 # 启用 pnpm（运行时需要 pnpm exec 执行迁移和种子脚本）
-ENV COREPACK_REGISTRY=https://mirrors.cloud.tencent.com/npm
-RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+# corepack 镜像源（根据 DEPLOY_REGION 自动选择）
+RUN if [ "${DEPLOY_REGION}" = "global" ]; then \
+      echo "Using official npm registry for corepack"; \
+    elif [ "${DEPLOY_REGION}" = "cn" ] || { [ "${DEPLOY_REGION}" = "auto" ] && curl -s --max-time 3 https://mirrors.cloud.tencent.com/npm/-/ping > /dev/null 2>&1; }; then \
+      echo "Using Tencent mirror for corepack"; \
+      export COREPACK_REGISTRY=https://mirrors.cloud.tencent.com/npm; \
+    fi && \
+    corepack enable && corepack prepare pnpm@9.15.0 --activate
 
 WORKDIR /app
 
@@ -121,8 +144,7 @@ COPY --chown=node:node --from=builder /app/package.json   ./package.json
 COPY --chown=node:node --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
 # 复制 node_modules（tar 归档方式，避免 COPY 数万小文件超时）
 COPY --from=builder /tmp/node_modules.tar /tmp/node_modules.tar
-RUN tar xf /tmp/node_modules.tar -C /app && rm /tmp/node_modules.tar && \
-    chown -R node:node /app/node_modules
+RUN tar xf /tmp/node_modules.tar -C /app --no-same-owner && rm /tmp/node_modules.tar
 COPY --chown=node:node --from=builder /app/scripts        ./scripts
 COPY --chown=node:node --from=builder /app/docker-entrypoint.sh ./docker-entrypoint.sh
 COPY --chown=node:node --from=builder /app/drizzle.config.ts ./drizzle.config.ts
@@ -132,7 +154,8 @@ COPY --chown=node:node --from=builder /app/src/db        ./src/db
 # 权限设置（最小权限原则）
 RUN chmod 755 docker-entrypoint.sh && \
     chmod -R 755 .next/static && \
-    chmod 644 .next/build-manifest.json .next/server/app/index.html 2>/dev/null || true
+    (test -f .next/build-manifest.json && chmod 644 .next/build-manifest.json || true) && \
+    (test -f .next/server/app/index.html && chmod 644 .next/server/app/index.html || true)
 
 # ─── 环境变量 ────────────────────────────────────────────
 ENV NEXT_TELEMETRY_DISABLED=1
