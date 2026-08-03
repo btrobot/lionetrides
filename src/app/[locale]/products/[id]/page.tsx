@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -52,7 +52,27 @@ export default function ProductDetailPage() {
   const [related, setRelated] = useState<ProductCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentImage, setCurrentImage] = useState(0);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
   const { openInquiry } = useInquiry();
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    setTouchStart(e.touches[0].clientX);
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStart === null) return;
+    const diff = touchStart - e.changedTouches[0].clientX;
+    const threshold = 50;
+    if (Math.abs(diff) > threshold) {
+      setCurrentImage((c) => {
+        const allImgs = product ? [product.main_image, ...(product.images || [])].filter(Boolean) as string[] : [];
+        if (!allImgs.length) return c;
+        if (diff > 0) return (c + 1) % allImgs.length;
+        return (c - 1 + allImgs.length) % allImgs.length;
+      });
+    }
+    setTouchStart(null);
+  }, [touchStart, product]);
 
   useEffect(() => {
     const id = params?.id as string;
@@ -153,7 +173,10 @@ export default function ProductDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Image Gallery */}
           <div className="lg:col-span-3 space-y-4">
-            <div className="relative aspect-[16/10] bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl overflow-hidden group">
+            <div className="relative aspect-[16/10] bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl overflow-hidden group"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
               {allImages.length > 0 ? (
                 <>
                   <Image

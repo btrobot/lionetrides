@@ -164,6 +164,11 @@ Desktop.ini
 .coze-logs
 .codegraph/
 
+# Playwright reports
+e2e-report/
+playwright-report/
+test-results/
+
 .omx/
 
 .github/workflows/

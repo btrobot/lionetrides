@@ -200,6 +200,25 @@ export default function Header() {
               </Link>
             ))}
             <div className="border-t border-gray-100 pt-3 mt-3">
+              {/* Mobile Language Switcher */}
+              <div className="mb-3">
+                <p className="text-xs text-gray-400 uppercase tracking-wider mb-2 px-3">Language</p>
+                <div className="grid grid-cols-3 gap-1">
+                  {locales.map((locale) => (
+                    <Link
+                      key={locale}
+                      href={pathname.replace(`/${currentLocale}`, `/${locale}`)}
+                      className={cn(
+                        'px-2 py-1.5 text-xs rounded-lg text-center hover:bg-gray-100',
+                        locale === currentLocale && 'bg-blue-50 text-blue-600 font-medium'
+                      )}
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      {localeNames[locale]}
+                    </Link>
+                  ))}
+                </div>
+              </div>
               <Link
                 href={`/${currentLocale}/auth/login`}
                 className="block px-3 py-2 text-sm font-medium text-gray-700"

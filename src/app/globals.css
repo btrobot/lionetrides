@@ -153,6 +153,22 @@ body {
   aspect-ratio: 1 / 1;
 }
 
+/* Content visibility — skip off-screen rendering */
+@utility content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px;
+}
+
+/* Partner Logo Scroll Animation */
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-scroll {
+  animation: scroll 30s linear infinite;
+}
+
 /* Scrollbar gutter — prevent CLS from scrollbar appearing */
 html {
   scrollbar-gutter: stable;
