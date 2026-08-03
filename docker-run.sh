@@ -29,14 +29,14 @@ ENV_FILE=""
 PORT="$DEFAULT_PORT"
 DETACH=true
 SKIP_SMOKE=false
-for arg in "$@"; do
-  case $arg in
-    --env-file=*) ENV_FILE="${arg#*=}" ;;
-    --env-file)   ENV_FILE="$2"; shift ;;
-    --port=*)     PORT="${arg#*=}" ;;
-    --port)       PORT="$2"; shift ;;
-    --foreground) DETACH=false ;;
-    --skip-smoke) SKIP_SMOKE=true ;;
+while [ $# -gt 0 ]; do
+  case $1 in
+    --env-file=*) ENV_FILE="${1#*=}"; shift ;;
+    --env-file)   ENV_FILE="$2"; shift 2 ;;
+    --port=*)     PORT="${1#*=}"; shift ;;
+    --port)       PORT="$2"; shift 2 ;;
+    --foreground) DETACH=false; shift ;;
+    --skip-smoke) SKIP_SMOKE=true; shift ;;
     -h|--help)
       echo "用法: ./docker-run.sh [选项]"
       echo ""
@@ -48,7 +48,7 @@ for arg in "$@"; do
       echo "  -h, --help       显示帮助"
       exit 0
       ;;
-    *)              echo "未知参数: $arg"; exit 1 ;;
+    *)              echo "未知参数: $1"; exit 1 ;;
   esac
 done
 

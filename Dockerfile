@@ -26,7 +26,12 @@ ARG DEPLOY_REGION
 
 # 镜像源自动检测脚本（配置 npm registry + apt sources，持久化写入）
 COPY scripts/detect-mirror.sh /tmp/detect-mirror.sh
-RUN bash /tmp/detect-mirror.sh ${DEPLOY_REGION:+--force-${DEPLOY_REGION}}
+# 运行检测脚本：cn/global 强制指定，auto 自动检测
+RUN if [ "${DEPLOY_REGION}" = "cn" ] || [ "${DEPLOY_REGION}" = "global" ]; then \
+      bash /tmp/detect-mirror.sh --force-${DEPLOY_REGION}; \
+    else \
+      bash /tmp/detect-mirror.sh; \
+    fi
 
 # corepack 镜像源（根据 DEPLOY_REGION 自动选择）
 # auto: 检测网络环境，国内用腾讯云，国外用官方

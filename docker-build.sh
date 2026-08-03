@@ -26,12 +26,12 @@ fail() { echo -e "${RED}[FAIL]${NC} $1"; exit 1; }
 CLEAN=false
 NO_CACHE=false
 DEPLOY_REGION="auto"
-for arg in "$@"; do
-  case $arg in
-    --clean)       CLEAN=true ;;
-    --no-cache)    NO_CACHE=true ;;
-    --region=*)    DEPLOY_REGION="${arg#*=}" ;;
-    --region)      DEPLOY_REGION="$2"; shift ;;
+while [ $# -gt 0 ]; do
+  case $1 in
+    --clean)       CLEAN=true; shift ;;
+    --no-cache)    NO_CACHE=true; shift ;;
+    --region=*)    DEPLOY_REGION="${1#*=}"; shift ;;
+    --region)      DEPLOY_REGION="$2"; shift 2 ;;
     -h|--help)
       echo "用法: ./docker-build.sh [选项]"
       echo ""
@@ -44,7 +44,7 @@ for arg in "$@"; do
       echo "  -h, --help     显示帮助"
       exit 0
       ;;
-    *)           echo "未知参数: $arg"; exit 1 ;;
+    *)           echo "未知参数: $1"; exit 1 ;;
   esac
 done
 
