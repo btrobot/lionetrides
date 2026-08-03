@@ -33,7 +33,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm next build
 RUN pnpm tsup src/server.ts --format cjs --platform node --target node20 --outDir dist --no-splitting --no-minify
 # 保留完整 node_modules（种子脚本需要 tsx/drizzle-kit），仅清理缓存
-RUN rm -rf .next/cache node_modules/.cache
+RUN rm -rf .next/cache node_modules/.cache && \
+    tar cf /tmp/node_modules.tar node_modules --dereference --hard-links
 
 # ─── Stage 3: 运行时 ──────────────────────────────────────
 FROM node:24-bookworm-slim AS runner
@@ -75,8 +76,9 @@ COPY --from=builder /app/dist           ./dist
 COPY --from=builder /app/public         ./public
 COPY --from=builder /app/package.json   ./package.json
 COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
-# 复制 node_modules（含 devDependencies，种子脚本需要 tsx/drizzle-kit）
-COPY --from=builder /app/node_modules   ./node_modules
+# 复制 node_modules（tar 归档方式，避免 COPY 数万小文件超时）
+COPY --from=builder /tmp/node_modules.tar /tmp/node_modules.tar
+RUN tar xf /tmp/node_modules.tar -C /app && rm /tmp/node_modules.tar
 COPY --from=builder /app/scripts        ./scripts
 COPY --from=builder /app/docker-entrypoint.sh ./docker-entrypoint.sh
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
