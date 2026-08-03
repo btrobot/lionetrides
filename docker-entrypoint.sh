@@ -4,8 +4,14 @@ set -euo pipefail
 DATABASE_URL="${DATABASE_URL:-postgresql://postgres:postgres@localhost:5433/lionetrides}"
 export DATABASE_URL
 
-echo "🚀 Starting PostgreSQL..."
-su - postgres -c "pg_ctlcluster 15 main start"
+# 自动检测 PostgreSQL 主版本
+PG_VER=$(pg_lsclusters -h 2>/dev/null | head -1 | awk '{print $1}')
+if [ -z "$PG_VER" ]; then
+  PG_VER=$(dpkg -l | grep 'postgresql-[0-9]' | head -1 | sed 's/.*postgresql-\([0-9]*\)[^0-9]*.*/\1/')
+fi
+if [ -z "$PG_VER" ]; then PG_VER=15; fi
+echo "🚀 Starting PostgreSQL ${PG_VER}..."
+su - postgres -c "pg_ctlcluster ${PG_VER} main start"
 
 # 等待 PostgreSQL 就绪
 POSTGRES_READY=false
