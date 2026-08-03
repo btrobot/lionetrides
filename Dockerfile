@@ -32,8 +32,7 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm next build
 RUN pnpm tsup src/server.ts --format cjs --platform node --target node20 --outDir dist --no-splitting --no-minify
-# 移除 devDependencies，只保留运行时依赖（drizzle-kit, tsx 等已在 dependencies 中）
-RUN pnpm prune --prod
+# 保留完整 node_modules（种子脚本需要 tsx/drizzle-kit），仅清理缓存
 RUN rm -rf .next/cache node_modules/.cache
 
 # ─── Stage 3: 运行时 ──────────────────────────────────────
@@ -76,7 +75,7 @@ COPY --from=builder /app/dist           ./dist
 COPY --from=builder /app/public         ./public
 COPY --from=builder /app/package.json   ./package.json
 COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
-# 复制已裁剪的 node_modules（仅 production deps，不含 devDependencies）
+# 复制 node_modules（含 devDependencies，种子脚本需要 tsx/drizzle-kit）
 COPY --from=builder /app/node_modules   ./node_modules
 COPY --from=builder /app/scripts        ./scripts
 COPY --from=builder /app/docker-entrypoint.sh ./docker-entrypoint.sh
