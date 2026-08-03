@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# Docker 部署 Smoke 测试 — Lion E-Trides
+# Docker 部署 Smoke 测试 — LionetRides
 # 用法: ./docker-smoke-test.sh [--host http://localhost:5000]
 # ============================================================
 # 不使用 set -e，各步骤独立判错
@@ -51,7 +51,7 @@ done
 
 echo ""
 echo "=========================================="
-echo "  Docker Smoke Test — Lion E-Trides"
+echo "  Docker Smoke Test — LionetRides"
 echo "  $(date '+%Y-%m-%d %H:%M:%S')"
 echo "  目标: $HOST"
 echo "=========================================="

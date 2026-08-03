@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# Docker 停止脚本 — Lion E-Trides
+# Docker 停止脚本 — LionetRides
 # 用法: ./docker-stop.sh [--remove]
 # ============================================================
 set -e
@@ -39,7 +39,7 @@ done
 
 echo ""
 echo "=========================================="
-echo "  Docker 停止 — Lion E-Trides"
+echo "  Docker 停止 — LionetRides"
 echo "=========================================="
 echo ""
 
