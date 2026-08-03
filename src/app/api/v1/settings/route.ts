@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { withMiddleware, withAdmin } from '@/middleware/api';
+import { withMiddleware, withSuperAdmin } from '@/middleware/api';
 import { settingsService } from '@/services/settings-service';
 import { cacheResponse, errorResponse } from '@/lib/errors';
 
@@ -12,5 +12,5 @@ async function updateSettingHandler(request: NextRequest) { try { const body = a
 async function updateStatsHandler(request: NextRequest) { try { const body = await request.json(); const parsed = updateStatsSchema.parse(body); const item = await settingsService.updateStats(parsed.id, parsed); return NextResponse.json({ success: true, data: item }); } catch (e) { if (e instanceof z.ZodError) return NextResponse.json({ success: false, error: 'Validation failed', details: e.issues }, { status: 400 }); const err = errorResponse(e); return NextResponse.json(err, { status: err.statusCode }); } }
 
 export const GET = withMiddleware(getHandler);
-export const PUT = withMiddleware(withAdmin(updateSettingHandler));
-export const PATCH = withMiddleware(withAdmin(updateStatsHandler));
+export const PUT = withMiddleware(withSuperAdmin(updateSettingHandler));
+export const PATCH = withMiddleware(withSuperAdmin(updateStatsHandler));

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withMiddleware, withAdmin } from '@/middleware/api';
+import { withMiddleware, withEditor } from '@/middleware/api';
 import { reviewService } from '@/services/review-service';
 import { errorResponse } from '@/lib/errors';
 
@@ -14,4 +14,4 @@ async function handler(request: NextRequest, { params }: { params: Promise<{ id:
   }
 }
 
-export const DELETE = withMiddleware(withAdmin(handler));
+export const DELETE = withMiddleware(withEditor(handler));

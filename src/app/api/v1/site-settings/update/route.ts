@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withAdmin } from '@/middleware/api';
+import { withSuperAdmin } from '@/middleware/api';
 import { upsertSiteSetting } from '@/services/site-settings-service';
 
 async function handler(request: NextRequest) {
@@ -34,5 +34,5 @@ async function handler(request: NextRequest) {
   }
 }
 
-export const POST = withAdmin(handler);
-export const PUT = withAdmin(handler);
+export const POST = withSuperAdmin(handler);
+export const PUT = withSuperAdmin(handler);

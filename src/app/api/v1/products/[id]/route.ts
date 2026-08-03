@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { withMiddleware, withAdmin } from '@/middleware/api';
+import { withMiddleware, withEditor } from '@/middleware/api';
 import { productService } from '@/services/product-service';
 import { cacheResponse, errorResponse } from '@/lib/errors';
 
@@ -84,5 +84,5 @@ async function deleteHandler(
 }
 
 export const GET = withMiddleware(getHandler);
-export const PUT = withMiddleware(withAdmin(updateHandler));
-export const DELETE = withMiddleware(withAdmin(deleteHandler));
+export const PUT = withMiddleware(withEditor(updateHandler));
+export const DELETE = withMiddleware(withEditor(deleteHandler));

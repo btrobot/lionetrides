@@ -17,7 +17,7 @@ import {
 // ─── Enums ───────────────────────────────────────────────
 export const inquiry_status = pgEnum('inquiry_status', ['pending', 'processing', 'replied', 'closed']);
 export const review_status = pgEnum('review_status', ['pending', 'approved', 'rejected', 'hidden']);
-export const user_role = pgEnum('user_role', ['customer', 'admin', 'super_admin']);
+export const user_role = pgEnum('user_role', ['customer', 'admin', 'super_admin', 'editor', 'viewer']);
 export const product_status = pgEnum('product_status', ['draft', 'published', 'archived']);
 
 // ─── Categories ──────────────────────────────────────────

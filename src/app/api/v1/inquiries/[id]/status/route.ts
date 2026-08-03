@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { withMiddleware, withAdmin } from '@/middleware/api';
+import { withMiddleware, withEditor } from '@/middleware/api';
 import { inquiryService } from '@/services/inquiry-service';
 import { errorResponse } from '@/lib/errors';
 
@@ -39,4 +39,4 @@ async function handler(
   }
 }
 
-export const PUT = withMiddleware(withAdmin(handler));
+export const PUT = withMiddleware(withEditor(handler));

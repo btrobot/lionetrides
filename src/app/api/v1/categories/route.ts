@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { withMiddleware, withAdmin } from '@/middleware/api';
+import { withMiddleware, withEditor } from '@/middleware/api';
 import { categoryService } from '@/services/category-service';
 import { cacheResponse, errorResponse } from '@/lib/errors';
 
@@ -26,4 +26,4 @@ async function createHandler(request: NextRequest, _context: { params: Promise<R
 }
 
 export const GET = withMiddleware(listHandler);
-export const POST = withMiddleware(withAdmin(createHandler));
+export const POST = withMiddleware(withEditor(createHandler));

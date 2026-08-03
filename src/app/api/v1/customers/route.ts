@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withMiddleware, withAdmin } from '@/middleware/api';
+import { withMiddleware, withEditor } from '@/middleware/api';
 import { db } from '@/db';
 import { users } from '@/db/schema';
 import { isNull, desc, ilike, and } from 'drizzle-orm';
@@ -21,4 +21,4 @@ async function listHandler(request: NextRequest, _context: { params: Promise<Rec
     return NextResponse.json({ success: true, data: paginatedResponse(items, count, { page, pageSize }) });
   } catch (e) { const err = errorResponse(e); return NextResponse.json(err, { status: err.statusCode }); }
 }
-export const GET = withMiddleware(withAdmin(listHandler));
+export const GET = withMiddleware(withEditor(listHandler));

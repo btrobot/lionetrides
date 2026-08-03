@@ -46,7 +46,7 @@ export function useAdminAuth() {
       .then((data) => {
         if (!data.success) throw new Error('Token invalid');
         const u = data.data;
-        if (u.role !== 'admin' && u.role !== 'super_admin') {
+        if (u.role !== 'admin' && u.role !== 'super_admin' && u.role !== 'editor' && u.role !== 'viewer') {
           redirectToLogin();
           return;
         }

@@ -92,31 +92,45 @@ export function withAuth(handler: ApiHandler): ApiHandler {
 }
 
 export function withAdmin(handler: ApiHandler): ApiHandler {
-  return async (request: NextRequest, context: RouteContext) => {
-    const token = getTokenFromRequest(request);
-    if (!token) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
+  return withRole('admin', 'super_admin')(handler);
+}
 
-    try {
-      const user = verifyToken(token);
-      if (user.role !== 'admin' && user.role !== 'super_admin') {
+export function withEditor(handler: ApiHandler): ApiHandler {
+  return withRole('editor', 'admin', 'super_admin')(handler);
+}
+
+export function withSuperAdmin(handler: ApiHandler): ApiHandler {
+  return withRole('super_admin')(handler);
+}
+
+export function withRole(...allowedRoles: string[]) {
+  return (handler: ApiHandler): ApiHandler => {
+    return async (request: NextRequest, context: RouteContext) => {
+      const token = getTokenFromRequest(request);
+      if (!token) {
         return NextResponse.json(
-          { success: false, error: 'Admin access required' },
-          { status: 403 }
+          { success: false, error: 'Authentication required' },
+          { status: 401 }
         );
       }
-      (request as AuthenticatedRequest).user = user;
-    } catch {
-      return NextResponse.json(
-        { success: false, error: 'Invalid or expired token' },
-        { status: 401 }
-      );
-    }
 
-    return handler(request, context);
+      try {
+        const user = verifyToken(token);
+        if (!allowedRoles.includes(user.role)) {
+          return NextResponse.json(
+            { success: false, error: 'Insufficient permissions' },
+            { status: 403 }
+          );
+        }
+        (request as AuthenticatedRequest).user = user;
+      } catch {
+        return NextResponse.json(
+          { success: false, error: 'Invalid or expired token' },
+          { status: 401 }
+        );
+      }
+
+      return handler(request, context);
+    };
   };
 }

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withMiddleware, withAdmin } from '@/middleware/api';
+import { withMiddleware, withEditor } from '@/middleware/api';
 import { partnerService } from '@/services/partner-service';
 import { cacheResponse, errorResponse } from '@/lib/errors';
 async function getHandler(request: NextRequest, { params }: { params: Promise<{ id: string }> }) { try { const { id } = await params; const item = await partnerService.getById(parseInt(id)); return NextResponse.json({ success: true, data: item }, { headers: cacheResponse(3600) }); } catch (e) { const err = errorResponse(e); return NextResponse.json(err, { status: err.statusCode }); } }
 async function updateHandler(request: NextRequest, { params }: { params: Promise<{ id: string }> }) { try { const { id } = await params; const body = await request.json(); const item = await partnerService.update(parseInt(id), body); return NextResponse.json({ success: true, data: item }); } catch (e) { const err = errorResponse(e); return NextResponse.json(err, { status: err.statusCode }); } }
 async function deleteHandler(request: NextRequest, { params }: { params: Promise<{ id: string }> }) { try { const { id } = await params; await partnerService.remove(parseInt(id)); return NextResponse.json({ success: true, message: 'Partner deleted' }); } catch (e) { const err = errorResponse(e); return NextResponse.json(err, { status: err.statusCode }); } }
 export const GET = withMiddleware(getHandler);
-export const PUT = withMiddleware(withAdmin(updateHandler));
-export const DELETE = withMiddleware(withAdmin(deleteHandler));
+export const PUT = withMiddleware(withEditor(updateHandler));
+export const DELETE = withMiddleware(withEditor(deleteHandler));
