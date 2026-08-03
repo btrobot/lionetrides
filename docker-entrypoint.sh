@@ -33,7 +33,8 @@ fi
 # 初始化数据库
 echo "📦 Pushing schema..."
 pnpm exec drizzle-kit push --force --config=drizzle.config.ts
-if [ "$(psql "$DATABASE_URL" -tAc "SELECT to_regclass('public.users') IS NOT NULL AND to_regclass('public.products') IS NOT NULL")" != "t" ]; then
+# 使用 postgres 用户通过 Unix socket 连接（peer 认证，无需密码）
+if [ "$(su - postgres -c "psql -d lionetrides -tAc \"SELECT to_regclass('public.users') IS NOT NULL AND to_regclass('public.products') IS NOT NULL\"")" != "t" ]; then
   echo "❌ Schema verification failed: required tables are missing" >&2
   exit 1
 fi

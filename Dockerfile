@@ -129,8 +129,7 @@ RUN PG_VER=$(pg_lsclusters -h 2>/dev/null | head -1 | awk '{print $1}') && \
     # 修改 PostgreSQL 配置为端口 5433
     PG_CONF="/etc/postgresql/${PG_VER}/main/postgresql.conf" && \
     if [ -f "$PG_CONF" ]; then \
-      sed -i "s/^#port = 5432/port = 5433/" "$PG_CONF" && \
-      sed -i "s/^port = 5432/port = 5433/" "$PG_CONF"; \
+      sed -i "s/^#port = 5432/port = 5433/" "$PG_CONF"; \
     fi && \
     su - postgres -c "pg_ctlcluster ${PG_VER} main start" && \
     sleep 1 && \

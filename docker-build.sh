@@ -98,12 +98,13 @@ else
   ok ".dockerignore 存在"
 fi
 
-# 1.5 node_modules 存在（需要从宿主机复制）
+# 1.5 node_modules 检查（仅用于宿主机开发环境，Docker 构建使用 deps 阶段安装）
+# Docker 构建不依赖宿主机 node_modules，但保留检查以确保开发环境可用
 if [ ! -d "node_modules" ]; then
-  log "node_modules 不存在，执行 pnpm install..."
-  pnpm install
+  warn "宿主机 node_modules 不存在（Docker 构建将使用 deps 阶段安装）"
+  log "如需宿主机开发环境，请执行: pnpm install"
 fi
-ok "node_modules 存在"
+ok "准备就绪"
 
 echo ""
 
