@@ -24,7 +24,7 @@ RUN if [ "${DEPLOY_REGION}" = "cn" ] || [ "${DEPLOY_REGION}" = "global" ]; then 
     fi
 
 COPY package*.json ./
-RUN pnpm install --frozen-lockfile
+RUN corepack enable && pnpm install --frozen-lockfile
 
 # ============================================
 # 阶段 2: 构建应用
@@ -33,12 +33,13 @@ FROM node:24-bookworm-slim AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN pnpm run build
+RUN corepack enable && pnpm run build
 
 # ============================================
 # 阶段 3: 运行环境
 # ============================================
 FROM node:24-bookworm-slim AS runner
+ARG BUILD_DATE
 WORKDIR /app
 
 # 安装 PostgreSQL
@@ -61,11 +62,11 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # 环境变量
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=5000
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD curl -f http://localhost:3000/health || exit 1
+  CMD curl -f http://localhost:5000/health || exit 1
 
 # OCI 标签
 LABEL org.opencontainers.image.title="lionetrides"
@@ -73,7 +74,7 @@ LABEL org.opencontainers.image.description="Auto-generated from deploy.yaml"
 LABEL org.opencontainers.image.version="1.0.0"
 LABEL org.opencontainers.image.created="${BUILD_DATE}"
 
-EXPOSE 3000
+EXPOSE 5000
 
 # 启动
 ENTRYPOINT ["docker-entrypoint.sh"]
