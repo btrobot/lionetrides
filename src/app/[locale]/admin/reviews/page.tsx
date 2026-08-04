@@ -3,8 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAdminAuth } from '@/hooks/use-admin-auth';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { AdminPageHeader, AdminCard, AdminLoadingSkeleton } from '@/components/admin/admin-card';
 import { AdminTable, AdminBadge, AdminSearchBar, AdminFilterTabs, AdminPagination } from '@/components/admin/admin-table';
@@ -73,7 +72,7 @@ export default function AdminReviews() {
       if (!res?.ok) throw new Error('操作失败');
       toast.success('状态已更新');
       loadData();
-    } catch (e) { toast.error('操作失败');
+    } catch (_e) { toast.error('操作失败');
     } finally { setSaving(false); }
   };
 
@@ -86,7 +85,7 @@ export default function AdminReviews() {
       toast.success('评价已删除');
       setDeleteConfirm(null);
       loadData();
-    } catch (e) { toast.error('删除失败');
+    } catch (_e) { toast.error('删除失败');
     } finally { setSaving(false); }
   };
 

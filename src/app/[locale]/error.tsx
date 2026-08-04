@@ -5,14 +5,13 @@ import Link from 'next/link';
 import { Home, RefreshCw, AlertTriangle } from 'lucide-react';
 
 export default function LocaleError({
-  error,
+  error: _error,
   reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
   const t = useTranslations('common');
-  const n = useTranslations('nav');
 
   return (
     <div className="flex min-h-[70vh] items-center justify-center px-4">

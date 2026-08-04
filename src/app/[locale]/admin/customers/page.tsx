@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { AdminPageHeader, AdminCard, AdminLoadingSkeleton } from '@/components/admin/admin-card';
-import { AdminTable, AdminBadge, AdminSearchBar, AdminPagination } from '@/components/admin/admin-table';
+import { AdminTable, AdminBadge, AdminSearchBar } from '@/components/admin/admin-table';
 import type { Column } from '@/components/admin/admin-table';
 
 interface Customer {
@@ -61,7 +61,7 @@ export default function AdminCustomers() {
         setEditOpen(false);
         toast.success('客户信息已更新');
       }
-    } catch (e) { toast.error('更新失败');
+    } catch (_e) { toast.error('更新失败');
     } finally { setSaving(false); }
   };
 
@@ -77,7 +77,7 @@ export default function AdminCustomers() {
         setCustomers(prev => prev.map(c => c.id === customer.id ? { ...c, isActive: !customer.isActive } : c));
         toast.success(customer.isActive ? '客户已禁用' : '客户已启用');
       }
-    } catch (e) { toast.error('状态切换失败');
+    } catch (_e) { toast.error('状态切换失败');
     } finally { setSaving(false); }
   };
 

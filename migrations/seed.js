@@ -1,4 +1,5 @@
 // Lionet Rides 初始种子数据
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { Pool } = require("pg");
 
 async function seed() {

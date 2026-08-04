@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 
 export default function ContactPage() {
   const t = useTranslations('contact');
-  const { config, loading } = useSiteConfig();
+  const { config } = useSiteConfig();
 
   const [form, setForm] = useState({ name: '', email: '', phone: '', company: '', message: '' });
   const [submitting, setSubmitting] = useState(false);

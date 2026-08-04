@@ -2,7 +2,7 @@
 
 import {
   Package, MessageSquare, Users as UsersIcon, Newspaper, Star,
-  ArrowRight, TrendingUp, UserPlus, Layers
+  ArrowRight, TrendingUp, Layers
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -17,21 +17,6 @@ import {
   StatCard,
 } from '@/components/admin/dashboard-charts';
 import type { Locale } from '@/i18n/routing';
-
-const statusLabelMap: Record<string, string> = {
-  pending: '待处理',
-  processing: '处理中',
-  replied: '已回复',
-  closed: '已关闭',
-  draft: '草稿',
-  published: '已发布',
-  archived: '已归档',
-  customer: '客户',
-  admin: '管理员',
-  editor: '编辑',
-  viewer: '观察者',
-  super_admin: '超级管理员',
-};
 
 export default function AdminDashboard() {
   const pathname = usePathname();

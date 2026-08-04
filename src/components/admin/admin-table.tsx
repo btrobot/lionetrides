@@ -67,7 +67,7 @@ export function AdminTable<T>({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
-            {data.map((item, idx) => (
+            {data.map((item, _idx) => (
               <tr
                 key={String((item as Record<string, unknown>)[keyField])}
                 onClick={() => onRowClick?.(item)}

@@ -1,7 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/db';
-import { news } from '@/db/schema';
-import { eq, isNull, and, ilike, desc, count } from 'drizzle-orm';
 import { productService } from '@/services/product-service';
 import { newsService } from '@/services/news-service';
 

@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, Search, Download, Upload, FileText, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Download, Upload, FileText, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { AdminPageHeader, AdminCard, AdminLoadingSkeleton } from '@/components/admin/admin-card';
 import { AdminTable, AdminBadge, AdminSearchBar } from '@/components/admin/admin-table';
 import type { Column } from '@/components/admin/admin-table';

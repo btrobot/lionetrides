@@ -198,7 +198,7 @@ test.describe('API 接口', () => {
 // ─── 404 Handling ──────────────────────────────────────
 test.describe('错误处理', () => {
   test('不存在的页面应返回 404', async ({ page }) => {
-    const response = await page.goto('/zh/non-existent-page-xyz', { waitUntil: 'networkidle' });
+    const _response = await page.goto('/zh/non-existent-page-xyz', { waitUntil: 'networkidle' });
     // Next.js 404 页面可能返回 200（因为客户端渲染）或 404
     // 但页面应显示"404"或"未找到"相关内容
     const bodyText = await page.textContent('body');

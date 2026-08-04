@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Loader2, LogOut, Menu, X } from 'lucide-react';
 import {
   LayoutDashboard, Package, FolderTree, Building2, MessageSquare,
-  Users, Star, Settings, FileText, Shield, ChevronDown,
+  Users, Star, Settings, FileText, Shield,
 } from 'lucide-react';
 import { useAdminAuth } from '@/hooks/use-admin-auth';
 import { Toaster } from '@/components/ui/sonner';
@@ -74,6 +74,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {/* Brand */}
           <div className="flex items-center justify-between px-5 py-5 border-b border-white/10">
             <div className="flex items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo.png" alt="Lionet Rides" className="h-8 w-auto" />
               <div>
                 <span className="text-base font-bold text-white tracking-tight">Lionet Rides</span>

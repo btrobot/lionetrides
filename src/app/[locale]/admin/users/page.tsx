@@ -4,14 +4,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAdminAuth } from '@/hooks/use-admin-auth';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { AdminPageHeader, AdminCard, AdminLoadingSkeleton } from '@/components/admin/admin-card';
 import { AdminTable, AdminBadge, AdminSearchBar, AdminPagination } from '@/components/admin/admin-table';
 import type { Column } from '@/components/admin/admin-table';
-import { Shield, UserCog, User } from 'lucide-react';
 
 interface AdminUser {
   id: number; email: string; name: string | null; role: 'super_admin' | 'admin' | 'editor' | 'viewer';
@@ -20,9 +18,6 @@ interface AdminUser {
 
 const roleLabels: Record<string, string> = {
   super_admin: '超级管理员', admin: '管理员', editor: '编辑', viewer: '查看者',
-};
-const roleColors: Record<string, 'blue' | 'purple' | 'emerald' | 'slate'> = {
-  super_admin: 'blue', admin: 'purple', editor: 'emerald', viewer: 'slate',
 };
 
 export default function AdminUsers() {
@@ -75,7 +70,7 @@ export default function AdminUsers() {
         setEditOpen(false);
         toast.success('用户角色已更新');
       }
-    } catch (e) { toast.error('更新失败');
+    } catch (_e) { toast.error('更新失败');
     } finally { setSaving(false); }
   };
 
@@ -91,7 +86,7 @@ export default function AdminUsers() {
         setUsers(prev => prev.map(u => u.id === user.id ? { ...u, isActive: !user.isActive } : u));
         toast.success(user.isActive ? '用户已禁用' : '用户已启用');
       }
-    } catch (e) { toast.error('状态切换失败');
+    } catch (_e) { toast.error('状态切换失败');
     } finally { setSaving(false); }
   };
 

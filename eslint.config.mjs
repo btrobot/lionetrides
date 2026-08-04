@@ -33,7 +33,7 @@ const eslintConfig = defineConfig([
       'import/no-cycle': ['error', { ignoreExternal: true }],
       'react-hooks/set-state-in-effect': 'off',
       'no-restricted-syntax': ['error', ...syntaxRules],
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
     },
   },
   {

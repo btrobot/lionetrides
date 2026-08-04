@@ -40,7 +40,7 @@ interface Product {
 export default function BrandDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const t = useTranslations('brands');
+  const _t = useTranslations('brands');
   const pT = useTranslations('products');
   const { openInquiry } = useInquiry();
 

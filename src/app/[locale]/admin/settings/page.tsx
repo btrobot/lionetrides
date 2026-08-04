@@ -126,6 +126,7 @@ export default function AdminSettings() {
         <div className="space-y-2">
           <input type="text" value={setting.value ?? ''} onChange={(e) => handleChange(setting.key, e.target.value)}
             className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100" placeholder="https://..." />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           {setting.value && <img src={setting.value} alt={setting.label ?? setting.key} className="h-10 w-auto object-contain" />}
         </div>
       );

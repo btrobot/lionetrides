@@ -39,7 +39,7 @@ interface Product {
 export default function CategoryDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const t = useTranslations('categories');
+  const _t = useTranslations('categories');
   const pT = useTranslations('products');
   const { openInquiry } = useInquiry();
 

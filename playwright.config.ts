@@ -1,5 +1,4 @@
 import { defineConfig, devices } from '@playwright/test';
-import path from 'path';
 import fs from 'fs';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
