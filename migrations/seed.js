@@ -36,7 +36,7 @@ async function seed() {
 
     // 品牌
     await pool.query(`
-      INSERT INTO brands (name, slug, description, logo, website) VALUES
+      INSERT INTO brands (name, slug, description, logo_url, website) VALUES
       ('Lionet Rides', 'lionet-rides', 'Professional amusement ride manufacturer', '/logo.png', 'https://lionetrides.com'),
       ('Happy Park', 'happy-park', 'Kids ride equipment specialist', '/brand-happy-park.png', 'https://example.com')
     `);
