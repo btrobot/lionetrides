@@ -32,6 +32,21 @@ echo "========================================"
 echo "  本地预推送验证"
 echo "========================================"
 
+# ─── L0: CI/CD 工作流静态分析 ───
+echo ""
+echo "── L0: CI/CD 工作流静态分析 (actionlint) ──"
+
+if command -v actionlint &>/dev/null; then
+  if actionlint .github/workflows/*.yml 2>&1 | grep -q "error"; then
+    fail "actionlint 发现错误"
+    actionlint .github/workflows/*.yml 2>&1
+  else
+    pass "工作流语法检查通过"
+  fi
+else
+  echo "  ⊘ actionlint 未安装，跳过（brew install actionlint）"
+fi
+
 # ─── L1: Dockerfile 静态检查 ───
 echo ""
 echo "── L1: Dockerfile 静态检查 ──"
