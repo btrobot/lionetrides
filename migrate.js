@@ -22,9 +22,9 @@ async function main() {
       : {
           host: process.env.PGHOST || 'localhost',
           port: parseInt(process.env.PGPORT || '5432'),
-          user: process.env.PGUSER || 'ridex',
+          user: process.env.PGUSER || 'lionet',
           password: process.env.PGPASSWORD || '',
-          database: process.env.PGDATABASE || 'ridex_db',
+          database: process.env.PGDATABASE || 'lionetrides',
         }
   );
 

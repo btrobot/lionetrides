@@ -7,9 +7,9 @@ function createDb() {
   const pool = new Pool({
     host: process.env.PGHOST || 'localhost',
     port: parseInt(process.env.PGPORT || '5432'),
-    user: process.env.PGUSER || 'ridex',
-    password: process.env.PGPASSWORD || 'ridex123',
-    database: process.env.PGDATABASE || 'ridex_db',
+    user: process.env.PGUSER || 'lionet',
+    password: process.env.PGPASSWORD || 'LionetRides2024!',
+    database: process.env.PGDATABASE || 'lionetrides',
     ssl: process.env.PGSSLMODE === 'require' ? { rejectUnauthorized: false } : false,
   });
   return drizzle({ client: pool, schema });

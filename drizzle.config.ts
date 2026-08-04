@@ -11,9 +11,9 @@ export default defineConfig({
     : {
         host: process.env.PGHOST || 'localhost',
         port: Number(process.env.PGPORT) || 5432,
-        user: process.env.PGUSER || 'ridex',
-        password: process.env.PGPASSWORD || 'ridex123',
-        database: 'ridex_db',
+        user: process.env.PGUSER || 'lionet',
+        password: process.env.PGPASSWORD || 'LionetRides2024!',
+        database: 'lionetrides',
         ssl: process.env.PGSSLMODE ? { rejectUnauthorized: false } : false,
       },
 });

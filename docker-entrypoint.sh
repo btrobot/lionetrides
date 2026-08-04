@@ -9,11 +9,11 @@ set -euo pipefail
 # ─── 检查数据库环境变量 ───
 if [ -z "${PGHOST:-}" ]; then
   echo "WARNING: PGHOST not set. Database features may not work." >&2
-  echo "Expected: PGHOST=db.example.com PGPORT=5432 PGUSER=ridex PGPASSWORD=*** PGDATABASE=ridex_db" >&2
+  echo "Expected: PGHOST=db.example.com PGPORT=5432 PGUSER=lionet PGPASSWORD=*** PGDATABASE=lionetrides" >&2
 fi
 
 if [ -n "${PGHOST:-}" ]; then
-  echo "Database: ${PGUSER:-ridex}@${PGHOST}:${PGPORT:-5432}/${PGDATABASE:-ridex_db}"
+  echo "Database: ${PGUSER:-lionet}@${PGHOST}:${PGPORT:-5432}/${PGDATABASE:-lionetrides}"
 fi
 
 # ─── 数据库迁移 & Seed ───
