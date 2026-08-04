@@ -86,21 +86,53 @@ jobs:
               --env-file "${ENV_FILE}" \
               "${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
 
-            # 初始化数据库
-            export ENV_FILE
-            bash scripts/ci/init-database.sh
+            # 初始化数据库（内联）
+            echo "=== 初始化数据库 ==="
+            PGUSER=$(grep '^PGUSER=' "${ENV_FILE}" | cut -d= -f2)
+            PGPASSWORD=$(grep '^PGPASSWORD=' "${ENV_FILE}" | cut -d= -f2)
+            PGDATABASE=$(grep '^PGDATABASE=' "${ENV_FILE}" | cut -d= -f2)
+            
+            if ! sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='${PGUSER}'" | grep -q 1; then
+              echo "创建数据库用户: ${PGUSER}"
+              sudo -u postgres psql -c "CREATE USER ${PGUSER} WITH PASSWORD '${PGPASSWORD}';"
+            fi
+            
+            if ! sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='${PGDATABASE}'" | grep -q 1; then
+              echo "创建数据库: ${PGDATABASE}"
+              sudo -u postgres psql -c "CREATE DATABASE ${PGDATABASE} OWNER ${PGUSER};"
+            fi
+            echo "数据库就绪"
 
             # 执行数据库迁移
-            export CONTAINER_NAME
-            bash scripts/ci/run-migrations.sh || echo "迁移失败（非致命）"
+            echo "=== 执行数据库迁移 ==="
+            docker exec "${CONTAINER_NAME}" node /app/migrations/migrate.js 2>&1 || echo "⚠ 迁移失败（非致命）"
 
-            # 健康检查
-            export APP_PORT
-            if ! bash scripts/ci/health-check.sh; then
+            # 健康检查（内联）
+            echo "=== 健康检查 ==="
+            HEALTH_OK=false
+            for i in $(seq 1 30); do
+              if curl -sf "http://localhost:${APP_PORT}/api/health" > /dev/null 2>&1; then
+                HEALTH_OK=true
+                echo "✓ 服务就绪 (${i}s)"
+                break
+              fi
+              sleep 2
+            done
+            
+            if [ "${HEALTH_OK}" != "true" ]; then
               echo "健康检查失败，回滚..."
               if [ -n "${OLD_IMAGE}" ]; then
-                export OLD_IMAGE APP_PORT ENV_FILE NETWORK
-                bash scripts/ci/rollback.sh
+                docker stop "${CONTAINER_NAME}" 2>/dev/null
+                docker rm "${CONTAINER_NAME}" 2>/dev/null
+                docker tag "${OLD_IMAGE}" "${MIRROR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}" 2>/dev/null || \
+                docker tag "${OLD_IMAGE}" "${IMAGE_NAME}:rollback"
+                docker run -d \
+                  --name "${CONTAINER_NAME}" \
+                  --network "${NETWORK}" \
+                  -p "${APP_PORT}:${APP_PORT}" \
+                  --restart unless-stopped \
+                  --env-file "${ENV_FILE}" \
+                  "${OLD_IMAGE}"
               fi
               exit 1
             fi
