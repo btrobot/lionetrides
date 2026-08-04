@@ -21,7 +21,10 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "playwright show-report e2e-report",
-    "gate:commit": "pnpm validate && pnpm validate:i18n"
+    "gate:commit": "pnpm validate && pnpm validate:i18n",
+    "docker:check": "bash ./scripts/pre-push-check.sh",
+    "docker:check:fast": "bash ./scripts/pre-push-check.sh --skip-run",
+    "docker:check:lint": "bash ./scripts/pre-push-check.sh --skip-build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.958.0",
