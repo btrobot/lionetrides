@@ -1,6 +1,7 @@
 // Lionet Rides 初始种子数据
 /* eslint-disable @typescript-eslint/no-require-imports */
 const { Pool } = require("pg");
+const bcrypt = require("bcryptjs");
 
 async function seed() {
   const pool = new Pool({
@@ -49,6 +50,15 @@ async function seed() {
       ('Happy Bumper Cars', 'happy-bumper-cars', 'LR-BC-001', 'Electric bumper cars for all ages', 4, 1, 32000.00, '6-10', 'published', true)
     `);
     console.log("✓ 3 products seeded");
+
+    // 管理员账号
+    const adminPassword = "Admin123!";
+    const passwordHash = await bcrypt.hash(adminPassword, 12);
+    await pool.query(`
+      INSERT INTO users (email, password_hash, name, role, company, phone, login_attempts) VALUES
+      ('admin@ridex.com', $1, 'System Admin', 'super_admin', 'RideX Manufacturing', '+86-400-888-0000', 0)
+    `, [passwordHash]);
+    console.log("✓ Admin account created (admin@ridex.com / Admin123!)");
 
     console.log("\nSeed 完成！");
   } catch (err) {
