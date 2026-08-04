@@ -119,8 +119,23 @@ jobs:
               --restart unless-stopped \
               -p "${APP_PORT}:5000" \
               -e "PORT=5000" \
-              -e "PGPORT=5433" \
+              --env-file /data/lionetrides/.env.local \
               "${REGISTRY}/${IMAGE_NAME}:latest"
+
+            # 执行数据库迁移
+            echo "执行数据库迁移..."
+            if docker exec "${CONTAINER_NAME}" npx drizzle-kit migrate 2>&1; then
+              echo "数据库迁移完成"
+            else
+              echo "数据库迁移失败，回滚..."
+              docker stop "${CONTAINER_NAME}"
+              docker rm "${CONTAINER_NAME}"
+              if [ -n "${OLD_CONTAINER_SHA}" ]; then
+                docker run -d --name "${CONTAINER_NAME}" --restart unless-stopped -p "${APP_PORT}:5000" --env-file /data/lionetrides/.env.local "${OLD_CONTAINER_SHA}"
+                echo "已回滚到旧镜像"
+              fi
+              exit 1
+            fi
 
             # 健康检查（120 秒）
             echo "等待服务就绪..."
@@ -131,10 +146,10 @@ jobs:
               fi
               if [ $i -eq 24 ]; then
                 echo "健康检查失败，回滚..."
-                docker stop "${CONTAINER_NAME}" 2>/dev/null || true
-                docker rm "${CONTAINER_NAME}" 2>/dev/null || true
+                docker stop "${CONTAINER_NAME}"
+                docker rm "${CONTAINER_NAME}"
                 if [ -n "${OLD_CONTAINER_SHA}" ]; then
-                  docker run -d --name "${CONTAINER_NAME}" --restart unless-stopped -p "${APP_PORT}:5000" "${OLD_CONTAINER_SHA}"
+                  docker run -d --name "${CONTAINER_NAME}" --restart unless-stopped -p "${APP_PORT}:5000" --env-file /data/lionetrides/.env.local "${OLD_CONTAINER_SHA}"
                   echo "已回滚到旧镜像"
                 fi
                 exit 1

@@ -82,7 +82,6 @@ RUN_ARGS=(
   --restart unless-stopped
   -p "${APP_PORT}:5000"
   -e "PORT=5000"
-  -e "PGPORT=${PG_PORT}"
 )
 
 if [ -n "${ENV_FILE}" ]; then
