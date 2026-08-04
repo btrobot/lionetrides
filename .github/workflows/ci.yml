@@ -1,13 +1,10 @@
 name: CI
 
-# 临时关闭 CI，部署测试完成后恢复
-# on:
-#   push:
-#     branches: [main]
-#   pull_request:
-#     branches: [main]
 on:
-  workflow_dispatch:  # 只允许手动触发
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
   quality:
