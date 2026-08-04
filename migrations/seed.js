@@ -45,9 +45,9 @@ async function seed() {
     // 插入示例产品 (需要 sku)
     await pool.query(`
       INSERT INTO products (sku, name, slug, description, category_id, brand_id, price, status, is_featured) VALUES
-        ('LR-RC-001', 'Thunder Bolt Coaster', 'thunder-bolt-coaster', 'A thrilling high-speed roller coaster with multiple loops and drops', 1, 1, 1500000.00, 'active', true),
-        ('LR-FW-001', 'Sky Wheel 60m', 'sky-wheel-60m', '60-meter panoramic Ferris wheel with 36 climate-controlled cabins', 2, 1, 2000000.00, 'active', true),
-        ('LR-CR-001', 'Royal Carousel', 'royal-carousel', 'Classic double-decker carousel with 60 horses and LED lighting', 3, 1, 500000.00, 'active', true)
+        ('LR-RC-001', 'Thunder Bolt Coaster', 'thunder-bolt-coaster', 'A thrilling high-speed roller coaster with multiple loops and drops', 1, 1, 1500000.00, 'published', true),
+        ('LR-FW-001', 'Sky Wheel 60m', 'sky-wheel-60m', '60-meter panoramic Ferris wheel with 36 climate-controlled cabins', 2, 1, 2000000.00, 'published', true),
+        ('LR-CR-001', 'Royal Carousel', 'royal-carousel', 'Classic double-decker carousel with 60 horses and LED lighting', 3, 1, 500000.00, 'published', true)
     `);
     console.log('✓ 3 sample products seeded');
 
