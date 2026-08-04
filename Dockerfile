@@ -78,11 +78,10 @@ COPY --from=builder --chown=node:node /app/.next/static ./.next/static
 COPY --from=builder --chown=node:node /app/public ./public
 
 # ─── 数据库迁移工具（供 docker exec 调用）───
-RUN npm install -g drizzle-kit pg
+COPY migrate.js ./migrate.js
+RUN npm install --no-save pg
 
-# 复制迁移配置和 schema（供 drizzle-kit migrate 使用）
-COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
-COPY --from=builder /app/src/db/schema.ts ./src/db/schema.ts
+# 复制迁移 SQL 文件
 COPY --from=builder /app/drizzle/ ./drizzle/
 
 # 复制启动脚本
