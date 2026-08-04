@@ -14,6 +14,10 @@ ARG NPM_REGISTRY=https://registry.npmmirror.com
 # ============================================================
 FROM ${NODE_IMAGE} AS deps
 
+# 代理配置（用于访问镜像源）
+ARG http_proxy
+ARG https_proxy
+
 WORKDIR /app
 
 # 安装 pnpm（使用国内镜像）
@@ -36,13 +40,17 @@ RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
 # ============================================================
 FROM deps AS builder
 
+# 代理配置
+ARG http_proxy
+ARG https_proxy
+
 WORKDIR /app
 
 # 复制源码
 COPY . .
 
-# 构建 Next.js
-RUN pnpm run build
+# 构建 Next.js（使用代理）
+RUN HTTP_PROXY=${http_proxy} HTTPS_PROXY=${https_proxy} pnpm run build
 
 # 打包迁移脚本
 RUN pnpm tsup src/server.ts --format cjs --platform node --target node20 --outDir dist --no-splitting --no-minify
