@@ -82,8 +82,8 @@ WORKDIR /app
 # 安装 PostgreSQL + curl（健康检查用）
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-      postgresql-17 \
-      postgresql-client-17 \
+      postgresql-15 \
+      postgresql-client-15 \
       curl && \
     rm -rf /var/lib/apt/lists/*
 
