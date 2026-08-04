@@ -77,12 +77,13 @@ COPY --from=builder --chown=node:node /app/.next/standalone ./
 COPY --from=builder --chown=node:node /app/.next/static ./.next/static
 COPY --from=builder --chown=node:node /app/public ./public
 
-# ─── 数据库迁移工具（供 docker exec 调用）───
-COPY migrate.js ./migrate.js
-RUN npm install --no-save pg
+# ─── 数据库迁移工具（独立目录，避免污染 standalone node_modules）───
+RUN mkdir -p /app/migrations/drizzle
+COPY migrate.js /app/migrations/migrate.js
+RUN cd /app/migrations && npm init -y > /dev/null 2>&1 && npm install pg
 
 # 复制迁移 SQL 文件
-COPY --from=builder /app/drizzle/ ./drizzle/
+COPY --from=builder /app/drizzle/ /app/migrations/drizzle/
 
 # 复制启动脚本
 COPY docker-entrypoint.sh /usr/local/bin/
