@@ -2,15 +2,6 @@ name: Deploy
 
 on:
   workflow_dispatch:
-    inputs:
-      region:
-        description: '镜像源环境 (global=国际, cn=国内)'
-        required: true
-        default: 'cn'
-        type: choice
-        options:
-          - global
-          - cn
 
 concurrency:
   group: deploy
@@ -20,6 +11,8 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   APP_PORT: 5000
   CONTAINER_NAME: lionetrides-container
+  REGISTRY: ghcr.io
+  MIRROR_REGISTRY: ghcr.nju.edu.cn
 
 jobs:
   build-and-push:
@@ -36,15 +29,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Set registry for deploy
-        id: registry
-        run: |
-          if [ "${{ github.event.inputs.region }}" = "cn" ]; then
-            echo "registry=ghcr.nju.edu.cn" >> $GITHUB_OUTPUT
-          else
-            echo "registry=ghcr.io" >> $GITHUB_OUTPUT
-          fi
-
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -56,7 +40,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ steps.registry.outputs.registry }}/${{ env.IMAGE_NAME }}
+          images: ghcr.io/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest
             type=sha,prefix=,format=short
@@ -103,14 +87,12 @@ jobs:
             APP_PORT=${{ env.APP_PORT }}
 
             echo "=== Lionet Rides Deploy ==="
-            echo "Region: ${{ github.event.inputs.region }}"
             echo "Registry: ${REGISTRY}"
+            echo "Mirror: ${MIRROR_REGISTRY}"
             echo "Image: ${REGISTRY}/${IMAGE_NAME}"
 
-            # 登录镜像仓库（南京大学镜像无需认证，ghcr.io 需要）
-            if [ "${REGISTRY}" != "ghcr.nju.edu.cn" ]; then
-              echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            fi
+            # 登录 ghcr.io（推送用）
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
             # 记录旧容器状态（用于回滚）
             OLD_CONTAINER_SHA=""
@@ -119,9 +101,12 @@ jobs:
               echo "旧容器镜像 SHA: ${OLD_CONTAINER_SHA}"
             fi
 
-            # 拉取新镜像
+            # 拉取新镜像（优先镜像站，失败 fallback 到 ghcr.io）
             echo "拉取新镜像..."
-            docker pull "${REGISTRY}/${IMAGE_NAME}:latest"
+            if ! docker pull "${MIRROR_REGISTRY}/${IMAGE_NAME}:latest" 2>/dev/null; then
+              echo "镜像站拉取失败，尝试 ghcr.io..."
+              docker pull "${REGISTRY}/${IMAGE_NAME}:latest"
+            fi
 
             # 停止旧容器
             if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
@@ -130,7 +115,7 @@ jobs:
               docker rm "${CONTAINER_NAME}"
             fi
 
-            # 启动新容器
+            # 启动新容器（始终用 ghcr.io 的镜像）
             echo "启动新容器..."
             docker run -d \
               --name "${CONTAINER_NAME}" \
