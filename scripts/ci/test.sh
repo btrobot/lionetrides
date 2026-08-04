@@ -126,6 +126,54 @@ fi
 echo ""
 
 # ========================================
+# 回归测试：历史 Bug 防护
+# ========================================
+echo -e "${YELLOW}[回归测试] 历史 Bug 防护${NC}"
+
+# Bug 1: Shell 语法错误 [ -d x && ... ]
+# 根因：[ 不支持 &&，应该用两个 [ 或 test
+echo "  场景: shell 语法检查（[ 不支持 &&）"
+if bash -n "$SCRIPT_DIR/run-migrations.sh" 2>&1; then
+  pass "run-migrations.sh 语法正确"
+else
+  fail "run-migrations.sh 语法错误"
+fi
+
+# Bug 2: 路径不一致 /app/drizzle vs /app/migrations/drizzle
+echo "  场景: 迁移路径一致性"
+# 检查是否引用了错误路径 /app/drizzle（应该是 /app/migrations/drizzle）
+if grep -q '/app/drizzle' "$SCRIPT_DIR/run-migrations.sh" && ! grep -q '/app/migrations/drizzle' "$SCRIPT_DIR/run-migrations.sh"; then
+  fail "引用了错误路径 /app/drizzle（应为 /app/migrations/drizzle）"
+elif grep -q '/app/migrations/drizzle' "$SCRIPT_DIR/run-migrations.sh"; then
+  pass "迁移路径正确"
+else
+  echo -e "  ${YELLOW}⚠${NC} 未找到迁移路径引用"
+fi
+
+# Bug 3: 变量未定义（如 REGISTRY）
+echo "  场景: 变量定义检查"
+# 检查 run-migrations.sh 是否引用了未定义的变量
+if grep -q '\${REGISTRY}' "$SCRIPT_DIR/run-migrations.sh" 2>/dev/null; then
+  fail "引用了未定义变量 \${REGISTRY}"
+else
+  pass "无未定义变量引用"
+fi
+
+# Bug 4: set -euo pipefail 与未绑定变量
+echo "  场景: set -u 安全性"
+# 脚本应该显式检查必需变量，而不是依赖默认值
+if grep -q 'set -euo pipefail' "$SCRIPT_DIR/run-migrations.sh"; then
+  # 检查是否有 : - 默认值语法（可能掩盖未定义变量）
+  if grep -q '\${[A-Z_]*:-' "$SCRIPT_DIR/run-migrations.sh"; then
+    echo -e "  ${YELLOW}⚠${NC} 使用默认值语法，注意可能掩盖未定义变量"
+  else
+    pass "无默认值掩盖"
+  fi
+fi
+
+echo ""
+
+# ========================================
 # 测试总结
 # ========================================
 echo "========================================"
