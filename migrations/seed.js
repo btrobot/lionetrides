@@ -1,5 +1,5 @@
--- Lionet Rides 初始种子数据
--- 执行方式: docker exec <container> node /app/migrations/seed.js
+// Lionet Rides 初始种子数据
+// 执行方式: docker exec <container> node /app/migrations/seed.js
 
 const { Pool } = require('pg');
 
