@@ -94,8 +94,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",
-    "@react-dev-inspector/babel-plugin": "^2.0.1",
-    "@react-dev-inspector/middleware": "^2.0.1",
+
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.3.2",
@@ -114,7 +113,7 @@
     "jsdom": "^30.0.1",
     "only-allow": "^1.2.2",
     "playwright": "1.62.1",
-    "react-dev-inspector": "^2.0.1",
+
     "shadcn": "latest",
     "stylelint": "^16.4.0",
     "stylelint-config-standard": "^38.0.0",
