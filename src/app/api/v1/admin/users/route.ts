@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { withSuperAdmin } from '@/middleware/api';
 import { db } from '@/db';
 import { users } from '@/db/schema';
-import { isNull, desc, ilike, and, eq } from 'drizzle-orm';
+import { isNull, desc, ilike, and, eq, count } from 'drizzle-orm';
 import { errorResponse, paginatedResponse } from '@/lib/errors';
 import bcrypt from 'bcryptjs';
 
@@ -31,9 +31,9 @@ async function listHandler(request: NextRequest, _context: { params: Promise<Rec
     }).from(users)
       .where(conditions.length === 1 ? conditions[0] : and(...conditions))
       .orderBy(desc(users.created_at)).limit(pageSize).offset((page - 1) * pageSize);
-    const [{ count }] = await db.select({ count: users.id }).from(users)
+    const [{ count: total }] = await db.select({ count: count() }).from(users)
       .where(conditions.length === 1 ? conditions[0] : and(...conditions));
-    return NextResponse.json({ success: true, data: paginatedResponse(items, count, { page, pageSize }) });
+    return NextResponse.json({ success: true, data: paginatedResponse(items, total, { page, pageSize }) });
   } catch (e) { const err = errorResponse(e); return NextResponse.json(err, { status: err.statusCode }); }
 }
 

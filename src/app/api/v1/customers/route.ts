@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { withMiddleware, withEditor } from '@/middleware/api';
 import { db } from '@/db';
 import { users } from '@/db/schema';
-import { isNull, desc, ilike, and } from 'drizzle-orm';
+import { isNull, desc, ilike, and, count } from 'drizzle-orm';
 import { errorResponse, paginatedResponse } from '@/lib/errors';
 
 async function listHandler(request: NextRequest, _context: { params: Promise<Record<string, string>> }) {
@@ -16,9 +16,9 @@ async function listHandler(request: NextRequest, _context: { params: Promise<Rec
     const items = await db.select({ id: users.id, name: users.name, email: users.email, phone: users.phone, company: users.company, role: users.role, isActive: users.is_active, createdAt: users.created_at, lastLoginAt: users.last_login_at }).from(users)
       .where(conditions.length === 1 ? conditions[0] : and(...conditions))
       .orderBy(desc(users.created_at)).limit(pageSize).offset((page - 1) * pageSize);
-    const [{ count }] = await db.select({ count: users.id }).from(users)
+    const [{ count: total }] = await db.select({ count: count() }).from(users)
       .where(conditions.length === 1 ? conditions[0] : and(...conditions));
-    return NextResponse.json({ success: true, data: paginatedResponse(items, count, { page, pageSize }) });
+    return NextResponse.json({ success: true, data: paginatedResponse(items, total, { page, pageSize }) });
   } catch (e) { const err = errorResponse(e); return NextResponse.json(err, { status: err.statusCode }); }
 }
 export const GET = withMiddleware(withEditor(listHandler));
