@@ -81,6 +81,7 @@ COPY --from=builder --chown=node:node /app/public ./public
 RUN mkdir -p /app/migrations/drizzle
 COPY migrate.js /app/migrations/migrate.js
 COPY migrations/seed.js /app/migrations/seed.js
+COPY migrations/seed-site-settings.js /app/migrations/seed-site-settings.js
 RUN cd /app/migrations && npm init -y > /dev/null 2>&1 && npm install pg bcryptjs
 
 # 复制迁移 SQL 文件

@@ -25,6 +25,11 @@ if [ -n "${PGHOST:-}" ] && [ -f /app/migrations/migrate.js ]; then
     echo "Running database seed..."
     node /app/migrations/seed.js || echo "WARNING: Seed failed (data may already exist)"
   fi
+
+  if [ -f /app/migrations/seed-site-settings.js ]; then
+    echo "Running site settings seed..."
+    node /app/migrations/seed-site-settings.js || echo "WARNING: Site settings seed failed"
+  fi
 fi
 
 # ─── 启动 Next.js standalone 服务器 ───

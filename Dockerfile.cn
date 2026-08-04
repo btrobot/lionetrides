@@ -76,6 +76,7 @@ RUN mkdir -p /app/migrations-tool && \
 
 # 复制迁移执行脚本
 COPY --from=builder /app/migrate.js ./migrations/migrate.js
+COPY --from=builder /app/migrations/seed-site-settings.js ./migrations/seed-site-settings.js
 
 # 暴露端口
 EXPOSE 5000
