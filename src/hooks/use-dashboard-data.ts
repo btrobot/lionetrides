@@ -36,23 +36,30 @@ export function useDashboardData(authFetch: (url: string) => Promise<Response | 
 
   useEffect(() => {
     if (fetched.current) return;
-    fetched.current = true;
 
     const fetchData = async () => {
-      try {
+      // 等待 authFetch 就绪（token 验证完成）
+      let retries = 0;
+      while (retries < 10) {
         const res = await authFetch('/api/v1/admin/dashboard');
-        if (!res) throw new Error('Failed to fetch dashboard data');
-        const json = await res.json();
-        if (json.success) {
-          setData(json.data);
-        } else {
-          setError(json.error || 'Unknown error');
+        if (res) {
+          fetched.current = true;
+          const json = await res.json();
+          if (json.success) {
+            setData(json.data);
+          } else {
+            setError(json.error || 'Unknown error');
+          }
+          setLoading(false);
+          return;
         }
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Failed to load dashboard');
-      } finally {
-        setLoading(false);
+        // authFetch 返回 null 表示 token 验证未完成，等待后重试
+        retries++;
+        await new Promise((r) => setTimeout(r, 200));
       }
+      fetched.current = true;
+      setError('Failed to fetch dashboard data');
+      setLoading(false);
     };
     fetchData();
   }, [authFetch]);
