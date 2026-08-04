@@ -110,7 +110,7 @@ jobs:
               -p "${APP_PORT}:5000" \
               -e "PORT=5000" \
               --env-file /data/lionetrides/.env.local \
-              "${REGISTRY}/${IMAGE_NAME}:latest"
+              "${MIRROR_REGISTRY}/${IMAGE_NAME}:latest"
 
             # 初始化数据库（首次部署时自动创建用户和数据库）
             echo "检查数据库..."
