@@ -1,3 +1,4 @@
+import { Page } from "@playwright/test";
 import { test, expect } from '@playwright/test';
 
 // 增加测试超时时间
@@ -18,7 +19,7 @@ const ADMIN_USER = {
 };
 
 // 辅助函数：等待页面加载完成
-async function waitForPageReady(page: any) {
+async function waitForPageReady(page: Page) {
   await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {});
   // 等待表单元素可见
   await page.waitForSelector('form', { timeout: 10000 }).catch(() => {});

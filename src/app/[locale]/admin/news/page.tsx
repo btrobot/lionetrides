@@ -2,20 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAdminAuth } from '@/hooks/use-admin-auth';
-import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { Plus, Pencil, Trash2, Calendar, User } from 'lucide-react';
 import { AdminPageHeader, AdminCard, AdminLoadingSkeleton } from '@/components/admin/admin-card';
 import { AdminTable, AdminBadge, AdminSearchBar } from '@/components/admin/admin-table';
+import { AdminForm, type FormField } from '@/components/admin/admin-form';
+import { AdminDialog } from '@/components/admin/admin-dialog';
+import { useToast } from '@/components/admin/toast';
 import type { Column } from '@/components/admin/admin-table';
 
 interface NewsItem {
@@ -34,6 +27,7 @@ const emptyForm: NewsForm = { title: '', slug: '', summary: '', content: '', cat
 
 export default function AdminNews() {
   const { authFetch } = useAdminAuth();
+  const { toast, ToastContainer } = useToast();
   const [items, setItems] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -107,59 +101,52 @@ export default function AdminNews() {
     },
   ];
 
+  const formFields: FormField[] = [
+    { name: 'title', label: '标题', type: 'text', required: true, placeholder: '新闻标题' },
+    { name: 'slug', label: 'Slug', type: 'text', placeholder: '自动生成' },
+    { name: 'category', label: '分类', type: 'text', placeholder: '行业动态' },
+    { name: 'author', label: '作者', type: 'text', placeholder: '作者名' },
+    { name: 'summary', label: '摘要', type: 'textarea', rows: 2, placeholder: '新闻摘要' },
+    { name: 'content', label: '内容 (Markdown)', type: 'textarea', rows: 8, placeholder: '新闻内容...' },
+    { name: 'is_published', label: '发布', type: 'checkbox' },
+  ];
+
   if (loading) return <AdminLoadingSkeleton rows={5} />;
 
   return (
     <div>
+      <ToastContainer />
       <AdminPageHeader title="新闻管理" description="管理行业资讯与公司动态" actions={<Button onClick={openAdd} className="bg-blue-500 hover:bg-blue-600"><Plus className="w-4 h-4 mr-2" />新增新闻</Button>} />
       <AdminCard padding={false}>
         <div className="p-4 border-b border-slate-100"><AdminSearchBar value={search} onChange={setSearch} placeholder="搜索新闻标题..." className="max-w-xs" /></div>
         <AdminTable columns={columns} data={filtered} keyField="id" emptyText="暂无新闻" />
       </AdminCard>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-t-lg" />
-          <DialogHeader className="pt-2">
-            <DialogTitle>{editing ? '编辑新闻' : '新增新闻'}</DialogTitle>
-            <DialogDescription>{editing ? '修改新闻信息' : '填写新新闻信息'}</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 max-h-[60vh] overflow-y-auto">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><label className="text-xs font-medium text-slate-700">标题 *</label><Input value={form.title} onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))} placeholder="新闻标题" /></div>
-              <div className="space-y-2"><label className="text-xs font-medium text-slate-700">Slug</label><Input value={form.slug} onChange={(e) => setForm(f => ({ ...f, slug: e.target.value }))} placeholder="自动生成" /></div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><label className="text-xs font-medium text-slate-700">分类</label><Input value={form.category} onChange={(e) => setForm(f => ({ ...f, category: e.target.value }))} placeholder="行业动态" /></div>
-              <div className="space-y-2"><label className="text-xs font-medium text-slate-700">作者</label><Input value={form.author} onChange={(e) => setForm(f => ({ ...f, author: e.target.value }))} placeholder="作者名" /></div>
-            </div>
-            <div className="space-y-2"><label className="text-xs font-medium text-slate-700">摘要</label><Textarea value={form.summary} onChange={(e) => setForm(f => ({ ...f, summary: e.target.value }))} placeholder="新闻摘要" rows={2} /></div>
-            <div className="space-y-2"><label className="text-xs font-medium text-slate-700">内容 (Markdown)</label><Textarea value={form.content} onChange={(e) => setForm(f => ({ ...f, content: e.target.value }))} placeholder="新闻内容..." rows={8} /></div>
-            <label className="flex items-center gap-2 text-sm text-slate-700">
-              <input type="checkbox" checked={form.is_published} onChange={(e) => setForm(f => ({ ...f, is_published: e.target.checked }))} className="rounded border-slate-300" />
-              发布
-            </label>
-          </div>
-          <div className="flex justify-end gap-3 mt-4">
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>取消</Button>
-            <Button onClick={handleSave} disabled={saving} className="bg-blue-500 hover:bg-blue-600">{saving ? '保存中...' : editing ? '保存修改' : '创建'}</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <AdminDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        title={editing ? '编辑新闻' : '新增新闻'}
+        description={editing ? '修改新闻信息' : '填写新新闻信息'}
+        onConfirm={handleSave}
+        confirmLabel={saving ? '保存中...' : editing ? '保存修改' : '创建'}
+        confirmDisabled={saving}
+      >
+        <AdminForm
+          fields={formFields}
+          values={form}
+          onChange={setForm}
+        />
+      </AdminDialog>
 
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 to-red-600 rounded-t-lg" />
-          <AlertDialogHeader className="pt-2">
-            <AlertDialogTitle>确认删除</AlertDialogTitle>
-            <AlertDialogDescription>确定要删除新闻「<span className="font-medium text-slate-900">{deleting?.title}</span>」吗？</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeleting(null)}>取消</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">删除</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <AdminDialog
+        open={deleteOpen}
+        onClose={() => { setDeleteOpen(false); setDeleting(null); }}
+        title="确认删除"
+        description={`确定要删除新闻「${deleting?.title}」吗？`}
+        onConfirm={handleDelete}
+        confirmLabel="删除"
+        confirmVariant="danger"
+      />
     </div>
   );
 }

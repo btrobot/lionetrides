@@ -3,15 +3,12 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useAdminAuth } from '@/hooks/use-admin-auth';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { AdminPageHeader, AdminCard, AdminLoadingSkeleton } from '@/components/admin/admin-card';
 import { AdminTable, AdminSearchBar } from '@/components/admin/admin-table';
+import { AdminForm, type FormField } from '@/components/admin/admin-form';
+import { AdminDialog } from '@/components/admin/admin-dialog';
+import { useToast } from '@/components/admin/toast';
 import type { Column } from '@/components/admin/admin-table';
 
 interface Brand { id: number; name: string; slug: string; description: string | null; website: string | null; }
@@ -20,6 +17,7 @@ const emptyForm: BrandForm = { name: '', slug: '', description: '', website: '' 
 
 export default function AdminBrands() {
   const { authFetch } = useAdminAuth();
+  const { toast, ToastContainer } = useToast();
   const [items, setItems] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -87,49 +85,45 @@ export default function AdminBrands() {
     },
   ];
 
+  const formFields: FormField[] = [
+    { name: 'name', label: '品牌名称', type: 'text', required: true, placeholder: '品牌名称' },
+    { name: 'slug', label: 'Slug', type: 'text', placeholder: '自动生成' },
+    { name: 'description', label: '描述', type: 'textarea', rows: 3, placeholder: '品牌描述' },
+    { name: 'website', label: '官网', type: 'text', placeholder: 'https://...' },
+  ];
+
   if (loading) return <AdminLoadingSkeleton rows={5} />;
 
   return (
     <div>
+      <ToastContainer />
       <AdminPageHeader title="品牌管理" description="管理合作品牌与制造商信息" actions={<Button onClick={openAdd} className="bg-blue-500 hover:bg-blue-600"><Plus className="w-4 h-4 mr-2" />新增品牌</Button>} />
       <AdminCard padding={false}>
         <div className="p-4 border-b border-slate-100"><AdminSearchBar value={search} onChange={setSearch} placeholder="搜索品牌..." className="max-w-xs" /></div>
         <AdminTable columns={columns} data={filtered} keyField="id" emptyText="暂无品牌" />
       </AdminCard>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-md">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-t-lg" />
-          <DialogHeader className="pt-2">
-            <DialogTitle>{editing ? '编辑品牌' : '新增品牌'}</DialogTitle>
-            <DialogDescription>{editing ? '修改品牌信息' : '填写新品牌信息'}</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2"><Label className="text-xs font-medium text-slate-700">品牌名称 *</Label><Input value={form.name} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))} placeholder="品牌名称" /></div>
-            <div className="space-y-2"><Label className="text-xs font-medium text-slate-700">Slug *</Label><Input value={form.slug} onChange={(e) => setForm(f => ({ ...f, slug: e.target.value }))} placeholder="brand-slug" /></div>
-            <div className="space-y-2"><Label className="text-xs font-medium text-slate-700">描述</Label><Textarea value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} placeholder="品牌描述" rows={3} /></div>
-            <div className="space-y-2"><Label className="text-xs font-medium text-slate-700">官网</Label><Input value={form.website} onChange={(e) => setForm(f => ({ ...f, website: e.target.value }))} placeholder="https://example.com" /></div>
-          </div>
-          <div className="flex justify-end gap-3 mt-4">
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>取消</Button>
-            <Button onClick={handleSave} disabled={saving} className="bg-blue-500 hover:bg-blue-600">{saving ? '保存中...' : editing ? '保存修改' : '创建'}</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <AdminDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        title={editing ? '编辑品牌' : '新增品牌'}
+        description={editing ? '修改品牌信息' : '填写新品牌信息'}
+        onConfirm={handleSave}
+        confirmLabel={saving ? '保存中...' : editing ? '保存修改' : '创建'}
+        confirmDisabled={saving}
+      >
+        <AdminForm fields={formFields} values={form} onChange={setForm} />
+      </AdminDialog>
 
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 to-red-600 rounded-t-lg" />
-          <AlertDialogHeader className="pt-2">
-            <AlertDialogTitle>确认删除</AlertDialogTitle>
-            <AlertDialogDescription>确定要删除品牌「<span className="font-medium text-slate-900">{deleting?.name}</span>」吗？</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeleting(null)}>取消</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">删除</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <AdminDialog
+        open={deleteOpen}
+        onClose={() => { setDeleteOpen(false); setDeleting(null); }}
+        title="确认删除"
+        description={`确定要删除品牌「${deleting?.name}」吗？`}
+        onConfirm={handleDelete}
+        confirmLabel="删除"
+        confirmVariant="danger"
+      />
     </div>
   );
 }

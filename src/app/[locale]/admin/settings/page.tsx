@@ -6,6 +6,7 @@ import { Loader2, Save, RefreshCw, Code } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAdminAuth } from '@/hooks/use-admin-auth';
 import { AdminPageHeader, AdminCard, AdminLoadingSkeleton } from '@/components/admin/admin-card';
+import { useToast } from '@/components/admin/toast';
 import type { Locale } from '@/i18n/routing';
 
 type FullSetting = {
@@ -23,17 +24,16 @@ export default function AdminSettings() {
   const pathname = usePathname();
   const currentLocale = pathname.split('/')[1] as Locale;
   const { authFetch } = useAdminAuth();
+  const { toast, ToastContainer } = useToast();
   const [settings, setSettings] = useState<FullSetting[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState('brand');
   const [jsonEditor, setJsonEditor] = useState<string | null>(null);
 
   const fetchSettings = useCallback(async () => {
     setLoading(true);
-    setError(null);
     try {
       const res = await fetch(`/api/v1/site-settings?full=true&locale=en`);
       const data = await res.json();
@@ -49,9 +49,9 @@ export default function AdminSettings() {
       }
     } catch (err) {
       console.error('Failed to load settings:', err);
-      setError('加载设置失败');
+      toast.error('加载设置失败');
     } finally { setLoading(false); }
-  }, []);
+  }, [toast]);
 
   useEffect(() => { fetchSettings(); }, [fetchSettings]);
 
@@ -66,7 +66,6 @@ export default function AdminSettings() {
   const handleSave = async () => {
     setSaving(true);
     setSaved(false);
-    setError(null);
     try {
       const filtered = activeSection ? settings.filter(s => s.section === activeSection) : settings;
       for (const setting of filtered) {
@@ -76,13 +75,14 @@ export default function AdminSettings() {
         });
         if (!res) continue;
         const data = await res.json();
-        if (!data.success) setError(`保存 ${setting.key} 失败`);
+        if (!data.success) { toast.error(`保存 ${setting.key} 失败`); return; }
       }
       setSaved(true);
+      toast.success('设置已保存');
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
       console.error('Failed to save settings:', err);
-      setError('网络错误');
+      toast.error('网络错误');
     } finally { setSaving(false); }
   };
 
@@ -93,8 +93,8 @@ export default function AdminSettings() {
 
   const handleJsonSave = (key: string) => {
     if (jsonEditor === null) return;
-    try { JSON.parse(jsonEditor); handleChange(key, jsonEditor); setJsonEditor(null); }
-    catch { alert('JSON 格式无效，请检查语法'); }
+    try { JSON.parse(jsonEditor); handleChange(key, jsonEditor); setJsonEditor(null); toast.success('JSON 已更新'); }
+    catch { toast.error('JSON 格式无效'); }
   };
 
   if (loading) return <AdminLoadingSkeleton rows={6} />;
@@ -143,9 +143,9 @@ export default function AdminSettings() {
 
   return (
     <div>
+      <ToastContainer />
       <AdminPageHeader title="系统设置" description="管理站点配置、品牌信息和 SEO 设置">
         <div className="flex items-center gap-2">
-          {error && <span className="text-xs text-red-500 font-medium">{error}</span>}
           {saved && <span className="text-xs text-emerald-600 font-medium">✓ 已保存</span>}
           <Button variant="outline" size="sm" onClick={fetchSettings}><RefreshCw className="h-3.5 w-3.5 mr-1" />刷新</Button>
           <Button size="sm" onClick={handleSave} disabled={saving} className="bg-blue-500 hover:bg-blue-600">
