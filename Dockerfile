@@ -8,21 +8,12 @@ ARG PROJECT_NAME="lionetrides"
 ARG PROJECT_VERSION="1.0.0"
 ARG BUILD_DATE
 ARG GIT_COMMIT
-ARG DEPLOY_REGION=auto
 
 # ============================================
 # 阶段 1: 安装依赖
 # ============================================
 FROM node:24-bookworm-slim AS deps
 WORKDIR /app
-
-# 镜像源自动检测（国内/国际自适应）
-COPY scripts/detect-mirror.sh /tmp/
-RUN if [ "${DEPLOY_REGION}" = "cn" ] || [ "${DEPLOY_REGION}" = "global" ]; then \
-      bash /tmp/detect-mirror.sh --force-${DEPLOY_REGION}; \
-    else \
-      bash /tmp/detect-mirror.sh; \
-    fi
 
 # 启用 corepack（pnpm 包管理器）
 RUN corepack enable
