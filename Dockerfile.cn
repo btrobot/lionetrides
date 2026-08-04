@@ -23,8 +23,8 @@ RUN npm config set registry ${NPM_REGISTRY} && \
 # 复制依赖文件
 COPY package.json pnpm-lock.yaml ./
 
-# 配置国内 npm 镜像源
-RUN pnpm config set registry https://registry.npmmirror.com/
+# 配置国内 npm 镜像源（直接写配置文件，避免网络请求）
+RUN echo "registry=https://registry.npmmirror.com/" > /root/.npmrc
 
 # 安装依赖（利用构建缓存）
 RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
