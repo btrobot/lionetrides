@@ -243,10 +243,10 @@ export default function AdminProducts() {
       key: 'actions', header: '操作', className: 'text-center',
       render: (p) => (
         <div className="flex items-center justify-center gap-1">
-          <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors" title="编辑">
+          <button onClick={() => openEdit(p)} className="p-1.5 rounded-xl hover:bg-blue-50 text-blue-600 transition-colors" title="编辑">
             <Pencil className="w-4 h-4" />
           </button>
-          <button onClick={() => confirmDelete(p)} className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors" title="删除">
+          <button onClick={() => confirmDelete(p)} className="p-1.5 rounded-xl hover:bg-red-50 text-red-500 transition-colors" title="删除">
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
@@ -280,7 +280,7 @@ export default function AdminProducts() {
               <Upload className="w-4 h-4 mr-2" />
               批量导入
             </Button>
-            <Button onClick={openAdd} className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/20">
+            <Button onClick={openAdd} className="bg-blue-500 hover:bg-blue-600 text-white shadow-sm shadow-blue-500/20">
               <Plus className="w-4 h-4 mr-2" />新增产品
             </Button>
           </div>
@@ -321,14 +321,14 @@ export default function AdminProducts() {
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label className="text-xs font-medium text-slate-700">分类</Label>
-                <select className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" value={form.category_id} onChange={(e) => updateForm('category_id', e.target.value)}>
+                <select className="w-full h-9 rounded-xl border border-slate-200 px-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" value={form.category_id} onChange={(e) => updateForm('category_id', e.target.value)}>
                   <option value="">无</option>
                   {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
               <div className="space-y-2">
                 <Label className="text-xs font-medium text-slate-700">品牌</Label>
-                <select className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" value={form.brand_id} onChange={(e) => updateForm('brand_id', e.target.value)}>
+                <select className="w-full h-9 rounded-xl border border-slate-200 px-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" value={form.brand_id} onChange={(e) => updateForm('brand_id', e.target.value)}>
                   <option value="">无</option>
                   {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </select>
@@ -340,7 +340,7 @@ export default function AdminProducts() {
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-medium text-slate-700">状态</Label>
-              <select className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" value={form.status} onChange={(e) => updateForm('status', e.target.value)}>
+              <select className="w-full h-9 rounded-xl border border-slate-200 px-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" value={form.status} onChange={(e) => updateForm('status', e.target.value)}>
                 <option value="active">上架</option>
                 <option value="inactive">下架</option>
               </select>
@@ -356,7 +356,7 @@ export default function AdminProducts() {
           </div>
           <div className="flex justify-end gap-3 mt-4">
             <Button variant="outline" onClick={() => setDialogOpen(false)}>取消</Button>
-            <Button onClick={handleSave} disabled={saving} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={handleSave} disabled={saving} className="bg-blue-500 hover:bg-blue-600">
               {saving && <span className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent" />}
               {editing ? '保存修改' : '创建'}
             </Button>
@@ -397,7 +397,7 @@ export default function AdminProducts() {
                 <button
                   type="button"
                   onClick={() => setImportMode('create')}
-                  className={`p-3 rounded-lg border text-left transition-all ${
+                  className={`p-3 rounded-xl border text-left transition-all ${
                     importMode === 'create'
                       ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500/20'
                       : 'border-slate-200 hover:border-slate-300'
@@ -409,7 +409,7 @@ export default function AdminProducts() {
                 <button
                   type="button"
                   onClick={() => setImportMode('upsert')}
-                  className={`p-3 rounded-lg border text-left transition-all ${
+                  className={`p-3 rounded-xl border text-left transition-all ${
                     importMode === 'upsert'
                       ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500/20'
                       : 'border-slate-200 hover:border-slate-300'
@@ -422,7 +422,7 @@ export default function AdminProducts() {
             </div>
 
             {/* 下载模板 */}
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-slate-50 border border-slate-100">
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 border border-slate-100">
               <FileText className="w-4 h-4 text-slate-400 shrink-0" />
               <span className="text-xs text-slate-600 flex-1">首次导入？先下载模板文件，按格式填写后上传</span>
               <button
@@ -448,7 +448,7 @@ export default function AdminProducts() {
                 />
                 <label
                   htmlFor="csv-import-input"
-                  className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-slate-200 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-colors"
+                  className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-colors"
                 >
                   {importing ? (
                     <div className="flex flex-col items-center gap-2">
@@ -468,7 +468,7 @@ export default function AdminProducts() {
 
             {/* 导入结果 */}
             {importResult && (
-              <div className="space-y-3 p-4 rounded-lg border border-slate-100 bg-slate-50">
+              <div className="space-y-3 p-4 rounded-xl border border-slate-100 bg-slate-50">
                 <div className="flex items-center gap-2">
                   {importResult.errors.length === 0 ? (
                     <CheckCircle2 className="w-5 h-5 text-emerald-500" />

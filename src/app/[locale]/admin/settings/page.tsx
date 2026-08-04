@@ -108,7 +108,7 @@ export default function AdminSettings() {
       return isEditing ? (
         <div className="space-y-2">
           <textarea value={jsonEditor} onChange={(e) => setJsonEditor(e.target.value)} rows={10}
-            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs font-mono focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100" />
+            className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-mono focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100" />
           <div className="flex gap-2">
             <Button size="sm" variant="outline" onClick={() => handleJsonSave(setting.key)}>保存 JSON</Button>
             <Button size="sm" variant="ghost" onClick={() => setJsonEditor(null)}>取消</Button>
@@ -116,7 +116,7 @@ export default function AdminSettings() {
         </div>
       ) : (
         <div className="flex items-start gap-2">
-          <div className="flex-1 bg-slate-50 rounded-lg p-3 text-xs font-mono text-slate-600 whitespace-pre-wrap max-h-32 overflow-y-auto">{setting.value ?? '[]'}</div>
+          <div className="flex-1 bg-slate-50 rounded-xl p-3 text-xs font-mono text-slate-600 whitespace-pre-wrap max-h-32 overflow-y-auto">{setting.value ?? '[]'}</div>
           <Button size="sm" variant="outline" onClick={() => handleJsonEdit(setting.key, setting.value)} className="shrink-0"><Code className="h-3.5 w-3.5 mr-1" />编辑 JSON</Button>
         </div>
       );
@@ -125,7 +125,7 @@ export default function AdminSettings() {
       return (
         <div className="space-y-2">
           <input type="text" value={setting.value ?? ''} onChange={(e) => handleChange(setting.key, e.target.value)}
-            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100" placeholder="https://..." />
+            className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100" placeholder="https://..." />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {setting.value && <img src={setting.value} alt={setting.label ?? setting.key} className="h-10 w-auto object-contain" />}
         </div>
@@ -134,10 +134,10 @@ export default function AdminSettings() {
     const isLongText = (setting.value?.length ?? 0) > 80;
     return isLongText ? (
       <textarea value={setting.value ?? ''} onChange={(e) => handleChange(setting.key, e.target.value)} rows={3}
-        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100" />
+        className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100" />
     ) : (
       <input type="text" value={setting.value ?? ''} onChange={(e) => handleChange(setting.key, e.target.value)}
-        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100" />
+        className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100" />
     );
   };
 
@@ -148,7 +148,7 @@ export default function AdminSettings() {
           {error && <span className="text-xs text-red-500 font-medium">{error}</span>}
           {saved && <span className="text-xs text-emerald-600 font-medium">✓ 已保存</span>}
           <Button variant="outline" size="sm" onClick={fetchSettings}><RefreshCw className="h-3.5 w-3.5 mr-1" />刷新</Button>
-          <Button size="sm" onClick={handleSave} disabled={saving} className="bg-blue-600 hover:bg-blue-700">
+          <Button size="sm" onClick={handleSave} disabled={saving} className="bg-blue-500 hover:bg-blue-600">
             {saving ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Save className="h-3.5 w-3.5 mr-1" />}
             保存
           </Button>

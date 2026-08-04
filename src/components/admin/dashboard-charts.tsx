@@ -364,20 +364,27 @@ interface StatCardProps {
 
 export function StatCard({ label, value, icon: Icon, color, bg, href, loading }: StatCardProps) {
   return (
-    <a href={href} className="bg-white rounded-xl p-5 border border-gray-100 hover:shadow-md transition-shadow block group">
-      <div className="flex items-center gap-3 mb-3">
-        <div className={`${bg} p-2.5 rounded-lg ${color} group-hover:scale-110 transition-transform`}>
-          <Icon className="h-5 w-5" />
-        </div>
+    <a href={href} className="relative overflow-hidden rounded-xl p-5 text-white shadow-sm hover:shadow-md transition-shadow block group"
+       style={{ background: bg || 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)' }}>
+      {/* 装饰性背景图标 */}
+      <div className="absolute right-3 top-3 opacity-10 group-hover:opacity-20 transition-opacity">
+        <Icon className="h-16 w-16" />
       </div>
-      <p className="text-2xl font-bold text-gray-900 mb-0.5">
-        {loading ? (
-          <span className="inline-block w-10 h-7 bg-gray-100 rounded animate-pulse" />
-        ) : (
-          value
-        )}
-      </p>
-      <p className="text-sm text-gray-500">{label}</p>
+      <div className="relative">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="bg-white/20 p-2.5 rounded-lg backdrop-blur-sm group-hover:scale-110 transition-transform">
+            <Icon className="h-5 w-5" />
+          </div>
+        </div>
+        <p className="text-2xl font-bold mb-0.5">
+          {loading ? (
+            <span className="inline-block w-10 h-7 bg-white/20 rounded animate-pulse" />
+          ) : (
+            value
+          )}
+        </p>
+        <p className="text-sm text-white/80">{label}</p>
+      </div>
     </a>
   );
 }

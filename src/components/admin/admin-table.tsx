@@ -3,6 +3,28 @@
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 
+// ─── Status Badge ──────────────────────────────────────
+export const statusColors: Record<string, string> = {
+  pending: 'bg-amber-50 text-amber-700 border border-amber-200',
+  processing: 'bg-blue-50 text-blue-700 border border-blue-200',
+  replied: 'bg-green-50 text-green-700 border border-green-200',
+  closed: 'bg-slate-100 text-slate-600 border border-slate-200',
+  urgent: 'bg-red-50 text-red-700 border border-red-200',
+  approved: 'bg-green-50 text-green-700 border border-green-200',
+  rejected: 'bg-red-50 text-red-700 border border-red-200',
+  published: 'bg-green-50 text-green-700 border border-green-200',
+  draft: 'bg-slate-100 text-slate-600 border border-slate-200',
+};
+
+export function StatusBadge({ status }: { status: string }) {
+  const color = statusColors[status] || statusColors.pending;
+  return (
+    <span className={cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', color)}>
+      {status}
+    </span>
+  );
+}
+
 // ─── Admin Table ───────────────────────────────────────
 export interface Column<T> {
   key: string;

@@ -107,8 +107,8 @@ export default function AdminUsers() {
       key: 'actions', header: '操作', className: 'text-center',
       render: (u) => (
         <div className="flex items-center justify-center gap-1">
-          <button onClick={() => openEdit(u)} className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors text-xs">编辑角色</button>
-          <button onClick={() => toggleActive(u)} className={`p-1.5 rounded-lg text-xs transition-colors ${u.isActive ? 'hover:bg-red-50 text-red-500' : 'hover:bg-emerald-50 text-emerald-600'}`}>
+          <button onClick={() => openEdit(u)} className="p-1.5 rounded-xl hover:bg-blue-50 text-blue-600 transition-colors text-xs">编辑角色</button>
+          <button onClick={() => toggleActive(u)} className={`p-1.5 rounded-xl text-xs transition-colors ${u.isActive ? 'hover:bg-red-50 text-red-500' : 'hover:bg-emerald-50 text-emerald-600'}`}>
             {u.isActive ? '禁用' : '启用'}
           </button>
         </div>
@@ -149,7 +149,7 @@ export default function AdminUsers() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="bg-slate-50 rounded-lg p-3 text-xs text-slate-500 space-y-1">
+            <div className="bg-slate-50 rounded-xl p-3 text-xs text-slate-500 space-y-1">
               <p className="font-medium text-slate-700">角色权限说明：</p>
               <p>🔵 超级管理员 - 所有权限</p>
               <p>🟣 管理员 - 管理+编辑权限</p>

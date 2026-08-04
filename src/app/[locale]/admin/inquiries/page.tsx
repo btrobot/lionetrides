@@ -154,7 +154,7 @@ export default function AdminInquiries() {
                 <div><span className="text-slate-500 text-xs">产品</span><p className="text-slate-700">{selected.product_name || '—'}</p></div>
                 <div><span className="text-slate-500 text-xs">数量</span><p className="text-slate-700">{selected.quantity ?? '—'}</p></div>
               </div>
-              <div><span className="text-slate-500 text-xs">留言</span><p className="text-sm text-slate-700 mt-1 bg-slate-50 rounded-lg p-3">{selected.message}</p></div>
+              <div><span className="text-slate-500 text-xs">留言</span><p className="text-sm text-slate-700 mt-1 bg-slate-50 rounded-xl p-3">{selected.message}</p></div>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-slate-500">状态</span>
                 <AdminBadge status={selected.status} />
@@ -194,7 +194,7 @@ export default function AdminInquiries() {
               {selected.status !== 'closed' && (
                 <div className="flex gap-2 pt-2">
                   {selected.status === 'pending' && (
-                    <Button size="sm" onClick={() => updateStatus(selected.id, 'processing')} className="bg-blue-600 hover:bg-blue-700">开始处理</Button>
+                    <Button size="sm" onClick={() => updateStatus(selected.id, 'processing')} className="bg-blue-500 hover:bg-blue-600">开始处理</Button>
                   )}
                   {selected.status === 'processing' && (
                     <Button size="sm" onClick={() => { setReplyOpen(true); }} className="bg-emerald-600 hover:bg-emerald-700">标记已回复</Button>
@@ -218,7 +218,7 @@ export default function AdminInquiries() {
           <div className="space-y-2">
             <Label className="text-xs font-medium text-slate-700">备注内容</Label>
             <textarea
-              className="w-full rounded-lg border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 min-h-[120px]"
+              className="w-full rounded-xl border border-slate-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 min-h-[120px]"
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               placeholder="请输入回复内容或备注..."

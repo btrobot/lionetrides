@@ -100,8 +100,8 @@ export default function AdminNews() {
       key: 'actions', header: '操作', className: 'text-center',
       render: (n) => (
         <div className="flex items-center justify-center gap-1">
-          <button onClick={() => openEdit(n)} className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"><Pencil className="w-4 h-4" /></button>
-          <button onClick={() => confirmDelete(n)} className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
+          <button onClick={() => openEdit(n)} className="p-1.5 rounded-xl hover:bg-blue-50 text-blue-600 transition-colors"><Pencil className="w-4 h-4" /></button>
+          <button onClick={() => confirmDelete(n)} className="p-1.5 rounded-xl hover:bg-red-50 text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
         </div>
       ),
     },
@@ -111,7 +111,7 @@ export default function AdminNews() {
 
   return (
     <div>
-      <AdminPageHeader title="新闻管理" description="管理行业资讯与公司动态" actions={<Button onClick={openAdd} className="bg-blue-600 hover:bg-blue-700"><Plus className="w-4 h-4 mr-2" />新增新闻</Button>} />
+      <AdminPageHeader title="新闻管理" description="管理行业资讯与公司动态" actions={<Button onClick={openAdd} className="bg-blue-500 hover:bg-blue-600"><Plus className="w-4 h-4 mr-2" />新增新闻</Button>} />
       <AdminCard padding={false}>
         <div className="p-4 border-b border-slate-100"><AdminSearchBar value={search} onChange={setSearch} placeholder="搜索新闻标题..." className="max-w-xs" /></div>
         <AdminTable columns={columns} data={filtered} keyField="id" emptyText="暂无新闻" />
@@ -142,7 +142,7 @@ export default function AdminNews() {
           </div>
           <div className="flex justify-end gap-3 mt-4">
             <Button variant="outline" onClick={() => setDialogOpen(false)}>取消</Button>
-            <Button onClick={handleSave} disabled={saving} className="bg-blue-600 hover:bg-blue-700">{saving ? '保存中...' : editing ? '保存修改' : '创建'}</Button>
+            <Button onClick={handleSave} disabled={saving} className="bg-blue-500 hover:bg-blue-600">{saving ? '保存中...' : editing ? '保存修改' : '创建'}</Button>
           </div>
         </DialogContent>
       </Dialog>

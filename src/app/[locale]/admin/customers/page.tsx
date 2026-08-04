@@ -91,8 +91,8 @@ export default function AdminCustomers() {
       key: 'actions', header: '操作', className: 'text-center',
       render: (c) => (
         <div className="flex items-center justify-center gap-1">
-          <button onClick={() => openEdit(c)} className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors text-xs">编辑</button>
-          <button onClick={() => toggleActive(c)} className={`p-1.5 rounded-lg text-xs transition-colors ${c.isActive ? 'hover:bg-red-50 text-red-500' : 'hover:bg-emerald-50 text-emerald-600'}`}>
+          <button onClick={() => openEdit(c)} className="p-1.5 rounded-xl hover:bg-blue-50 text-blue-600 transition-colors text-xs">编辑</button>
+          <button onClick={() => toggleActive(c)} className={`p-1.5 rounded-xl text-xs transition-colors ${c.isActive ? 'hover:bg-red-50 text-red-500' : 'hover:bg-emerald-50 text-emerald-600'}`}>
             {c.isActive ? '禁用' : '启用'}
           </button>
         </div>
@@ -124,7 +124,7 @@ export default function AdminCustomers() {
           </div>
           <div className="flex justify-end gap-3 mt-4">
             <Button variant="outline" onClick={() => setEditOpen(false)}>取消</Button>
-            <Button onClick={saveEdit} disabled={saving} className="bg-blue-600 hover:bg-blue-700">保存</Button>
+            <Button onClick={saveEdit} disabled={saving} className="bg-blue-500 hover:bg-blue-600">保存</Button>
           </div>
         </DialogContent>
       </Dialog>

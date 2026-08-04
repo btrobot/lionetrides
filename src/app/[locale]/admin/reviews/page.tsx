@@ -110,16 +110,16 @@ export default function AdminReviews() {
       render: (r) => (
         <div className="flex items-center justify-center gap-1">
           {r.status === 'pending' && (
-            <button onClick={() => updateStatus(r.id, 'approved')} className="p-1.5 rounded-lg hover:bg-emerald-50 text-emerald-600 transition-colors" title="通过"><CheckCircle2 className="w-3.5 h-3.5" /></button>
+            <button onClick={() => updateStatus(r.id, 'approved')} className="p-1.5 rounded-xl hover:bg-emerald-50 text-emerald-600 transition-colors" title="通过"><CheckCircle2 className="w-3.5 h-3.5" /></button>
           )}
           {r.status === 'approved' && (
-            <button onClick={() => updateStatus(r.id, 'hidden')} className="p-1.5 rounded-lg hover:bg-amber-50 text-amber-600 transition-colors" title="隐藏"><EyeOff className="w-3.5 h-3.5" /></button>
+            <button onClick={() => updateStatus(r.id, 'hidden')} className="p-1.5 rounded-xl hover:bg-amber-50 text-amber-600 transition-colors" title="隐藏"><EyeOff className="w-3.5 h-3.5" /></button>
           )}
           {r.status === 'hidden' && (
-            <button onClick={() => updateStatus(r.id, 'approved')} className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors" title="显示"><Eye className="w-3.5 h-3.5" /></button>
+            <button onClick={() => updateStatus(r.id, 'approved')} className="p-1.5 rounded-xl hover:bg-blue-50 text-blue-600 transition-colors" title="显示"><Eye className="w-3.5 h-3.5" /></button>
           )}
-          <button onClick={() => { setSelected(r); setDetailOpen(true); }} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors" title="查看"><MessageSquare className="w-3.5 h-3.5" /></button>
-          <button onClick={() => setDeleteConfirm(r)} className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors" title="删除"><Trash2 className="w-3.5 h-3.5" /></button>
+          <button onClick={() => { setSelected(r); setDetailOpen(true); }} className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-500 transition-colors" title="查看"><MessageSquare className="w-3.5 h-3.5" /></button>
+          <button onClick={() => setDeleteConfirm(r)} className="p-1.5 rounded-xl hover:bg-red-50 text-red-500 transition-colors" title="删除"><Trash2 className="w-3.5 h-3.5" /></button>
         </div>
       ),
     },
@@ -153,7 +153,7 @@ export default function AdminReviews() {
                 <StarRating rating={selected.rating} />
               </div>
               {selected.product_name && <p className="text-xs text-slate-500">产品: {selected.product_name}</p>}
-              <div className="bg-slate-50 rounded-lg p-4 text-sm text-slate-700">{selected.content}</div>
+              <div className="bg-slate-50 rounded-xl p-4 text-sm text-slate-700">{selected.content}</div>
               <div className="flex items-center gap-2">
                 <AdminBadge status={selected.status} />
                 <span className="text-xs text-slate-400 ml-auto">{new Date(selected.created_at).toLocaleString('zh-CN')}</span>

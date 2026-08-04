@@ -26,12 +26,12 @@ export default function AdminDashboard() {
 
   const overviewCards = data
     ? [
-        { label: '产品总数', value: data.overview.products, icon: Package, color: 'text-blue-600', bg: 'bg-blue-50', href: '/admin/products' },
-        { label: '询盘总数', value: data.overview.inquiries, icon: MessageSquare, color: 'text-orange-600', bg: 'bg-orange-50', href: '/admin/inquiries' },
-        { label: '注册用户', value: data.overview.users, icon: UsersIcon, color: 'text-green-600', bg: 'bg-green-50', href: '/admin/customers' },
-        { label: '新闻文章', value: data.overview.news, icon: Newspaper, color: 'text-purple-600', bg: 'bg-purple-50', href: '/admin/news' },
-        { label: '客户评价', value: data.overview.reviews, icon: Star, color: 'text-rose-600', bg: 'bg-rose-50', href: '/admin/reviews' },
-        { label: '产品分类', value: data.overview.categories, icon: Layers, color: 'text-teal-600', bg: 'bg-teal-50', href: '/admin/categories' },
+        { label: '产品总数', value: data.overview.products, icon: Package, color: 'text-white', bg: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)', href: '/admin/products' },
+        { label: '询盘总数', value: data.overview.inquiries, icon: MessageSquare, color: 'text-white', bg: 'linear-gradient(135deg, #F97316 0%, #EA580C 100%)', href: '/admin/inquiries' },
+        { label: '注册用户', value: data.overview.users, icon: UsersIcon, color: 'text-white', bg: 'linear-gradient(135deg, #10B981 0%, #059669 100%)', href: '/admin/customers' },
+        { label: '新闻文章', value: data.overview.news, icon: Newspaper, color: 'text-white', bg: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)', href: '/admin/news' },
+        { label: '客户评价', value: data.overview.reviews, icon: Star, color: 'text-white', bg: 'linear-gradient(135deg, #F43F5E 0%, #E11D48 100%)', href: '/admin/reviews' },
+        { label: '产品分类', value: data.overview.categories, icon: Layers, color: 'text-white', bg: 'linear-gradient(135deg, #14B8A6 0%, #0D9488 100%)', href: '/admin/categories' },
       ]
     : [];
 
@@ -39,8 +39,8 @@ export default function AdminDashboard() {
     <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold text-gray-900">控制台</h1>
-        <p className="text-sm text-gray-500 flex items-center gap-1">
+        <h1 className="text-[22px] font-semibold text-slate-900">控制台</h1>
+        <p className="text-sm text-slate-500 flex items-center gap-1">
           <TrendingUp className="h-4 w-4" />
           {new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
@@ -48,7 +48,7 @@ export default function AdminDashboard() {
 
       {/* Error Banner */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
           {error}
         </div>
       )}
@@ -128,7 +128,7 @@ export default function AdminDashboard() {
 
       {/* Quick Actions */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">快捷操作</h2>
+        <h2 className="text-[17px] font-semibold text-slate-900 mb-4">快捷操作</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { href: '/admin/products', label: '添加产品', icon: Package, color: 'text-blue-600', desc: '管理产品目录与技术参数' },
@@ -139,18 +139,18 @@ export default function AdminDashboard() {
             <Link
               key={a.href}
               href={`/${locale}${a.href}`}
-              className="flex items-center justify-between bg-white rounded-xl p-5 border border-gray-100 hover:shadow-md transition-shadow group"
+              className="flex items-center justify-between bg-white rounded-xl p-5 border border-slate-200 hover:shadow-lg transition-shadow group"
             >
               <div className="flex items-start gap-3">
-                <div className={`${a.color} p-2 rounded-lg bg-gray-50 group-hover:bg-gray-100 transition-colors`}>
+                <div className={`${a.color} p-2 rounded-xl bg-slate-100 group-hover:bg-slate-200 transition-colors`}>
                   <a.icon className="h-5 w-5" />
                 </div>
                 <div>
-                  <span className="font-medium text-gray-900 block">{a.label}</span>
-                  <span className="text-xs text-gray-500 mt-0.5 block">{a.desc}</span>
+                  <span className="font-medium text-slate-900 block">{a.label}</span>
+                  <span className="text-xs text-slate-500 mt-0.5 block">{a.desc}</span>
                 </div>
               </div>
-              <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-blue-500 transition-colors flex-shrink-0" />
+              <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-blue-500 transition-colors flex-shrink-0" />
             </Link>
           ))}
         </div>
