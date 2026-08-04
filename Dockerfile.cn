@@ -26,8 +26,9 @@ COPY package.json pnpm-lock.yaml ./
 # 配置国内 npm 镜像源（直接写配置文件，避免网络请求）
 RUN echo "registry=https://registry.npmmirror.com/" > /root/.npmrc
 
-# 安装依赖（利用构建缓存）
+# 安装依赖（利用构建缓存，使用代理访问镜像源）
 RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
+    HTTP_PROXY=${http_proxy} HTTPS_PROXY=${https_proxy} \
     pnpm install --frozen-lockfile --prod=false
 
 # ============================================================
