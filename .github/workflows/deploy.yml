@@ -112,6 +112,28 @@ jobs:
               --env-file /data/lionetrides/.env.local \
               "${REGISTRY}/${IMAGE_NAME}:latest"
 
+            # 初始化数据库（首次部署时自动创建用户和数据库）
+            echo "检查数据库..."
+            PGUSER=$(grep '^PGUSER=' /data/lionetrides/.env.local | cut -d= -f2)
+            PGPASSWORD=$(grep '^PGPASSWORD=' /data/lionetrides/.env.local | cut -d= -f2)
+            PGDATABASE=$(grep '^PGDATABASE=' /data/lionetrides/.env.local | cut -d= -f2)
+            
+            # 创建用户（如不存在）
+            if ! sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='${PGUSER}'" | grep -q 1; then
+              echo "创建数据库用户 ${PGUSER}..."
+              sudo -u postgres psql -c "CREATE USER ${PGUSER} WITH PASSWORD '${PGPASSWORD}';"
+            else
+              echo "数据库用户 ${PGUSER} 已存在"
+            fi
+            
+            # 创建数据库（如不存在）
+            if ! sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='${PGDATABASE}'" | grep -q 1; then
+              echo "创建数据库 ${PGDATABASE}..."
+              sudo -u postgres psql -c "CREATE DATABASE ${PGDATABASE} OWNER ${PGUSER};"
+            else
+              echo "数据库 ${PGDATABASE} 已存在"
+            fi
+
             # 执行数据库迁移（仅当迁移文件存在时）
             echo "检查数据库迁移..."
             if docker exec "${CONTAINER_NAME}" sh -c '[ -d /app/drizzle && "$(ls -A /app/drizzle/*.sql 2>/dev/null)" ]'; then
