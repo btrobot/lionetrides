@@ -83,7 +83,7 @@ jobs:
             elapsed=0
 
             while [ $elapsed -lt $MAX_WAIT ]; do
-              if curl -sf http://localhost:${APP_PORT}/en > /dev/null 2>&1; then
+              if curl -sf http://localhost:${APP_PORT}/api/health > /dev/null 2>&1; then
                 echo ""
                 echo "✓ 健康检查通过 (${elapsed}s)"
                 break
@@ -111,9 +111,14 @@ jobs:
               exit 1
             fi
 
-            # 数据库迁移
-            echo "执行数据库迁移..."
-            docker exec ${CONTAINER_NAME} npx drizzle-kit migrate || echo "迁移失败（非致命）"
+            # 数据库迁移（仅当迁移文件存在时）
+            echo "检查数据库迁移..."
+            if docker exec ${CONTAINER_NAME} sh -c '[ -d /app/drizzle && "$(ls -A /app/drizzle/*.sql 2>/dev/null)" ]'; then
+              echo "执行数据库迁移..."
+              docker exec ${CONTAINER_NAME} npx drizzle-kit migrate || echo "迁移失败（非致命）"
+            else
+              echo "无迁移文件，跳过数据库迁移"
+            fi
 
             # 清理旧镜像
             echo "清理旧镜像..."

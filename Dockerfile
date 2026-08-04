@@ -1,6 +1,6 @@
 # ============================================
 # Dockerfile — Lionet Rides B2B Website
-# Next.js (应用容器，数据库独立部署)
+# Next.js standalone output (数据库独立部署)
 # ============================================
 
 # ─── 构建参数 ───
@@ -22,9 +22,6 @@ RUN corepack enable
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
-# 归档 node_modules（避免 COPY 数万小文件超时）
-RUN tar cf /tmp/node_modules.tar node_modules
-
 # ============================================
 # 阶段 2: 构建应用
 # ============================================
@@ -35,19 +32,14 @@ WORKDIR /app
 RUN corepack enable
 
 # 解压依赖
-COPY --from=deps /tmp/node_modules.tar /tmp/
-RUN tar xf /tmp/node_modules.tar -C /app --no-same-owner && \
-    rm /tmp/node_modules.tar
+COPY --from=deps /app/node_modules ./node_modules
 
 # 复制源码并构建
 COPY . .
 RUN pnpm run build
 
-# 归档构建产物（dist/ 目录）
-RUN tar cf /tmp/dist.tar dist
-
 # ============================================
-# 阶段 3: 运行环境
+# 阶段 3: 运行环境 (standalone)
 # ============================================
 FROM node:24-bookworm-slim AS runner
 
@@ -70,36 +62,39 @@ LABEL org.opencontainers.image.revision="${GIT_COMMIT}"
 
 WORKDIR /app
 
-# 安装 curl（健康检查用）
+# 安装运行时工具：curl（健康检查）、dumb-init（PID 1 信号转发）
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
+    apt-get install -y --no-install-recommends curl dumb-init && \
     rm -rf /var/lib/apt/lists/*
 
 # 环境变量
 ENV NODE_ENV=production
 ENV PORT=5000
+ENV HOSTNAME="0.0.0.0"
 
-# 解压构建产物
-COPY --from=builder /tmp/dist.tar /tmp/
-RUN tar xf /tmp/dist.tar -C /app --no-same-owner && \
-    rm /tmp/dist.tar
+# ─── 复制 Next.js standalone 产物 ───
+COPY --from=builder --chown=node:node /app/.next/standalone ./
+COPY --from=builder --chown=node:node /app/.next/static ./.next/static
+COPY --from=builder --chown=node:node /app/public ./public
 
-# 解压运行时依赖
-COPY --from=deps /tmp/node_modules.tar /tmp/
-RUN tar xf /tmp/node_modules.tar -C /app --no-same-owner && \
-    rm /tmp/node_modules.tar
+# ─── 数据库迁移工具（供 docker exec 调用）───
+RUN corepack enable && \
+    pnpm add -g drizzle-kit pg
 
-# 复制 package.json（运行时元数据）
-COPY --from=builder /app/package.json ./
+# 复制迁移配置和 schema（供 drizzle-kit migrate 使用）
+COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
+COPY --from=builder /app/src/db/schema.ts ./src/db/schema.ts
+COPY --from=builder /app/drizzle/ ./drizzle/
 
 # 复制启动脚本
 COPY docker-entrypoint.sh /usr/local/bin/
-RUN if [ -f /usr/local/bin/docker-entrypoint.sh ]; then chmod +x /usr/local/bin/docker-entrypoint.sh; fi
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# 健康检查（30s 间隔，60s 启动期）
+# 健康检查（使用轻量 API，30s 间隔，60s 启动期）
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD curl -f http://localhost:5000/ || exit 1
+  CMD curl -f http://localhost:5000/api/health || exit 1
 
 EXPOSE 5000
 
-ENTRYPOINT ["docker-entrypoint.sh"]
+# 使用 dumb-init 作为 PID 1（正确处理信号转发和僵尸进程）
+ENTRYPOINT ["dumb-init", "--", "docker-entrypoint.sh"]

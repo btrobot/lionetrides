@@ -40,6 +40,15 @@ else
   fail "健康检查未通过 (${HEALTH})"
 fi
 
+# ─── 2b. 健康 API ──
+info "检查健康 API..."
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "${BASE_URL}/api/health" || echo "000")
+if [ "${HTTP_CODE}" = "200" ]; then
+  pass "健康 API /api/health (HTTP ${HTTP_CODE})"
+else
+  fail "健康 API /api/health (HTTP ${HTTP_CODE})"
+fi
+
 # ─── 3. 首页可达 ───
 info "检查首页..."
 HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "${BASE_URL}/en" || echo "000")

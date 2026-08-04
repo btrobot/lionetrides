@@ -111,25 +111,30 @@ jobs:
               --env-file /data/lionetrides/.env.local \
               "${REGISTRY}/${IMAGE_NAME}:latest"
 
-            # 执行数据库迁移
-            echo "执行数据库迁移..."
-            if docker exec "${CONTAINER_NAME}" npx drizzle-kit migrate 2>&1; then
-              echo "数据库迁移完成"
-            else
-              echo "数据库迁移失败，回滚..."
-              docker stop "${CONTAINER_NAME}"
-              docker rm "${CONTAINER_NAME}"
-              if [ -n "${OLD_CONTAINER_SHA}" ]; then
-                docker run -d --name "${CONTAINER_NAME}" --restart unless-stopped -p "${APP_PORT}:5000" --env-file /data/lionetrides/.env.local "${OLD_CONTAINER_SHA}"
-                echo "已回滚到旧镜像"
+            # 执行数据库迁移（仅当迁移文件存在时）
+            echo "检查数据库迁移..."
+            if docker exec "${CONTAINER_NAME}" sh -c '[ -d /app/drizzle && "$(ls -A /app/drizzle/*.sql 2>/dev/null)" ]'; then
+              echo "执行数据库迁移..."
+              if docker exec "${CONTAINER_NAME}" npx drizzle-kit migrate 2>&1; then
+                echo "数据库迁移完成"
+              else
+                echo "数据库迁移失败，回滚..."
+                docker stop "${CONTAINER_NAME}"
+                docker rm "${CONTAINER_NAME}"
+                if [ -n "${OLD_CONTAINER_SHA}" ]; then
+                  docker run -d --name "${CONTAINER_NAME}" --restart unless-stopped -p "${APP_PORT}:5000" --env-file /data/lionetrides/.env.local "${OLD_CONTAINER_SHA}"
+                  echo "已回滚到旧镜像"
+                fi
+                exit 1
               fi
-              exit 1
+            else
+              echo "无迁移文件，跳过数据库迁移"
             fi
 
             # 健康检查（120 秒）
             echo "等待服务就绪..."
             for i in $(seq 1 24); do
-              if curl -sf "http://localhost:${APP_PORT}/en" > /dev/null 2>&1; then
+              if curl -sf "http://localhost:${APP_PORT}/api/health" > /dev/null 2>&1; then
                 echo "健康检查通过 (${i}×5s)"
                 break
               fi
