@@ -136,7 +136,7 @@ jobs:
 
             # 执行数据库迁移（仅当迁移文件存在时）
             echo "检查数据库迁移..."
-            if docker exec "${CONTAINER_NAME}" sh -c '[ -d /app/drizzle && "$(ls -A /app/drizzle/*.sql 2>/dev/null)" ]'; then
+            if docker exec "${CONTAINER_NAME}" sh -c '[ -d /app/migrations/drizzle ] && ls /app/migrations/drizzle/*.sql >/dev/null 2>&1'; then
               echo "执行数据库迁移..."
               if docker exec "${CONTAINER_NAME}" node /app/migrations/migrate.js 2>&1; then
                 echo "数据库迁移完成"
