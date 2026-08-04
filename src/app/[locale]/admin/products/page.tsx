@@ -1,100 +1,87 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { useAdminAuth } from '@/hooks/use-admin-auth';
+import { useEffect, useState, useRef } from 'react';
+import { Plus, Pencil, Trash2, Download, Upload, Loader2, FileText, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, Download, Upload, FileText, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
-import { AdminPageHeader, AdminCard, AdminLoadingSkeleton } from '@/components/admin/admin-card';
-import { AdminTable, AdminBadge, AdminSearchBar } from '@/components/admin/admin-table';
-import type { Column } from '@/components/admin/admin-table';
+import { useAdminAuth } from '@/hooks/use-admin-auth';
+import { AdminCard, AdminPageHeader, AdminLoadingSkeleton } from '@/components/admin/admin-card';
+import { AdminTable, type Column, AdminBadge, AdminSearchBar } from '@/components/admin/admin-table';
+import { AdminForm, type FormField } from '@/components/admin/admin-form';
+import { AdminDialog } from '@/components/admin/admin-dialog';
+import { toast } from '@/components/admin/toast';
 
 interface Product {
-  id: number;
-  name: string;
-  sku: string;
-  category_id: number | null;
-  brand_id: number | null;
-  price: number;
-  description: string | null;
-  specifications: string | null;
-  status: string;
-  created_at: string;
+  id: number; name: string; slug: string; sku: string;
+  category_id: number | null; brand_id: number | null;
+  price: number; status: 'active' | 'inactive';
+  description: string | null; specifications: string | null;
 }
 
-interface Category { id: number; name: string }
-interface Brand { id: number; name: string }
+interface Category { id: number; name: string; }
+interface Brand { id: number; name: string; }
 
 interface ProductForm {
-  name: string;
-  sku: string;
-  category_id: string;
-  brand_id: string;
-  price: string;
-  description: string;
-  specifications: string;
-  status: string;
+  name: string; sku: string; category_id: string; brand_id: string;
+  price: string; description: string; specifications: string; status: string;
 }
 
-const emptyForm: ProductForm = {
-  name: '', sku: '', category_id: '', brand_id: '',
-  price: '', description: '', specifications: '', status: 'active',
-};
+interface ImportResult {
+  total: number; created: number; updated: number; skipped: number;
+  errors: { row: number; field: string; message: string }[];
+}
 
-export default function AdminProducts() {
+export default function ProductsPage() {
   const { authFetch } = useAdminAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [deleting, setDeleting] = useState<Product | null>(null);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState<ProductForm>(emptyForm);
-  const [search, setSearch] = useState('');
-
-  // Import/Export state
-  const [importOpen, setImportOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importMode, setImportMode] = useState<'create' | 'upsert'>('create');
-  const [importResult, setImportResult] = useState<{
-    total: number; created: number; updated: number; skipped: number;
-    errors: Array<{ row: number; field: string; message: string }>;
-  } | null>(null);
-  const [exporting, setExporting] = useState(false);
+  const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const loadData = useCallback(async () => {
-    const [prodRes, catRes, brandRes] = await Promise.all([
-      authFetch('/api/v1/products?limit=50'),
-      fetch('/api/v1/categories'),
-      fetch('/api/v1/brands'),
-    ]);
-    const [prodData, catData, brandData] = await Promise.all([
-      prodRes?.json() ?? { items: [] },
-      catRes.json(),
-      brandRes.json(),
-    ]);
-    setProducts(prodData?.items ?? []);
-    setCategories(catData?.data?.items ?? []);
-    setBrands(brandData?.data ?? []);
-    setLoading(false);
-  }, [authFetch]);
+  const [form, setForm] = useState<ProductForm>({
+    name: '', sku: '', category_id: '', brand_id: '',
+    price: '0', description: '', specifications: '', status: 'active',
+  });
 
-  useEffect(() => { loadData(); }, [loadData]);
+  async function loadData() {
+    setLoading(true);
+    try {
+      const [pRes, cRes, bRes] = await Promise.all([
+        authFetch('/api/v1/products'),
+        authFetch('/api/v1/categories'),
+        authFetch('/api/v1/brands'),
+      ]);
+      if (pRes?.ok) setProducts(await pRes.json());
+      if (cRes?.ok) setCategories(await cRes.json());
+      if (bRes?.ok) setBrands(await bRes.json());
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  const filtered = products.filter((p) =>
-    !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase())
+  useEffect(() => { loadData(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const filtered = products.filter(
+    (p) => p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase())
   );
 
-  function openAdd() { setEditing(null); setForm(emptyForm); setDialogOpen(true); }
+  function openAdd() {
+    setEditing(null);
+    setForm({ name: '', sku: '', category_id: '', brand_id: '', price: '0', description: '', specifications: '', status: 'active' });
+    setDialogOpen(true);
+  }
+
   function openEdit(product: Product) {
     setEditing(product);
     setForm({
@@ -108,6 +95,7 @@ export default function AdminProducts() {
     });
     setDialogOpen(true);
   }
+
   function confirmDelete(product: Product) { setDeleting(product); setDeleteOpen(true); }
 
   async function handleSave() {
@@ -221,8 +209,8 @@ export default function AdminProducts() {
 
   // ─── Download CSV Template ───────────────────────────
   function downloadTemplate() {
-    const headers = 'SKU,产品名称/Name,Slug,描述/Description,简短描述/Short Description,分类/Category,品牌/Brand,价格/Price,重量/Weight,尺寸/Dimensions,材质/Material,容量/Capacity,功率/Power,保修/Warranty,认证/Certification,最小起订量/MOQ,主图URL/Main Image,状态/Status (draft/published/archived),推荐/Featured (true/false),SEO标题/Meta Title,SEO描述/Meta Description';
-    const example = 'RC-001,Double Loop Coaster,double-loop-coaster,Exciting double loop roller coaster...,High-thrill coaster,过山车,ThrillRides,150000,5000kg,120x30x40m,Steel,40 riders,200kW,2 years,CE/ISO,1,https://example.com/img.jpg,published,true,Double Loop Coaster | Lionet Rides,Buy double loop coaster from Lionet Rides';
+    const headers = 'SKU，产品名称/Name,Slug，描述/Description，简短描述/Short Description，分类/Category，品牌/Brand，价格/Price，重量/Weight，尺寸/Dimensions，材质/Material，容量/Capacity，功率/Power，保修/Warranty，认证/Certification，最小起订量/MOQ，主图 URL/Main Image，状态/Status (draft/published/archived)，推荐/Featured (true/false),SEO 标题/Meta Title,SEO 描述/Meta Description';
+    const example = 'RC-001,Double Loop Coaster,double-loop-coaster,Exciting double loop roller coaster...,High-thrill coaster，过山车,ThrillRides,150000,5000kg,120x30x40m,Steel,40 riders,200kW,2 years,CE/ISO,1,https://example.com/img.jpg,published,true,Double Loop Coaster | Lionet Rides,Buy double loop coaster from Lionet Rides';
     const csv = `${headers}\n${example}`;
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
@@ -252,6 +240,17 @@ export default function AdminProducts() {
         </div>
       ),
     },
+  ];
+
+  const formFields: FormField[] = [
+    { key: 'name', label: '产品名称', type: 'text', required: true, placeholder: '产品名称' },
+    { key: 'sku', label: 'SKU', type: 'text', required: true, placeholder: 'SKU' },
+    { key: 'category_id', label: '分类', type: 'select', options: [{ value: '', label: '无' }, ...categories.map((c) => ({ value: c.id.toString(), label: c.name }))] },
+    { key: 'brand_id', label: '品牌', type: 'select', options: [{ value: '', label: '无' }, ...brands.map((b) => ({ value: b.id.toString(), label: b.name }))] },
+    { key: 'price', label: '价格', type: 'number', placeholder: '0' },
+    { key: 'status', label: '状态', type: 'select', options: [{ value: 'active', label: '上架' }, { value: 'inactive', label: '下架' }] },
+    { key: 'description', label: '描述', type: 'textarea', placeholder: '产品描述', rows: 3 },
+    { key: 'specifications', label: '规格参数 (JSON)', type: 'textarea', placeholder: '{"高度": "30m", "速度": "90km/h"}', rows: 3 },
   ];
 
   if (loading) return <AdminLoadingSkeleton rows={8} />;
@@ -300,222 +299,169 @@ export default function AdminProducts() {
       </AdminCard>
 
       {/* 新增/编辑 Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-t-lg" />
-          <DialogHeader className="pt-2">
-            <DialogTitle className="text-lg">{editing ? '编辑产品' : '新增产品'}</DialogTitle>
-            <DialogDescription>{editing ? '修改产品信息' : '填写新产品信息'}</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-xs font-medium text-slate-700">产品名称 *</Label>
-                <Input value={form.name} onChange={(e) => updateForm('name', e.target.value)} placeholder="产品名称" />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-medium text-slate-700">SKU *</Label>
-                <Input value={form.sku} onChange={(e) => updateForm('sku', e.target.value)} placeholder="SKU" />
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label className="text-xs font-medium text-slate-700">分类</Label>
-                <select className="w-full h-9 rounded-xl border border-slate-200 px-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" value={form.category_id} onChange={(e) => updateForm('category_id', e.target.value)}>
-                  <option value="">无</option>
-                  {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-medium text-slate-700">品牌</Label>
-                <select className="w-full h-9 rounded-xl border border-slate-200 px-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" value={form.brand_id} onChange={(e) => updateForm('brand_id', e.target.value)}>
-                  <option value="">无</option>
-                  {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-medium text-slate-700">价格</Label>
-                <Input type="number" value={form.price} onChange={(e) => updateForm('price', e.target.value)} placeholder="0" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-medium text-slate-700">状态</Label>
-              <select className="w-full h-9 rounded-xl border border-slate-200 px-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" value={form.status} onChange={(e) => updateForm('status', e.target.value)}>
-                <option value="active">上架</option>
-                <option value="inactive">下架</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-medium text-slate-700">描述</Label>
-              <Textarea value={form.description} onChange={(e) => updateForm('description', e.target.value)} placeholder="产品描述" rows={3} />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-medium text-slate-700">规格参数 (JSON)</Label>
-              <Textarea value={form.specifications} onChange={(e) => updateForm('specifications', e.target.value)} placeholder='{"高度": "30m", "速度": "90km/h"}' rows={3} />
-            </div>
-          </div>
-          <div className="flex justify-end gap-3 mt-4">
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>取消</Button>
-            <Button onClick={handleSave} disabled={saving} className="bg-blue-500 hover:bg-blue-600">
-              {saving && <span className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent" />}
-              {editing ? '保存修改' : '创建'}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <AdminDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        title={editing ? '编辑产品' : '新增产品'}
+        description={editing ? '修改产品信息' : '填写新产品信息'}
+        onConfirm={handleSave}
+        confirmText={editing ? '保存修改' : '创建'}
+        loading={saving}
+      >
+        <AdminForm
+          fields={formFields}
+          values={form}
+          onChange={updateForm}
+        />
+      </AdminDialog>
 
       {/* 删除确认 */}
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 to-red-600 rounded-t-lg" />
-          <AlertDialogHeader className="pt-2">
-            <AlertDialogTitle>确认删除</AlertDialogTitle>
-            <AlertDialogDescription>
-              确定要删除产品「<span className="font-medium text-slate-900">{deleting?.name}</span>」吗？此操作不可撤销。
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeleting(null)}>取消</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">删除</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <AdminDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="确认删除"
+        description={`确定要删除产品「${deleting?.name}」吗？此操作不可撤销。`}
+        onConfirm={handleDelete}
+        confirmText="删除"
+        confirmVariant="danger"
+        loading={saving}
+      />
 
       {/* 批量导入 Dialog */}
-      <Dialog open={importOpen} onOpenChange={setImportOpen}>
-        <DialogContent className="max-w-lg">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-t-lg" />
-          <DialogHeader className="pt-2">
-            <DialogTitle className="text-lg">批量导入产品</DialogTitle>
-            <DialogDescription>通过 CSV 文件批量导入或更新产品数据</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            {/* 导入模式 */}
-            <div className="space-y-2">
-              <Label className="text-xs font-medium text-slate-700">导入模式</Label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setImportMode('create')}
-                  className={`p-3 rounded-xl border text-left transition-all ${
-                    importMode === 'create'
-                      ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500/20'
-                      : 'border-slate-200 hover:border-slate-300'
-                  }`}
-                >
-                  <div className="text-sm font-medium text-slate-900">仅新增</div>
-                  <div className="text-xs text-slate-500 mt-0.5">跳过已存在的 SKU</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setImportMode('upsert')}
-                  className={`p-3 rounded-xl border text-left transition-all ${
-                    importMode === 'upsert'
-                      ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500/20'
-                      : 'border-slate-200 hover:border-slate-300'
-                  }`}
-                >
-                  <div className="text-sm font-medium text-slate-900">新增 + 更新</div>
-                  <div className="text-xs text-slate-500 mt-0.5">已存在的 SKU 会被覆盖</div>
-                </button>
-              </div>
-            </div>
-
-            {/* 下载模板 */}
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 border border-slate-100">
-              <FileText className="w-4 h-4 text-slate-400 shrink-0" />
-              <span className="text-xs text-slate-600 flex-1">首次导入？先下载模板文件，按格式填写后上传</span>
+      <AdminDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        title="批量导入产品"
+        description="通过 CSV 文件批量导入或更新产品数据"
+        showFooter={false}
+      >
+        <div className="space-y-4">
+          {/* 导入模式 */}
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-slate-700">导入模式</label>
+            <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={downloadTemplate}
-                className="text-xs text-blue-600 hover:text-blue-700 font-medium shrink-0"
+                onClick={() => setImportMode('create')}
+                className={`p-3 rounded-xl border text-left transition-all ${
+                  importMode === 'create'
+                    ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500/20'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
               >
-                下载模板
+                <div className="text-sm font-medium text-slate-900">仅新增</div>
+                <div className="text-xs text-slate-500 mt-0.5">跳过已存在的 SKU</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setImportMode('upsert')}
+                className={`p-3 rounded-xl border text-left transition-all ${
+                  importMode === 'upsert'
+                    ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500/20'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+              >
+                <div className="text-sm font-medium text-slate-900">新增 + 更新</div>
+                <div className="text-xs text-slate-500 mt-0.5">已存在的 SKU 会被覆盖</div>
               </button>
             </div>
+          </div>
 
-            {/* 文件上传 */}
-            <div className="space-y-2">
-              <Label className="text-xs font-medium text-slate-700">选择 CSV 文件</Label>
-              <div className="relative">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".csv,text/csv"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                  id="csv-import-input"
-                />
-                <label
-                  htmlFor="csv-import-input"
-                  className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-colors"
-                >
-                  {importing ? (
-                    <div className="flex flex-col items-center gap-2">
-                      <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
-                      <span className="text-sm text-slate-500">正在导入...</span>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center gap-1">
-                      <Upload className="w-6 h-6 text-slate-400" />
-                      <span className="text-sm text-slate-500">点击选择或拖拽 CSV 文件</span>
-                      <span className="text-xs text-slate-400">支持 .csv 格式</span>
-                    </div>
-                  )}
-                </label>
-              </div>
-            </div>
+          {/* 下载模板 */}
+          <div className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 border border-slate-100">
+            <FileText className="w-4 h-4 text-slate-400 shrink-0" />
+            <span className="text-xs text-slate-600 flex-1">首次导入？先下载模板文件，按格式填写后上传</span>
+            <button
+              type="button"
+              onClick={downloadTemplate}
+              className="text-xs text-blue-600 hover:text-blue-700 font-medium shrink-0"
+            >
+              下载模板
+            </button>
+          </div>
 
-            {/* 导入结果 */}
-            {importResult && (
-              <div className="space-y-3 p-4 rounded-xl border border-slate-100 bg-slate-50">
-                <div className="flex items-center gap-2">
-                  {importResult.errors.length === 0 ? (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                  ) : (
-                    <AlertCircle className="w-5 h-5 text-amber-500" />
-                  )}
-                  <span className="text-sm font-medium text-slate-900">导入结果</span>
-                </div>
-                <div className="grid grid-cols-4 gap-2 text-center">
-                  <div className="p-2 rounded bg-white border border-slate-100">
-                    <div className="text-lg font-bold text-slate-900">{importResult.total}</div>
-                    <div className="text-xs text-slate-500">总计</div>
+          {/* 文件上传 */}
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-slate-700">选择 CSV 文件</label>
+            <div className="relative">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv,text/csv"
+                onChange={handleFileSelect}
+                className="hidden"
+                id="csv-import-input"
+              />
+              <label
+                htmlFor="csv-import-input"
+                className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-colors"
+              >
+                {importing ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+                    <span className="text-sm text-slate-500">正在导入...</span>
                   </div>
-                  <div className="p-2 rounded bg-white border border-emerald-100">
-                    <div className="text-lg font-bold text-emerald-600">{importResult.created}</div>
-                    <div className="text-xs text-slate-500">新增</div>
-                  </div>
-                  <div className="p-2 rounded bg-white border border-blue-100">
-                    <div className="text-lg font-bold text-blue-600">{importResult.updated}</div>
-                    <div className="text-xs text-slate-500">更新</div>
-                  </div>
-                  <div className="p-2 rounded bg-white border border-slate-100">
-                    <div className="text-lg font-bold text-slate-500">{importResult.skipped}</div>
-                    <div className="text-xs text-slate-500">跳过</div>
-                  </div>
-                </div>
-                {importResult.errors.length > 0 && (
-                  <div className="max-h-32 overflow-y-auto">
-                    <div className="text-xs font-medium text-slate-700 mb-1">错误详情：</div>
-                    {importResult.errors.slice(0, 10).map((err, i) => (
-                      <div key={i} className="text-xs text-red-600 py-0.5">
-                        行 {err.row}: [{err.field}] {err.message}
-                      </div>
-                    ))}
-                    {importResult.errors.length > 10 && (
-                      <div className="text-xs text-slate-400">...还有 {importResult.errors.length - 10} 条错误</div>
-                    )}
+                ) : (
+                  <div className="flex flex-col items-center gap-1">
+                    <Upload className="w-6 h-6 text-slate-400" />
+                    <span className="text-sm text-slate-500">点击选择或拖拽 CSV 文件</span>
+                    <span className="text-xs text-slate-400">支持 .csv 格式</span>
                   </div>
                 )}
-              </div>
-            )}
+              </label>
+            </div>
           </div>
+
+          {/* 导入结果 */}
+          {importResult && (
+            <div className="space-y-3 p-4 rounded-xl border border-slate-100 bg-slate-50">
+              <div className="flex items-center gap-2">
+                {importResult.errors.length === 0 ? (
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                ) : (
+                  <AlertCircle className="w-5 h-5 text-amber-500" />
+                )}
+                <span className="text-sm font-medium text-slate-900">导入结果</span>
+              </div>
+              <div className="grid grid-cols-4 gap-2 text-center">
+                <div className="p-2 rounded bg-white border border-slate-100">
+                  <div className="text-lg font-bold text-slate-900">{importResult.total}</div>
+                  <div className="text-xs text-slate-500">总计</div>
+                </div>
+                <div className="p-2 rounded bg-white border border-emerald-100">
+                  <div className="text-lg font-bold text-emerald-600">{importResult.created}</div>
+                  <div className="text-xs text-slate-500">新增</div>
+                </div>
+                <div className="p-2 rounded bg-white border border-blue-100">
+                  <div className="text-lg font-bold text-blue-600">{importResult.updated}</div>
+                  <div className="text-xs text-slate-500">更新</div>
+                </div>
+                <div className="p-2 rounded bg-white border border-slate-100">
+                  <div className="text-lg font-bold text-slate-500">{importResult.skipped}</div>
+                  <div className="text-xs text-slate-500">跳过</div>
+                </div>
+              </div>
+              {importResult.errors.length > 0 && (
+                <div className="max-h-32 overflow-y-auto">
+                  <div className="text-xs font-medium text-slate-700 mb-1">错误详情：</div>
+                  {importResult.errors.slice(0, 10).map((err, i) => (
+                    <div key={i} className="text-xs text-red-600 py-0.5">
+                      行 {err.row}: [{err.field}] {err.message}
+                    </div>
+                  ))}
+                  {importResult.errors.length > 10 && (
+                    <div className="text-xs text-slate-400">...还有 {importResult.errors.length - 10} 条错误</div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="flex justify-end gap-3 mt-4">
             <Button variant="outline" onClick={() => setImportOpen(false)}>关闭</Button>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </AdminDialog>
     </div>
   );
 }
