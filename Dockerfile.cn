@@ -17,7 +17,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 
 # 安装依赖
-RUN pnpm install --frozen-lockfile --ignore-scripts
+RUN pnpm install --frozen-lockfile --ignore-scripts --prod=false
 
 # ─── Stage 2: 构建项目 ───
 FROM node:24-bookworm-slim AS builder
