@@ -18,4 +18,4 @@ fi
 
 # ─── 启动 Next.js standalone 服务器 ───
 echo "Starting Next.js standalone server on port ${PORT:-5000}..."
-exec node .next/standalone/server.js
+exec node server.js
