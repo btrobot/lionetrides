@@ -1,107 +1,88 @@
-# syntax=docker/dockerfile:1
-
 # ============================================================
 # Lionet Rides - 国内优化版 Dockerfile
-# 支持镜像源配置，解决 Docker Hub 被墙问题
+# 使用国内镜像源，解决网络问题
 # ============================================================
 
-# 构建参数：镜像源配置
-ARG NODE_IMAGE=node:24-bookworm-slim
-ARG NPM_REGISTRY=https://registry.npmmirror.com
+# ─── Stage 1: 安装依赖 ───
+FROM node:24-bookworm-slim AS deps
 
-# ============================================================
-# Stage 1: 安装依赖
-# ============================================================
-FROM ${NODE_IMAGE} AS deps
-
-# 代理配置（用于访问镜像源）
-ARG http_proxy
-ARG https_proxy
+# 配置 npm/pnpm 使用国内镜像源
+RUN echo "registry=https://registry.npmmirror.com/" > /root/.npmrc && \
+    corepack enable && \
+    corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
-# 安装 pnpm（使用国内镜像）
-RUN npm config set registry ${NPM_REGISTRY} && \
-    npm install -g pnpm@latest
-
-# 复制依赖文件
+# 复制 package 文件
 COPY package.json pnpm-lock.yaml ./
 
-# 配置国内 npm 镜像源（直接写配置文件，避免网络请求）
-RUN echo "registry=https://registry.npmmirror.com/" > /root/.npmrc
+# 安装依赖
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
-# 安装依赖（利用构建缓存，使用代理访问镜像源）
-RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
-    HTTP_PROXY=${http_proxy} HTTPS_PROXY=${https_proxy} \
-    pnpm install --frozen-lockfile --prod=false
+# ─── Stage 2: 构建项目 ───
+FROM node:24-bookworm-slim AS builder
 
-# ============================================================
-# Stage 2: 构建应用
-# ============================================================
-FROM deps AS builder
-
-# 代理配置
-ARG http_proxy
-ARG https_proxy
+RUN echo "registry=https://registry.npmmirror.com/" > /root/.npmrc && \
+    corepack enable && \
+    corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
-# 复制源码
+# 复制依赖
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# 构建 Next.js（使用代理）
-RUN HTTP_PROXY=${http_proxy} HTTPS_PROXY=${https_proxy} pnpm run build
+# 设置环境变量
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
 
-# 打包迁移脚本
-RUN pnpm tsup src/server.ts --format cjs --platform node --target node20 --outDir dist --no-splitting --no-minify
+# 构建 Next.js
+RUN corepack enable && pnpm run build
 
-# ============================================================
-# Stage 3: 生产运行
-# ============================================================
-FROM ${NODE_IMAGE} AS runner
+# 导出 standalone 版本
+RUN cp -r public .next/standalone/ && \
+    cp -r .next/static .next/standalone/.next/
 
-# 时区设置
-ENV TZ=Asia/Shanghai
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-# node 用户已在基础镜像中存在，直接使用
+# ─── Stage 3: 生产镜像 ───
+FROM node:24-bookworm-slim AS runner
 
 WORKDIR /app
 
-# 安装 curl（健康检查）和 dumb-init（信号处理）
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl dumb-init && \
+# 设置环境变量
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=5000
+ENV HOSTNAME="0.0.0.0"
+
+# 安装 curl 用于健康检查
+RUN apt-get update && apt-get install -y curl && \
     rm -rf /var/lib/apt/lists/*
 
 # 复制 standalone 产物
-COPY --from=builder --chown=node:node /app/.next/standalone ./
-COPY --from=builder --chown=node:node /app/.next/static ./.next/static
-COPY --from=builder --chown=node:node /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
 
-# 复制迁移工具
-COPY --from=builder --chown=node:node /app/dist ./dist
-COPY --from=builder --chown=node:node /app/migrations ./migrations
-COPY --from=builder --chown=node:node /app/drizzle ./drizzle
+# 复制迁移相关文件
+COPY --from=builder /app/drizzle ./drizzle
+COPY --from=builder /app/migrations ./migrations
 
-# 安装数据库迁移依赖
-RUN npm install --no-save pg
+# 安装迁移工具（pg 用于执行 SQL）
+RUN mkdir -p /app/migrations-tool && \
+    cd /app/migrations-tool && \
+    echo '{"name":"migrate","private":true}' > package.json && \
+    echo "registry=https://registry.npmmirror.com/" > .npmrc && \
+    npm install pg --save
 
-# 复制入口脚本
-COPY --chown=node:node docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+# 复制迁移执行脚本
+COPY --from=builder /app/migrate.js ./migrations/migrate.js
 
-# 切换到非 root 用户
-USER node
-
-# 环境变量
-ENV NODE_ENV=production
-ENV PORT=5000
-ENV HOSTNAME="0.0.0.0"
+# 暴露端口
+EXPOSE 5000
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:5000/api/health || exit 1
 
-EXPOSE 5000
-
-ENTRYPOINT ["docker-entrypoint.sh"]
+# 启动命令
+CMD ["node", "server.js"]
