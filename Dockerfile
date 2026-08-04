@@ -10,17 +10,6 @@ ARG BUILD_DATE
 ARG GIT_COMMIT
 ARG DEPLOY_REGION=auto
 
-# ─── OCI 标准标签 ───
-LABEL org.opencontainers.image.title="${PROJECT_NAME}"
-LABEL org.opencontainers.image.description="Lionet Rides B2B Amusement Equipment Website"
-LABEL org.opencontainers.image.version="${PROJECT_VERSION}"
-LABEL org.opencontainers.image.authors="Lionet Rides"
-LABEL org.opencontainers.image.source="https://github.com/btrobot/lionetrides"
-LABEL org.opencontainers.image.vendor="Lionet Rides"
-LABEL org.opencontainers.image.licenses="Proprietary"
-LABEL org.opencontainers.image.created="${BUILD_DATE}"
-LABEL org.opencontainers.image.revision="${GIT_COMMIT}"
-
 # ============================================
 # 阶段 1: 安装依赖
 # ============================================
@@ -70,6 +59,24 @@ RUN tar cf /tmp/dist.tar dist
 # 阶段 3: 运行环境
 # ============================================
 FROM node:24-bookworm-slim AS runner
+
+# 重新声明 ARG（每个阶段独立作用域）
+ARG PROJECT_NAME
+ARG PROJECT_VERSION
+ARG BUILD_DATE
+ARG GIT_COMMIT
+
+# OCI 标准标签
+LABEL org.opencontainers.image.title="${PROJECT_NAME}"
+LABEL org.opencontainers.image.description="Lionet Rides B2B Amusement Equipment Website"
+LABEL org.opencontainers.image.version="${PROJECT_VERSION}"
+LABEL org.opencontainers.image.authors="Lionet Rides"
+LABEL org.opencontainers.image.source="https://github.com/btrobot/lionetrides"
+LABEL org.opencontainers.image.vendor="Lionet Rides"
+LABEL org.opencontainers.image.licenses="Proprietary"
+LABEL org.opencontainers.image.created="${BUILD_DATE}"
+LABEL org.opencontainers.image.revision="${GIT_COMMIT}"
+
 WORKDIR /app
 
 # 安装 PostgreSQL + curl（健康检查用）
