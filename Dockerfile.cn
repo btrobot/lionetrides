@@ -52,8 +52,7 @@ FROM ${NODE_IMAGE} AS runner
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# 创建非 root 用户
-RUN groupadd -r node && useradd -r -g node -G node node
+# node 用户已在基础镜像中存在，直接使用
 
 WORKDIR /app
 
