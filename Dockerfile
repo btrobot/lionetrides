@@ -1,6 +1,6 @@
 # ============================================
 # Dockerfile — Lionet Rides B2B Website
-# Next.js + PostgreSQL (embedded)
+# Next.js (应用容器，数据库独立部署)
 # ============================================
 
 # ─── 构建参数 ───
@@ -79,19 +79,12 @@ LABEL org.opencontainers.image.revision="${GIT_COMMIT}"
 
 WORKDIR /app
 
-# 安装 PostgreSQL + curl（健康检查用）
+# 安装 curl（健康检查用）
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-      postgresql-15 \
-      postgresql-client-15 \
-      curl && \
+    apt-get install -y --no-install-recommends curl && \
     rm -rf /var/lib/apt/lists/*
 
-# PostgreSQL 配置：端口 5433（避免与宿主机 5432 冲突）
-RUN echo "port = 5433" >> /etc/postgresql/17/main/postgresql.conf
-
-# 环境变量（单一定义，其他脚本引用）
-ENV PGPORT=5433
+# 环境变量
 ENV NODE_ENV=production
 ENV PORT=5000
 

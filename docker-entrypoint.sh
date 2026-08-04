@@ -3,28 +3,17 @@ set -euo pipefail
 
 # ============================================
 # Lionet Rides — Docker Entrypoint
-# 启动 PostgreSQL → 初始化 → 非 root 运行应用
+# 启动 Node.js 应用（数据库独立部署）
 # ============================================
 
-# ─── 启动 PostgreSQL ───
-echo "Starting PostgreSQL..."
-PG_VER=$(ls /etc/postgresql/ | head -1)
-su - postgres -c "pg_ctlcluster ${PG_VER} main start"
+# ─── 检查数据库环境变量 ───
+if [ -z "${PGHOST:-}" ]; then
+  echo "ERROR: PGHOST environment variable is required" >&2
+  echo "Example: PGHOST=db.example.com PGPORT=5432 PGUSER=ridex PGPASSWORD=secret PGDATABASE=ridex_db" >&2
+  exit 1
+fi
 
-# ─── 等待 PostgreSQL 就绪 ───
-echo "Waiting for PostgreSQL (port ${PGPORT:-5433})..."
-for i in $(seq 1 30); do
-  if su - postgres -c "pg_isready -p ${PGPORT:-5433}" >/dev/null 2>&1; then
-    echo "PostgreSQL is ready"
-    break
-  fi
-  echo "Waiting... ($i/30)"
-  sleep 1
-done
-
-# ─── 初始化数据库（幂等） ───
-echo "Initializing database..."
-su - postgres -c "createdb lionetrides" 2>/dev/null || echo "Database already exists"
+echo "Database: ${PGUSER:-ridex}@${PGHOST}:${PGPORT:-5432}/${PGDATABASE:-ridex_db}"
 
 # ─── 启动应用（非 root 用户） ───
 echo "Starting application on port ${PORT:-5000}..."

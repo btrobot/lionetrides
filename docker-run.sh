@@ -8,7 +8,6 @@ set -euo pipefail
 
 # ─── 默认值 ───
 APP_PORT=5000
-PG_PORT=5433
 CONTAINER_NAME="lionetrides-container"
 IMAGE_NAME="lionetrides:latest"
 ENV_FILE=""
@@ -22,6 +21,13 @@ while [ $# -gt 0 ]; do
     --env-file)   ENV_FILE="$2"; shift 2 ;;
     --help)
       echo "用法: $0 [--port 5000] [--env-file .env]"
+      echo ""
+      echo "环境变量（必须通过 --env-file 或 .env.local 提供）:"
+      echo "  PGHOST      数据库主机（必需）"
+      echo "  PGPORT      数据库端口（默认 5432）"
+      echo "  PGUSER      数据库用户"
+      echo "  PGPASSWORD  数据库密码"
+      echo "  PGDATABASE  数据库名"
       exit 0
       ;;
     *)
@@ -67,7 +73,6 @@ echo "========================================" >&2
 echo "Image:     ${IMAGE_NAME}" >&2
 echo "Container: ${CONTAINER_NAME}" >&2
 echo "App Port:  ${APP_PORT}" >&2
-echo "PG Port:   ${PG_PORT}" >&2
 echo "Env File:  ${ENV_FILE:-none}" >&2
 echo "========================================" >&2
 
@@ -76,7 +81,6 @@ RUN_ARGS=(
   --name "${CONTAINER_NAME}"
   --restart unless-stopped
   -p "${APP_PORT}:5000"
-  -p "127.0.0.1:${PG_PORT}:${PG_PORT}"
   -e "PORT=5000"
   -e "PGPORT=${PG_PORT}"
 )
