@@ -107,6 +107,10 @@ jobs:
 
             # 清理旧镜像
             echo "清理旧镜像..."
+            # 执行种子数据（首次部署时）
+            echo "=== 检查种子数据 ==="
+            docker exec ${CONTAINER_NAME} node /app/migrations/seed.js 2>&1 || echo "⚠ 种子执行失败（非致命，可稍后手动执行）"
+
             docker image prune -f
 
             echo "=== 部署测试成功 ==="
